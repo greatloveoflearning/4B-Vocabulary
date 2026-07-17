@@ -12,10 +12,31 @@
   <nav class="mode-tabs" role="tablist">
     <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 Flashcards</button>
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
+    <button class="mode-tab" data-mode="report" role="tab" aria-selected="false">📊 Report</button>
   </nav>
+  <div class="account-widget">
+    <button id="account-btn" class="ghost-btn" type="button">Sign in</button>
+    <div class="account-panel" id="account-panel" hidden>
+      <div class="account-tabs" id="account-tabs">
+        <button type="button" class="account-tab active" data-auth-mode="login">Log in</button>
+        <button type="button" class="account-tab" data-auth-mode="signup">Sign up</button>
+      </div>
+      <form id="auth-form">
+        <input type="text" id="auth-name" placeholder="Display name" autocomplete="nickname" hidden>
+        <input type="email" id="auth-email" placeholder="Email" autocomplete="email" required>
+        <input type="password" id="auth-password" placeholder="Password (6+ characters)" autocomplete="current-password" required minlength="6">
+        <button type="submit" id="auth-submit">Log in</button>
+      </form>
+      <div class="account-profile" id="account-profile" hidden>
+        <p id="account-profile-name"></p>
+        <button type="button" id="logout-btn" class="ghost-btn">Log out</button>
+      </div>
+      <p class="account-error" id="account-error" hidden></p>
+    </div>
+  </div>
 </header>
 
-<div class="toolbar">
+<div class="toolbar" id="toolbar">
   <div class="toolbar-group">
     <label for="set-select">Lesson</label>
     <select id="set-select"></select>
@@ -110,13 +131,66 @@
       <button id="match-again-btn">Play Again</button>
     </div>
   </section>
+
+  <section id="report-view" hidden>
+    <div class="report-signed-out" id="report-signed-out">
+      <p>Sign in to track your progress and see the leaderboard.</p>
+      <button type="button" id="report-signin-btn" class="ghost-btn">Sign in</button>
+    </div>
+
+    <div class="report-content" id="report-content" hidden>
+      <div class="report-stats" id="report-stats"></div>
+
+      <div class="report-block">
+        <h2>Progress by lesson</h2>
+        <div class="report-table-wrap">
+          <table class="report-table" id="report-lesson-table">
+            <thead>
+              <tr><th>Lesson</th><th>Mastered</th><th>Total</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h2>Recent activity</h2>
+        <div class="report-table-wrap">
+          <table class="report-table" id="report-activity-table">
+            <thead>
+              <tr><th>When</th><th>What</th><th>Lesson</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h2>Leaderboard</h2>
+        <div class="report-table-wrap">
+          <table class="report-table" id="report-leaderboard-table">
+            <thead>
+              <tr><th>Rank</th><th>Member</th><th>Mastered</th><th>Match pts</th><th>Score</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
   <p id="footer-hint">Tip: use ← / → to navigate, Space or click the card to flip, Delete to eliminate.</p>
 </footer>
 
+<script src="assets/vendor/firebase-vendor.js"></script>
+<script src="assets/firebase-config.js"></script>
+<script src="assets/firebase-init.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/activity.js"></script>
 <script src="assets/vocab.js"></script>
 <script src="assets/app.js"></script>
+<script src="assets/report.js"></script>
 </body>
 </html>

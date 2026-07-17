@@ -255,6 +255,7 @@
     eliminated.add(currentCard.id);
     saveEliminated();
     playEliminateSound();
+    if (window.vocabActivity) window.vocabActivity.recordEliminate(currentCard);
     els.card.classList.add("eliminating");
     setTimeout(() => {
       els.card.classList.remove("eliminating");
@@ -430,6 +431,9 @@
     stopMatchTimer();
     els.matchFinalTime.textContent = els.matchTimer.textContent;
     els.matchComplete.hidden = false;
+    const pairs = matchTiles.length / 2;
+    const seconds = Math.max(1, Math.round((Date.now() - matchStartTime) / 1000));
+    if (window.vocabActivity) window.vocabActivity.recordMatchComplete(els.setSelect.value, pairs, seconds);
   }
 
   els.newGameBtn.addEventListener("click", startMatchGame);
@@ -437,6 +441,9 @@
   els.matchPairsSelect.addEventListener("change", startMatchGame);
 
   // ---------- mode tabs ----------
+
+  const toolbar = document.getElementById("toolbar");
+  const reportView = document.getElementById("report-view");
 
   els.modeTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -446,19 +453,20 @@
         t.setAttribute("aria-selected", String(t === tab));
       });
 
-      if (mode === "study") {
-        els.studyView.hidden = false;
-        els.matchView.hidden = true;
-        els.studyControls.hidden = false;
-        els.matchControls.hidden = true;
-        stopMatchTimer();
-      } else {
-        els.studyView.hidden = true;
-        els.matchView.hidden = false;
-        els.studyControls.hidden = true;
-        els.matchControls.hidden = false;
+      els.studyView.hidden = mode !== "study";
+      els.matchView.hidden = mode !== "match";
+      reportView.hidden = mode !== "report";
+      toolbar.hidden = mode === "report";
+      els.studyControls.hidden = mode !== "study";
+      els.matchControls.hidden = mode !== "match";
+
+      if (mode === "match") {
         startMatchGame();
+      } else {
+        stopMatchTimer();
       }
+
+      if (mode === "report" && window.vocabReport) window.vocabReport.refresh();
     });
   });
 
