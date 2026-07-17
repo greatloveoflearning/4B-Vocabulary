@@ -16,10 +16,14 @@
     sdk.setDoc(sdk.doc(db, "lessonStats", String(lesson)), { learners: sdk.arrayUnion(uid) }, { merge: true });
   }
 
+  function lessonKey(lesson) {
+    return lesson === "all" ? "all" : Number(lesson);
+  }
+
   async function updateLessonMatchBest(lesson, uid, displayName, pairs, seconds) {
-    if (lesson === "all") return null;
+    const key = lessonKey(lesson);
     const secondsPerPair = seconds / pairs;
-    const ref = sdk.doc(db, "lessonMatchBest", `${lesson}_${uid}`);
+    const ref = sdk.doc(db, "lessonMatchBest", `${key}_${uid}`);
     let completions = 1;
     try {
       await sdk.runTransaction(db, async (tx) => {
@@ -32,7 +36,7 @@
           {
             uid,
             displayName,
-            lesson: Number(lesson),
+            lesson: key,
             completions,
             ...(isNewBest ? { bestSeconds: seconds, bestPairs: pairs, secondsPerPair } : {}),
             updatedAt: sdk.serverTimestamp(),
@@ -95,11 +99,10 @@
   }
 
   async function getLessonMatchStanding(lesson, uid) {
-    if (lesson === "all") return null;
     try {
       const q = sdk.query(
         sdk.collection(db, "lessonMatchBest"),
-        sdk.where("lesson", "==", Number(lesson)),
+        sdk.where("lesson", "==", lessonKey(lesson)),
         sdk.orderBy("secondsPerPair", "asc")
       );
       const snap = await sdk.getDocs(q);
