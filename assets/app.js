@@ -11,7 +11,7 @@
     shuffleBtn: document.getElementById("shuffle-btn"),
     card: document.getElementById("card"),
     frontHanzi: document.getElementById("front-hanzi"),
-    frontPinyin: document.getElementById("front-pinyin"),
+    backPinyin: document.getElementById("back-pinyin"),
     backMeaning: document.getElementById("back-meaning"),
     backExample: document.getElementById("back-example"),
     prevBtn: document.getElementById("prev-btn"),
@@ -54,7 +54,7 @@
     if (currentSetCards.length === 0) return;
     const c = currentSetCards[index];
     els.frontHanzi.textContent = c.hanzi;
-    els.frontPinyin.textContent = c.pinyin;
+    els.backPinyin.textContent = c.pinyin;
     els.backMeaning.textContent = c.meaning;
     els.backExample.textContent = c.example_en;
 
@@ -112,15 +112,7 @@
     }
   });
 
-  fetch("assets/vocab.json")
-    .then((r) => r.json())
-    .then((data) => {
-      allCards = data;
-      buildSetOptions();
-      loadSet("all");
-    })
-    .catch((err) => {
-      els.frontHanzi.textContent = "Failed to load data";
-      console.error(err);
-    });
+  allCards = window.VOCAB_DATA || [];
+  buildSetOptions();
+  loadSet("all");
 })();
