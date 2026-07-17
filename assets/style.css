@@ -75,14 +75,69 @@ button:hover, select:hover {
   border-color: var(--accent);
 }
 
-#shuffle-btn, #flip-btn {
+#flip-btn {
   background: var(--accent);
   color: white;
   border: none;
 }
 
-#shuffle-btn:hover, #flip-btn:hover {
+#flip-btn:hover {
   opacity: 0.9;
+}
+
+.switch {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+.switch input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-track {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--border);
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--surface);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s ease;
+}
+
+.switch input:checked + .switch-track {
+  background: var(--accent);
+}
+
+.switch input:checked + .switch-track .switch-thumb {
+  transform: translateX(16px);
+}
+
+.switch input:focus-visible + .switch-track {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.switch-label {
+  font-size: 0.85rem;
+  color: var(--muted);
 }
 
 main {
@@ -140,7 +195,7 @@ main {
 
 .card {
   flex: 1;
-  height: 320px;
+  height: 380px;
   perspective: 1200px;
   cursor: pointer;
   outline: none;
@@ -206,15 +261,30 @@ main {
 }
 
 .meaning {
-  font-size: 1.4rem;
+  font-size: 1.35rem;
   font-weight: 600;
   max-width: 26rem;
 }
 
-.example {
-  font-size: 1rem;
-  color: var(--muted);
+.example-block {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
   max-width: 26rem;
+  margin-top: 0.25rem;
+}
+
+.example {
+  font-size: 0.95rem;
+  max-width: 26rem;
+}
+
+.example-cn {
+  color: var(--text);
+}
+
+.example-en {
+  color: var(--muted);
   font-style: italic;
 }
 
@@ -237,7 +307,8 @@ footer {
 }
 
 @media (max-width: 480px) {
-  .card { height: 280px; }
+  .card { height: 400px; }
   .hanzi { font-size: 2.25rem; }
   .meaning { font-size: 1.15rem; }
+  .example { font-size: 0.85rem; }
 }

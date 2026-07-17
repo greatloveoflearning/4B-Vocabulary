@@ -5,15 +5,17 @@
   let currentSetCards = [];
   let index = 0;
   let flipped = false;
+  let shuffleMode = false;
 
   const els = {
     setSelect: document.getElementById("set-select"),
-    shuffleBtn: document.getElementById("shuffle-btn"),
+    shuffleToggle: document.getElementById("shuffle-toggle"),
     card: document.getElementById("card"),
     frontHanzi: document.getElementById("front-hanzi"),
     backPinyin: document.getElementById("back-pinyin"),
     backMeaning: document.getElementById("back-meaning"),
-    backExample: document.getElementById("back-example"),
+    backExampleCn: document.getElementById("back-example-cn"),
+    backExampleEn: document.getElementById("back-example-en"),
     prevBtn: document.getElementById("prev-btn"),
     nextBtn: document.getElementById("next-btn"),
     flipBtn: document.getElementById("flip-btn"),
@@ -23,28 +25,35 @@
   };
 
   function buildSetOptions() {
-    const pages = Array.from(new Set(allCards.map((c) => c.page))).sort((a, b) => a - b);
+    const lessons = Array.from(new Set(allCards.map((c) => c.lesson))).sort((a, b) => a - b);
     const allOption = document.createElement("option");
     allOption.value = "all";
-    allOption.textContent = `All pages (${allCards.length} cards)`;
+    allOption.textContent = `All lessons (${allCards.length} cards)`;
     els.setSelect.appendChild(allOption);
 
-    pages.forEach((p) => {
-      const count = allCards.filter((c) => c.page === p).length;
+    lessons.forEach((lesson) => {
+      const count = allCards.filter((c) => c.lesson === lesson).length;
       const opt = document.createElement("option");
-      opt.value = String(p);
-      opt.textContent = `Page ${p} (${count} cards)`;
+      opt.value = String(lesson);
+      opt.textContent = `Lesson ${lesson} (${count} cards)`;
       els.setSelect.appendChild(opt);
     });
   }
 
-  function loadSet(value) {
-    if (value === "all") {
-      currentSetCards = allCards.slice();
-    } else {
-      const page = Number(value);
-      currentSetCards = allCards.filter((c) => c.page === page);
+  function shuffleArray(arr) {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
+    return arr;
+  }
+
+  function loadSet(value) {
+    const base =
+      value === "all"
+        ? allCards.slice()
+        : allCards.filter((c) => c.lesson === Number(value));
+    currentSetCards = shuffleMode ? shuffleArray(base) : base;
     index = 0;
     flipped = false;
     render();
@@ -56,7 +65,8 @@
     els.frontHanzi.textContent = c.hanzi;
     els.backPinyin.textContent = c.pinyin;
     els.backMeaning.textContent = c.meaning;
-    els.backExample.textContent = c.example_en;
+    els.backExampleCn.textContent = c.example_cn;
+    els.backExampleEn.textContent = c.example_en;
 
     els.card.classList.toggle("flipped", flipped);
 
@@ -86,22 +96,15 @@
     render();
   }
 
-  function shuffle() {
-    for (let i = currentSetCards.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [currentSetCards[i], currentSetCards[j]] = [currentSetCards[j], currentSetCards[i]];
-    }
-    index = 0;
-    flipped = false;
-    render();
-  }
-
   els.card.addEventListener("click", flip);
   els.flipBtn.addEventListener("click", flip);
   els.nextBtn.addEventListener("click", next);
   els.prevBtn.addEventListener("click", prev);
-  els.shuffleBtn.addEventListener("click", shuffle);
   els.setSelect.addEventListener("change", (e) => loadSet(e.target.value));
+  els.shuffleToggle.addEventListener("change", (e) => {
+    shuffleMode = e.target.checked;
+    loadSet(els.setSelect.value);
+  });
 
   document.addEventListener("keydown", (e) => {
     if (e.key === "ArrowRight") next();

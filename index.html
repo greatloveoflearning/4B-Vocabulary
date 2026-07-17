@@ -10,9 +10,13 @@
 <header class="topbar">
   <h1>4B Vocabulary Study Set</h1>
   <div class="controls">
-    <label for="set-select">Set</label>
+    <label for="set-select">Lesson</label>
     <select id="set-select"></select>
-    <button id="shuffle-btn" title="Shuffle cards">Shuffle</button>
+    <label class="switch">
+      <input type="checkbox" id="shuffle-toggle">
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+      <span class="switch-label">Shuffled mode</span>
+    </label>
   </div>
 </header>
 
@@ -36,7 +40,10 @@
           <div class="face-label">Explanation</div>
           <div id="back-pinyin" class="pinyin"></div>
           <div id="back-meaning" class="meaning"></div>
-          <div id="back-example" class="example"></div>
+          <div class="example-block">
+            <div id="back-example-cn" class="example example-cn"></div>
+            <div id="back-example-en" class="example example-en"></div>
+          </div>
         </div>
       </div>
     </div>
