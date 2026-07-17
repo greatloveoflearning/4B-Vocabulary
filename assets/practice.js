@@ -61,7 +61,7 @@
   // ---------- state ----------
 
   let lesson = "all";
-  let questionType = "mixed";
+  let questionType = "1";
   let targetCount = 20;
   let correctCount = 0;
   let wrongCount = 0;
