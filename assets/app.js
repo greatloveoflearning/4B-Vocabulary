@@ -145,7 +145,7 @@
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
-    utter.rate = lang.startsWith("zh") ? 0.9 : 1;
+    utter.rate = lang.startsWith("zh") ? 0.63 : 1;
     window.speechSynthesis.speak(utter);
   }
 
