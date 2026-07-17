@@ -81,7 +81,7 @@ service cloud.firestore {
         allow read: if isSignedIn();
         allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.score == 0;
         allow update: if isSignedIn() && request.auth.uid == uid &&
-          request.resource.data.diff(resource.data).affectedKeys().hasOnly(["score", "answered", "lastAnswerAt"]);
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(["score", "answered", "lastAnswerAt", "answerLog"]);
         allow delete: if isSignedIn() && request.auth.uid == uid;
       }
     }

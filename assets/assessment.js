@@ -49,6 +49,10 @@
     resultsBody: document.querySelector("#results-table tbody"),
     hostAgainBtn: document.getElementById("host-again-btn"),
     resultsLeaveBtn: document.getElementById("results-leave-btn"),
+
+    answerReportPlayerSelect: document.getElementById("answer-report-player-select"),
+    answerReportSummary: document.getElementById("answer-report-summary"),
+    answerReportBody: document.querySelector("#answer-report-table tbody"),
   };
 
   const views = [els.signedOut, els.home, els.hostSetup, els.lobby, els.running, els.results];
@@ -366,27 +370,36 @@
     e.preventDefault();
     if (!isPlaying || !currentQuestion || hasEnded) return;
     const guess = els.answerInput.value.trim();
-    const correct = guess === currentQuestion.card.hanzi;
+    const { card, type } = currentQuestion;
+    const correct = guess === card.hanzi;
 
     if (correct) {
       window.vocabAudio.playCorrectSound();
       els.answerFeedback.textContent = "✅ Correct!";
       els.answerFeedback.className = "answer-feedback correct";
-      bumpScore(1);
     } else {
       window.vocabAudio.playWrongSound();
-      els.answerFeedback.textContent = `❌ Answer: ${currentQuestion.card.hanzi}`;
+      els.answerFeedback.textContent = `❌ Answer: ${card.hanzi}`;
       els.answerFeedback.className = "answer-feedback wrong";
-      bumpScore(0);
     }
     els.answerFeedback.hidden = false;
+    recordAnswer(correct ? 1 : 0, {
+      cardId: card.id,
+      hanzi: card.hanzi,
+      meaning: card.meaning,
+      exampleCn: card.example_cn || "",
+      exampleEn: card.example_en || "",
+      type,
+      guess,
+      correct,
+    });
     setTimeout(() => {
       if (!hasEnded) renderQuestion();
     }, 500);
   });
 
   let localScore = 0;
-  function bumpScore(delta) {
+  function recordAnswer(delta, entry) {
     localScore += delta;
     els.runningScore.textContent = `Score: ${localScore}`;
     const user = window.vocabAuth.getUser();
@@ -396,6 +409,7 @@
         score: sdk.increment(delta),
         answered: sdk.increment(1),
         lastAnswerAt: sdk.serverTimestamp(),
+        answerLog: sdk.arrayUnion(entry),
       })
       .catch(() => {});
   }
@@ -503,6 +517,7 @@
 
     renderPodium(players);
     renderResultsTable(players);
+    renderAnswerReportOptions(players);
 
     const user = window.vocabAuth.getUser();
     const me = user && players.find((p) => p.uid === user.uid);
@@ -555,6 +570,70 @@
       els.resultsBody.innerHTML = `<tr><td colspan="3">No players.</td></tr>`;
     }
   }
+
+  let reportPlayers = [];
+
+  function renderAnswerReportOptions(players) {
+    reportPlayers = players;
+    const user = window.vocabAuth.getUser();
+    els.answerReportPlayerSelect.innerHTML = "";
+
+    if (players.length === 0) {
+      els.answerReportSummary.textContent = "No players.";
+      els.answerReportBody.innerHTML = "";
+      return;
+    }
+
+    players.forEach((p) => {
+      const opt = document.createElement("option");
+      opt.value = p.uid;
+      opt.textContent = p.displayName;
+      els.answerReportPlayerSelect.appendChild(opt);
+    });
+
+    const defaultUid = user && players.some((p) => p.uid === user.uid) ? user.uid : players[0].uid;
+    els.answerReportPlayerSelect.value = defaultUid;
+    renderAnswerReport(defaultUid);
+  }
+
+  function questionLabel(entry) {
+    if (entry.type === "1") return entry.hanzi;
+    const blanked =
+      entry.exampleCn && entry.exampleCn.includes(entry.hanzi)
+        ? entry.exampleCn.replace(entry.hanzi, "（　）")
+        : `（　）${entry.exampleCn || ""}`;
+    return `${entry.meaning} — ${blanked}`;
+  }
+
+  function renderAnswerReport(uid) {
+    const player = reportPlayers.find((p) => p.uid === uid);
+    els.answerReportBody.innerHTML = "";
+    if (!player) {
+      els.answerReportSummary.textContent = "";
+      return;
+    }
+    const log = player.answerLog || [];
+    const correctCount = log.filter((a) => a.correct).length;
+    const wrongEntries = log.filter((a) => !a.correct);
+    els.answerReportSummary.textContent =
+      log.length === 0
+        ? `${player.displayName} didn't answer any questions this round.`
+        : `${player.displayName}: ✅ ${correctCount} correct · ❌ ${wrongEntries.length} wrong`;
+
+    if (wrongEntries.length === 0) {
+      els.answerReportBody.innerHTML = log.length
+        ? `<tr><td colspan="3">Perfect round — no mistakes! 🎉</td></tr>`
+        : "";
+      return;
+    }
+    wrongEntries.forEach((entry) => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${questionLabel(entry)}</td><td>${entry.guess || "(blank)"}</td><td>${entry.hanzi}</td>`;
+      els.answerReportBody.appendChild(tr);
+    });
+  }
+
+  els.answerReportPlayerSelect.addEventListener("change", (e) => renderAnswerReport(e.target.value));
 
   els.hostAgainBtn.addEventListener("click", async () => {
     await leaveSession();
