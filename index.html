@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>4B Vocabulary Study Set</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<header class="topbar">
+  <h1>4B Vocabulary Study Set</h1>
+  <div class="controls">
+    <label for="set-select">Set</label>
+    <select id="set-select"></select>
+    <button id="shuffle-btn" title="Shuffle cards">Shuffle</button>
+  </div>
+</header>
+
+<main>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div id="progress-fill"></div></div>
+    <span id="progress-label">0 / 0</span>
+  </div>
+
+  <div class="stage">
+    <button class="nav-btn" id="prev-btn" aria-label="Previous card">&#8249;</button>
+
+    <div id="card" class="card" tabindex="0">
+      <div class="card-inner">
+        <div class="card-face card-front">
+          <div class="face-label">Term</div>
+          <div id="front-hanzi" class="hanzi"></div>
+          <div id="front-pinyin" class="pinyin"></div>
+          <div class="hint">Click or press Space to flip</div>
+        </div>
+        <div class="card-face card-back">
+          <div class="face-label">Explanation</div>
+          <div id="back-meaning" class="meaning"></div>
+          <div id="back-example" class="example"></div>
+        </div>
+      </div>
+    </div>
+
+    <button class="nav-btn" id="next-btn" aria-label="Next card">&#8250;</button>
+  </div>
+
+  <div class="bottom-controls">
+    <button id="flip-btn">Flip Card</button>
+    <span id="card-index-label"></span>
+  </div>
+</main>
+
+<footer>
+  <p>Tip: use ← / → to navigate, Space or click the card to flip.</p>
+</footer>
+
+<script src="assets/app.js"></script>
+</body>
+</html>
