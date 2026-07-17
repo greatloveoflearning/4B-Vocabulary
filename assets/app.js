@@ -526,7 +526,13 @@
       els.studyControls.hidden = mode !== "study";
       els.matchControls.hidden = mode !== "match";
 
-      if (mode === "match") {
+      if (mode === "study") {
+        els.setSelect.value = "all";
+        shuffleMode = false;
+        els.shuffleToggle.checked = false;
+        loadSet("all");
+      } else if (mode === "match") {
+        els.setSelect.value = "all";
         startMatchGame();
       } else {
         stopMatchTimer();
@@ -534,7 +540,7 @@
 
       if (mode === "report" && window.vocabReport) window.vocabReport.refresh();
       if (mode === "assessment" && window.vocabAssessment) window.vocabAssessment.onTabShown();
-      if (mode === "practice" && window.vocabPractice) window.vocabPractice.onTabShown();
+      if (mode === "practice" && window.vocabPractice) window.vocabPractice.onTabShown(true);
     });
   });
 
