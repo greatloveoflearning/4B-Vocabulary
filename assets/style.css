@@ -675,6 +675,45 @@ main {
   margin: 0 0 0.75rem;
 }
 
+.report-block-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.report-block-header h2 {
+  margin: 0;
+}
+
+.report-block-header select {
+  font-size: 0.85rem;
+  padding: 0.35rem 0.6rem;
+}
+
+.report-block-note {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: -0.4rem 0 0.75rem;
+}
+
+.host-toggle-btn {
+  font-size: 0.8rem;
+  padding: 0.3rem 0.7rem;
+}
+
+.host-toggle-btn.is-on {
+  background: var(--accent);
+  color: white;
+  border-color: var(--accent);
+}
+
+.footer-stats {
+  margin-top: 0.35rem;
+  font-size: 0.75rem;
+}
+
 .report-table-wrap {
   background: var(--surface);
   border-radius: 12px;

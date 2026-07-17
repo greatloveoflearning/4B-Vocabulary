@@ -8,9 +8,14 @@
     signinBtn: document.getElementById("report-signin-btn"),
     content: document.getElementById("report-content"),
     stats: document.getElementById("report-stats"),
+    adminBlock: document.getElementById("admin-block"),
+    adminMembersBody: document.querySelector("#admin-members-table tbody"),
     lessonTableBody: document.querySelector("#report-lesson-table tbody"),
+    matchLessonSelect: document.getElementById("report-match-lesson-select"),
+    matchLeaderboardBody: document.querySelector("#report-match-leaderboard-table tbody"),
     activityTableBody: document.querySelector("#report-activity-table tbody"),
     leaderboardTableBody: document.querySelector("#report-leaderboard-table tbody"),
+    footerStats: document.getElementById("footer-stats"),
   };
 
   els.signinBtn.addEventListener("click", () => {
@@ -28,17 +33,53 @@
     });
   }
 
+  function formatSeconds(secs) {
+    const mm = String(Math.floor(secs / 60)).padStart(2, "0");
+    const ss = String(Math.round(secs % 60)).padStart(2, "0");
+    return `${mm}:${ss}`;
+  }
+
   function activityLabel(event) {
     if (event.type === "eliminate") return `💥 Mastered ${event.hanzi || ""}`;
     if (event.type === "match_complete") return `🧩 Match: ${event.pairs} pairs in ${event.seconds}s (+${event.points} pts)`;
     return event.type;
   }
 
-  function renderStats(score) {
+  async function loadGlobalStats() {
+    try {
+      const snap = await sdk.getDoc(sdk.doc(db, "stats", "global"));
+      const total = snap.exists() ? snap.data().totalMembers || 0 : 0;
+      els.footerStats.textContent = `🎓 ${total} member${total === 1 ? "" : "s"} ${total === 1 ? "has" : "have"} used this site`;
+    } catch (e) {
+      els.footerStats.textContent = "";
+    }
+  }
+
+  async function scoreGainSince(uid, since) {
+    try {
+      const q = sdk.query(
+        sdk.collection(db, "activity"),
+        sdk.where("uid", "==", uid),
+        sdk.where("createdAt", ">=", since)
+      );
+      const snap = await sdk.getDocs(q);
+      let sum = 0;
+      snap.forEach((docSnap) => {
+        sum += docSnap.data().points || 0;
+      });
+      return sum;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  function renderStats(score, gain7, gain30) {
     const tiles = [
       { label: "Mastered words", value: score.masteredCount || 0 },
       { label: "Match points", value: score.matchPoints || 0 },
       { label: "Total score", value: score.totalScore || 0 },
+      { label: "Score / 7 days", value: gain7 == null ? "–" : `+${gain7}` },
+      { label: "Score / 30 days", value: gain30 == null ? "–" : `+${gain30}` },
     ];
     els.stats.innerHTML = "";
     tiles.forEach((t) => {
@@ -49,19 +90,82 @@
     });
   }
 
-  function renderLessonBreakdown(masteredIds) {
-    const allCards = (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
-    const lessons = Array.from(new Set(allCards.map((c) => c.lesson))).sort((a, b) => a - b);
+  function getAllCards() {
+    return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
+  }
+
+  function getLessons() {
+    return Array.from(new Set(getAllCards().map((c) => c.lesson))).sort((a, b) => a - b);
+  }
+
+  async function renderLessonBreakdown(masteredIds) {
+    const allCards = getAllCards();
+    const lessons = getLessons();
     const masteredSet = new Set(masteredIds || []);
 
     els.lessonTableBody.innerHTML = "";
-    lessons.forEach((lesson) => {
+    for (const lesson of lessons) {
       const cards = allCards.filter((c) => c.lesson === lesson);
       const mastered = cards.filter((c) => masteredSet.has(c.id)).length;
+      let learners = "–";
+      try {
+        const snap = await sdk.getDoc(sdk.doc(db, "lessonStats", String(lesson)));
+        learners = snap.exists() ? (snap.data().learners || []).length : 0;
+      } catch (e) {
+        /* leave as – */
+      }
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>Lesson ${lesson}</td><td>${mastered}</td><td>${cards.length}</td>`;
+      tr.innerHTML = `<td>Lesson ${lesson}</td><td>${mastered}</td><td>${cards.length}</td><td>${learners}</td>`;
       els.lessonTableBody.appendChild(tr);
+    }
+  }
+
+  function ensureMatchLessonOptions() {
+    if (els.matchLessonSelect.options.length) return;
+    getLessons().forEach((lesson) => {
+      const opt = document.createElement("option");
+      opt.value = String(lesson);
+      opt.textContent = `Lesson ${lesson}`;
+      els.matchLessonSelect.appendChild(opt);
     });
+  }
+
+  async function renderMatchLeaderboard(uid) {
+    ensureMatchLessonOptions();
+    const lesson = els.matchLessonSelect.value;
+    if (!lesson) {
+      els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">No lessons available.</td></tr>`;
+      return;
+    }
+    els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">Loading…</td></tr>`;
+    try {
+      const q = sdk.query(
+        sdk.collection(db, "lessonMatchBest"),
+        sdk.where("lesson", "==", Number(lesson)),
+        sdk.orderBy("secondsPerPair", "asc"),
+        sdk.limit(20)
+      );
+      const snap = await sdk.getDocs(q);
+      els.matchLeaderboardBody.innerHTML = "";
+      let rank = 0;
+      snap.forEach((docSnap) => {
+        rank++;
+        const s = docSnap.data();
+        const tr = document.createElement("tr");
+        if (s.uid === uid) tr.classList.add("report-me");
+        tr.innerHTML = `<td>#${rank}</td><td>${s.displayName || "Member"}</td><td>${formatSeconds(
+          s.bestSeconds
+        )}</td><td>${s.bestPairs}</td>`;
+        els.matchLeaderboardBody.appendChild(tr);
+      });
+      if (rank === 0) {
+        els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">No match games played for this lesson yet.</td></tr>`;
+      }
+    } catch (err) {
+      els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">Couldn't load leaderboard (${
+        err.code || err.message
+      }).</td></tr>`;
+    }
   }
 
   async function renderActivity(uid) {
@@ -115,6 +219,54 @@
     }
   }
 
+  async function renderAdminPanel(profile) {
+    if (!profile || !profile.isAdmin) {
+      els.adminBlock.hidden = true;
+      return;
+    }
+    els.adminBlock.hidden = false;
+    els.adminMembersBody.innerHTML = `<tr><td colspan="3">Loading…</td></tr>`;
+    try {
+      const snap = await sdk.getDocs(sdk.collection(db, "users"));
+      els.adminMembersBody.innerHTML = "";
+      snap.forEach((docSnap) => {
+        const u = docSnap.data();
+        const uid = docSnap.id;
+        const tr = document.createElement("tr");
+        const td = document.createElement("td");
+        td.textContent = u.displayName || "Member";
+        const tdEmail = document.createElement("td");
+        tdEmail.textContent = u.email || "";
+        const tdHost = document.createElement("td");
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "host-toggle-btn ghost-btn" + (u.canHost ? " is-on" : "");
+        btn.textContent = u.canHost ? "Host: on" : "Host: off";
+        btn.addEventListener("click", async () => {
+          const next = !u.canHost;
+          btn.disabled = true;
+          try {
+            await sdk.updateDoc(sdk.doc(db, "users", uid), { canHost: next });
+            u.canHost = next;
+            btn.classList.toggle("is-on", next);
+            btn.textContent = next ? "Host: on" : "Host: off";
+          } catch (e) {
+            /* ignore */
+          } finally {
+            btn.disabled = false;
+          }
+        });
+        tdHost.appendChild(btn);
+        tr.appendChild(td);
+        tr.appendChild(tdEmail);
+        tr.appendChild(tdHost);
+        els.adminMembersBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminMembersBody.innerHTML = `<tr><td colspan="3">Couldn't load members (${err.code || err.message}).</td></tr>`;
+    }
+  }
+
   async function refresh() {
     const user = window.vocabAuth.getUser();
     if (!user) {
@@ -128,11 +280,23 @@
     const scoreSnap = await sdk.getDoc(sdk.doc(db, "scores", user.uid));
     const score = scoreSnap.exists() ? scoreSnap.data() : { masteredCount: 0, matchPoints: 0, totalScore: 0, masteredIds: [] };
 
-    renderStats(score);
+    const now = Date.now();
+    const since7 = new Date(now - 7 * 24 * 60 * 60 * 1000);
+    const since30 = new Date(now - 30 * 24 * 60 * 60 * 1000);
+    const [gain7, gain30] = await Promise.all([scoreGainSince(user.uid, since7), scoreGainSince(user.uid, since30)]);
+
+    renderStats(score, gain7, gain30);
+    renderAdminPanel(window.vocabAuth.getProfile());
     renderLessonBreakdown(score.masteredIds);
+    renderMatchLeaderboard(user.uid);
     renderActivity(user.uid);
     renderLeaderboard(user.uid);
   }
+
+  els.matchLessonSelect.addEventListener("change", () => {
+    const user = window.vocabAuth.getUser();
+    if (user) renderMatchLeaderboard(user.uid);
+  });
 
   window.vocabReport = { refresh };
 
@@ -140,4 +304,6 @@
     const reportView = document.getElementById("report-view");
     if (!reportView.hidden) refresh();
   });
+
+  loadGlobalStats();
 })();

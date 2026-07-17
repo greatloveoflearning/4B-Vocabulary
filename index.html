@@ -141,12 +141,40 @@
     <div class="report-content" id="report-content" hidden>
       <div class="report-stats" id="report-stats"></div>
 
+      <div class="report-block" id="admin-block" hidden>
+        <h2>Members (admin)</h2>
+        <p class="report-block-note">Grant "can host" to let a member start online assessments.</p>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-members-table">
+            <thead>
+              <tr><th>Member</th><th>Email</th><th>Can host</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
       <div class="report-block">
         <h2>Progress by lesson</h2>
         <div class="report-table-wrap">
           <table class="report-table" id="report-lesson-table">
             <thead>
-              <tr><th>Lesson</th><th>Mastered</th><th>Total</th></tr>
+              <tr><th>Lesson</th><th>Mastered</th><th>Total</th><th>Learners</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-block">
+        <div class="report-block-header">
+          <h2>Match leaderboard</h2>
+          <select id="report-match-lesson-select"></select>
+        </div>
+        <div class="report-table-wrap">
+          <table class="report-table" id="report-match-leaderboard-table">
+            <thead>
+              <tr><th>Rank</th><th>Member</th><th>Best time</th><th>Pairs</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -182,6 +210,7 @@
 
 <footer>
   <p id="footer-hint">Tip: use ← / → to navigate, Space or click the card to flip, Delete to eliminate.</p>
+  <p id="footer-stats" class="footer-stats"></p>
 </footer>
 
 <script src="assets/vendor/firebase-vendor.js"></script>

@@ -3,7 +3,9 @@
 
   const { auth, db, sdk } = window.vocabFirebase;
   const listeners = [];
+  const profileListeners = [];
   let currentUser = null;
+  let currentProfile = null;
 
   function onChange(cb) {
     listeners.push(cb);
@@ -14,10 +16,31 @@
     listeners.forEach((cb) => cb(currentUser));
   }
 
-  sdk.onAuthStateChanged(auth, (user) => {
+  function onProfileChange(cb) {
+    profileListeners.push(cb);
+    cb(currentProfile);
+  }
+
+  function notifyProfile() {
+    profileListeners.forEach((cb) => cb(currentProfile));
+  }
+
+  async function refreshProfile() {
+    if (!currentUser) {
+      currentProfile = null;
+      notifyProfile();
+      return;
+    }
+    const snap = await sdk.getDoc(sdk.doc(db, "users", currentUser.uid));
+    currentProfile = snap.exists() ? snap.data() : null;
+    notifyProfile();
+  }
+
+  sdk.onAuthStateChanged(auth, async (user) => {
     currentUser = user;
     updateWidget(user);
     notify();
+    await refreshProfile();
   });
 
   async function signUp(displayName, email, password) {
@@ -42,6 +65,8 @@
       },
       { merge: true }
     );
+    await sdk.setDoc(sdk.doc(db, "stats", "global"), { totalMembers: sdk.increment(1) }, { merge: true });
+    await refreshProfile();
   }
 
   function logIn(email, password) {
@@ -52,7 +77,16 @@
     return sdk.signOut(auth);
   }
 
-  window.vocabAuth = { onChange, signUp, logIn, logOut, getUser: () => currentUser };
+  window.vocabAuth = {
+    onChange,
+    onProfileChange,
+    refreshProfile,
+    signUp,
+    logIn,
+    logOut,
+    getUser: () => currentUser,
+    getProfile: () => currentProfile,
+  };
 
   // ---------- widget wiring ----------
 
