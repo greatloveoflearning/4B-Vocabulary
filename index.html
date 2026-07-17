@@ -9,56 +9,111 @@
 <body>
 <header class="topbar">
   <h1>4B Vocabulary Study Set</h1>
-  <div class="controls">
+  <nav class="mode-tabs" role="tablist">
+    <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 Flashcards</button>
+    <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
+  </nav>
+</header>
+
+<div class="toolbar">
+  <div class="toolbar-group">
     <label for="set-select">Lesson</label>
     <select id="set-select"></select>
+  </div>
+
+  <div class="toolbar-group" id="study-controls">
     <label class="switch">
       <input type="checkbox" id="shuffle-toggle">
       <span class="switch-track"><span class="switch-thumb"></span></span>
       <span class="switch-label">Shuffled mode</span>
     </label>
+    <span class="stat-chip" id="mastery-stat">0 eliminated · 0 remaining</span>
+    <button id="reset-eliminated-btn" class="ghost-btn">Reset lesson</button>
   </div>
-</header>
+
+  <div class="toolbar-group" id="match-controls" hidden>
+    <label for="match-pairs-select">Pairs</label>
+    <select id="match-pairs-select">
+      <option value="6">6</option>
+      <option value="8" selected>8</option>
+      <option value="10">10</option>
+      <option value="12">12</option>
+    </select>
+    <span class="stat-chip" id="match-timer">00:00</span>
+    <button id="new-game-btn" class="ghost-btn">New Game</button>
+  </div>
+</div>
 
 <main>
-  <div class="progress-wrap">
-    <div class="progress-bar"><div id="progress-fill"></div></div>
-    <span id="progress-label">0 / 0</span>
-  </div>
+  <section id="study-view">
+    <div class="progress-wrap" id="progress-wrap">
+      <div class="progress-bar"><div id="progress-fill"></div></div>
+      <span id="progress-label">0 / 0</span>
+    </div>
 
-  <div class="stage">
-    <button class="nav-btn" id="prev-btn" aria-label="Previous card">&#8249;</button>
+    <div class="stage" id="study-stage">
+      <button class="nav-btn" id="prev-btn" aria-label="Previous card">&#8249;</button>
 
-    <div id="card" class="card" tabindex="0">
-      <div class="card-inner">
-        <div class="card-face card-front">
-          <div class="face-label">Term</div>
-          <div id="front-hanzi" class="hanzi"></div>
-          <div class="hint">Click or press Space to flip</div>
-        </div>
-        <div class="card-face card-back">
-          <div class="face-label">Explanation</div>
-          <div id="back-pinyin" class="pinyin"></div>
-          <div id="back-meaning" class="meaning"></div>
-          <div class="example-block">
-            <div id="back-example-cn" class="example example-cn"></div>
-            <div id="back-example-en" class="example example-en"></div>
+      <div id="card" class="card" tabindex="0">
+        <div class="card-inner">
+          <div class="card-face card-front">
+            <div class="face-label">Term</div>
+            <button class="speak-btn" id="speak-front-btn" type="button" aria-label="Play Chinese pronunciation" title="Play Chinese pronunciation">🔊</button>
+            <div id="front-hanzi" class="hanzi"></div>
+            <div class="hint">Click or press Space to flip</div>
+          </div>
+          <div class="card-face card-back">
+            <div class="face-label">Explanation</div>
+            <div class="speak-row">
+              <button class="speak-btn" id="speak-back-cn-btn" type="button" aria-label="Play Chinese audio" title="Play Chinese audio">🔊 中文</button>
+              <button class="speak-btn" id="speak-back-en-btn" type="button" aria-label="Play English audio" title="Play English audio">🔊 English</button>
+            </div>
+            <div id="back-pinyin" class="pinyin"></div>
+            <div id="back-meaning" class="meaning"></div>
+            <div class="example-block">
+              <div id="back-example-cn" class="example example-cn"></div>
+              <div id="back-example-en" class="example example-en"></div>
+            </div>
           </div>
         </div>
       </div>
+
+      <button class="nav-btn" id="next-btn" aria-label="Next card">&#8250;</button>
     </div>
 
-    <button class="nav-btn" id="next-btn" aria-label="Next card">&#8250;</button>
-  </div>
+    <div class="study-complete" id="study-complete" hidden>
+      <p id="study-complete-msg">🎉 All words in this lesson are eliminated.</p>
+      <button id="study-complete-reset-btn" class="ghost-btn">Reset lesson</button>
+    </div>
 
-  <div class="bottom-controls">
-    <button id="flip-btn">Flip Card</button>
-    <span id="card-index-label"></span>
-  </div>
+    <div class="bottom-controls" id="study-bottom-controls">
+      <button id="flip-btn">Flip Card</button>
+      <button id="eliminate-btn" class="danger-btn" type="button" title="Mark as mastered and remove from rotation">💥 Eliminate (击毙)</button>
+      <span id="card-index-label"></span>
+    </div>
+  </section>
+
+  <section id="match-view" hidden>
+    <p class="match-intro">Match each Chinese word with its English translation.</p>
+    <div class="match-columns">
+      <div class="match-col">
+        <h3 class="match-col-title">Chinese</h3>
+        <div class="match-tiles" id="match-col-cn"></div>
+      </div>
+      <div class="match-col">
+        <h3 class="match-col-title">English</h3>
+        <div class="match-tiles" id="match-col-en"></div>
+      </div>
+    </div>
+    <div class="match-complete" id="match-complete" hidden>
+      <p>🎉 All matched in <span id="match-final-time"></span>!</p>
+      <button id="match-again-btn">Play Again</button>
+    </div>
+  </section>
 </main>
 
 <footer>
-  <p>Tip: use ← / → to navigate, Space or click the card to flip.</p>
+  <p id="footer-hint">Tip: use ← / → to navigate, Space or click the card to flip, Delete to eliminate.</p>
 </footer>
 
 <script src="assets/vocab.js"></script>
