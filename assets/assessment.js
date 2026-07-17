@@ -32,6 +32,7 @@
     running: document.getElementById("assessment-running"),
     runningTimer: document.getElementById("running-timer"),
     runningScore: document.getElementById("running-score"),
+    questionSpeakRow: document.getElementById("question-speak-row"),
     questionSpeakCnBtn: document.getElementById("question-speak-cn-btn"),
     questionSpeakEnBtn: document.getElementById("question-speak-en-btn"),
     questionPrompt: document.getElementById("question-prompt"),
@@ -325,31 +326,40 @@
     }
     const { card, type } = currentQuestion;
     if (type === "1") {
-      els.questionSpeakEnBtn.hidden = true;
-      els.questionPrompt.innerHTML = `<span class="hanzi">${card.hanzi}</span>`;
+      els.questionSpeakRow.hidden = true;
+      els.questionPrompt.innerHTML = `<span class="hanzi no-copy">${card.hanzi}</span>`;
     } else {
       const blanked = card.example_cn && card.example_cn.includes(card.hanzi)
         ? card.example_cn.replace(card.hanzi, '<span class="blank">（　）</span>')
         : `<span class="blank">（　）</span>${card.example_cn || ""}`;
+      els.questionSpeakRow.hidden = false;
+      els.questionSpeakCnBtn.hidden = false;
       els.questionSpeakEnBtn.hidden = false;
-      els.questionPrompt.innerHTML = `<span class="meaning">${card.meaning}</span>${blanked}<span class="en-sentence">${
+      els.questionPrompt.innerHTML = `<span class="meaning no-copy">${card.meaning}</span>${blanked}<span class="en-sentence no-copy">${
         card.example_en || ""
       }</span>`;
     }
     els.answerInput.focus();
   }
 
+  ["copy", "cut", "contextmenu", "selectstart", "dragstart"].forEach((evt) => {
+    els.questionPrompt.addEventListener(evt, (e) => e.preventDefault());
+  });
+
   els.questionSpeakCnBtn.addEventListener("click", () => {
-    if (!currentQuestion) return;
-    const { card, type } = currentQuestion;
-    const text = type === "1" ? card.hanzi : `${card.example_cn || ""}`;
-    window.vocabAudio.speak(text, "zh-CN");
+    if (!currentQuestion || currentQuestion.type === "1") return;
+    const { card } = currentQuestion;
+    window.vocabAudio.speak(`${card.example_cn || ""}`, "zh-CN");
   });
 
   els.questionSpeakEnBtn.addEventListener("click", () => {
     if (!currentQuestion) return;
     const { card } = currentQuestion;
     window.vocabAudio.speak(`${card.meaning}. ${card.example_en || ""}`, "en-US");
+  });
+
+  els.answerInput.addEventListener("paste", (e) => {
+    if (currentQuestion && currentQuestion.type === "1") e.preventDefault();
   });
 
   els.answerForm.addEventListener("submit", async (e) => {

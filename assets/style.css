@@ -910,6 +910,13 @@ main {
   line-height: 1.5;
 }
 
+.no-copy {
+  user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+}
+
 .question-prompt .blank {
   display: inline-block;
   min-width: 2.4em;
