@@ -19,6 +19,7 @@
     hostLessonSelect: document.getElementById("host-lesson-select"),
     hostQuestionTypeSelect: document.getElementById("host-question-type-select"),
     hostDurationSelect: document.getElementById("host-duration-select"),
+    hostPlayCheckbox: document.getElementById("host-play-checkbox"),
     hostSetupCancelBtn: document.getElementById("host-setup-cancel-btn"),
 
     lobby: document.getElementById("assessment-lobby"),
@@ -37,6 +38,8 @@
     answerForm: document.getElementById("answer-form"),
     answerInput: document.getElementById("answer-input"),
     answerFeedback: document.getElementById("answer-feedback"),
+    questionCard: document.getElementById("assessment-question"),
+    spectating: document.getElementById("assessment-spectating"),
     runningLeaderboardBody: document.querySelector("#running-leaderboard-table tbody"),
 
     results: document.getElementById("assessment-results"),
@@ -57,6 +60,7 @@
   let sessionId = null;
   let sessionData = null;
   let isHost = false;
+  let isPlaying = true;
   let unsubSession = null;
   let unsubPlayers = null;
   let latestPlayers = [];
@@ -94,6 +98,7 @@
     sessionId = null;
     sessionData = null;
     isHost = false;
+    isPlaying = true;
     hasEnded = false;
     els.joinCodeInput.value = "";
     els.joinError.hidden = true;
@@ -145,7 +150,7 @@
       createdAt: sdk.serverTimestamp(),
     });
 
-    await joinSession(code, true);
+    await joinSession(code, true, els.hostPlayCheckbox.checked);
   });
 
   // ---------- join ----------
@@ -174,23 +179,26 @@
     }
   });
 
-  async function joinSession(code, asHost) {
+  async function joinSession(code, asHost, asPlayer) {
     const user = window.vocabAuth.getUser();
     if (!user) return;
 
     sessionId = code;
     isHost = asHost;
+    isPlaying = asPlayer !== false;
     hasEnded = false;
 
-    const playerRef = sdk.doc(db, "sessions", code, "players", user.uid);
-    const existing = await sdk.getDoc(playerRef);
-    if (!existing.exists()) {
-      await sdk.setDoc(playerRef, {
-        displayName: user.displayName || user.email,
-        score: 0,
-        answered: 0,
-        joinedAt: sdk.serverTimestamp(),
-      });
+    if (isPlaying) {
+      const playerRef = sdk.doc(db, "sessions", code, "players", user.uid);
+      const existing = await sdk.getDoc(playerRef);
+      if (!existing.exists()) {
+        await sdk.setDoc(playerRef, {
+          displayName: user.displayName || user.email,
+          score: 0,
+          answered: 0,
+          joinedAt: sdk.serverTimestamp(),
+        });
+      }
     }
 
     subscribeSession();
@@ -346,7 +354,7 @@
 
   els.answerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    if (!currentQuestion || hasEnded) return;
+    if (!isPlaying || !currentQuestion || hasEnded) return;
     const guess = els.answerInput.value.trim();
     const correct = guess === currentQuestion.card.hanzi;
 
@@ -401,8 +409,11 @@
     localScore = 0;
     lastCardId = null;
     els.runningScore.textContent = "Score: 0";
+    els.runningScore.hidden = !isPlaying;
+    els.questionCard.hidden = !isPlaying;
+    els.spectating.hidden = isPlaying;
     showView(els.running);
-    renderQuestion();
+    if (isPlaying) renderQuestion();
     renderRunningLeaderboard();
     startTimer();
   }

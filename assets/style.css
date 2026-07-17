@@ -805,6 +805,12 @@ main {
   margin-bottom: 0.85rem;
 }
 
+.host-play-check {
+  flex-direction: row !important;
+  align-items: center;
+  gap: 0.5rem !important;
+}
+
 #host-new-btn {
   background: var(--accent);
   color: white;

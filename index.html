@@ -252,6 +252,10 @@
             <option value="300">5 minutes</option>
           </select>
         </label>
+        <label class="host-play-check">
+          <input type="checkbox" id="host-play-checkbox" checked>
+          I'll play too (uncheck to just host/spectate)
+        </label>
         <button type="submit">Create room</button>
       </form>
       <button type="button" id="host-setup-cancel-btn" class="ghost-btn">Cancel</button>
@@ -291,6 +295,9 @@
           <button type="submit">Submit</button>
         </form>
         <p id="answer-feedback" class="answer-feedback" hidden></p>
+      </div>
+      <div class="assessment-question" id="assessment-spectating" hidden>
+        <p>👀 You're hosting this round — watch the live leaderboard below.</p>
       </div>
       <div class="report-block">
         <h3>Live leaderboard</h3>
