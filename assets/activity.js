@@ -17,27 +17,33 @@
   }
 
   async function updateLessonMatchBest(lesson, uid, displayName, pairs, seconds) {
-    if (lesson === "all") return;
+    if (lesson === "all") return null;
     const secondsPerPair = seconds / pairs;
     const ref = sdk.doc(db, "lessonMatchBest", `${lesson}_${uid}`);
+    let completions = 1;
     try {
       await sdk.runTransaction(db, async (tx) => {
         const snap = await tx.get(ref);
         const data = snap.exists() ? snap.data() : null;
-        if (data && data.secondsPerPair <= secondsPerPair) return;
-        tx.set(ref, {
-          uid,
-          displayName,
-          lesson: Number(lesson),
-          bestSeconds: seconds,
-          bestPairs: pairs,
-          secondsPerPair,
-          updatedAt: sdk.serverTimestamp(),
-        });
+        completions = (data && data.completions ? data.completions : 0) + 1;
+        const isNewBest = !data || data.secondsPerPair > secondsPerPair;
+        tx.set(
+          ref,
+          {
+            uid,
+            displayName,
+            lesson: Number(lesson),
+            completions,
+            ...(isNewBest ? { bestSeconds: seconds, bestPairs: pairs, secondsPerPair } : {}),
+            updatedAt: sdk.serverTimestamp(),
+          },
+          { merge: true }
+        );
       });
     } catch (e) {
       /* offline or permission issue */
     }
+    return completions;
   }
 
   async function recordEliminate(card) {
@@ -88,21 +94,24 @@
     touchLessonStats(card.lesson, user.uid);
   }
 
-  async function getLessonMatchPercentile(lesson, uid, mySecondsPerPair) {
+  async function getLessonMatchStanding(lesson, uid) {
     if (lesson === "all") return null;
     try {
-      const q = sdk.query(sdk.collection(db, "lessonMatchBest"), sdk.where("lesson", "==", Number(lesson)));
+      const q = sdk.query(
+        sdk.collection(db, "lessonMatchBest"),
+        sdk.where("lesson", "==", Number(lesson)),
+        sdk.orderBy("secondsPerPair", "asc")
+      );
       const snap = await sdk.getDocs(q);
-      let total = 0;
-      let beaten = 0;
-      snap.forEach((docSnap) => {
-        const d = docSnap.data();
-        if (d.uid === uid) return;
-        total++;
-        if (d.secondsPerPair > mySecondsPerPair) beaten++;
-      });
-      if (total === 0) return null;
-      return Math.round((beaten / total) * 100);
+      const all = [];
+      snap.forEach((docSnap) => all.push(docSnap.data()));
+      const total = all.length;
+      const rank = all.findIndex((d) => d.uid === uid) + 1;
+      const others = all.filter((d) => d.uid !== uid);
+      const mine = all.find((d) => d.uid === uid);
+      const beaten = mine ? others.filter((d) => d.secondsPerPair > mine.secondsPerPair).length : 0;
+      const percentile = others.length > 0 ? Math.round((beaten / others.length) * 100) : null;
+      return { total, rank: rank || null, percentile, leaderboard: all.slice(0, 5) };
     } catch (e) {
       return null;
     }
@@ -126,8 +135,8 @@
     });
 
     touchLessonStats(lesson, user.uid);
-    await updateLessonMatchBest(lesson, user.uid, displayName, pairs, seconds);
-    const percentile = await getLessonMatchPercentile(lesson, user.uid, seconds / pairs);
+    const completions = await updateLessonMatchBest(lesson, user.uid, displayName, pairs, seconds);
+    const standing = await getLessonMatchStanding(lesson, user.uid);
 
     const scoreRef = sdk.doc(db, "scores", user.uid);
     try {
@@ -155,7 +164,7 @@
       /* offline or permission issue: activity is already logged, score sync can lag */
     }
 
-    return { points, percentile };
+    return { points, completions, standing };
   }
 
   async function recordAssessmentAnswer(lesson, card, correct) {

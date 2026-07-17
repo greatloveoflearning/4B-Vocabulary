@@ -54,7 +54,10 @@
     matchColEn: document.getElementById("match-col-en"),
     matchComplete: document.getElementById("match-complete"),
     matchFinalTime: document.getElementById("match-final-time"),
+    matchCompletions: document.getElementById("match-completions"),
     matchPercentile: document.getElementById("match-percentile"),
+    matchLeaderboardWrap: document.getElementById("match-leaderboard-wrap"),
+    matchCompleteLeaderboardBody: document.querySelector("#match-complete-leaderboard-table tbody"),
     matchAgainBtn: document.getElementById("match-again-btn"),
   };
 
@@ -430,22 +433,63 @@
     }
   }
 
+  function formatMatchSeconds(secs) {
+    const mm = String(Math.floor(secs / 60)).padStart(2, "0");
+    const ss = String(Math.round(secs % 60)).padStart(2, "0");
+    return `${mm}:${ss}`;
+  }
+
+  function ordinal(n) {
+    const s = ["th", "st", "nd", "rd"];
+    const v = n % 100;
+    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+  }
+
   function finishMatchGame() {
     stopMatchTimer();
     els.matchFinalTime.textContent = els.matchTimer.textContent;
     els.matchComplete.hidden = false;
+    els.matchCompletions.textContent = "";
     els.matchPercentile.textContent = "";
+    els.matchLeaderboardWrap.hidden = true;
+    els.matchCompleteLeaderboardBody.innerHTML = "";
+
     const pairs = matchTiles.length / 2;
     const seconds = Math.max(1, Math.round((Date.now() - matchStartTime) / 1000));
-    if (window.vocabActivity) {
-      window.vocabActivity.recordMatchComplete(els.setSelect.value, pairs, seconds).then((result) => {
-        if (result && result.percentile != null) {
-          els.matchPercentile.textContent = `🎉 You beat ${result.percentile}% of everyone who's played this lesson!`;
-        } else if (result) {
-          els.matchPercentile.textContent = "🎉 You're the first to play this lesson!";
-        }
-      });
-    }
+    if (!window.vocabActivity) return;
+
+    window.vocabActivity.recordMatchComplete(els.setSelect.value, pairs, seconds).then((result) => {
+      if (!result) return;
+
+      els.matchCompletions.textContent = `You've completed this lesson's match ${result.completions} time${
+        result.completions === 1 ? "" : "s"
+      }.`;
+
+      const standing = result.standing;
+      if (!standing) {
+        els.matchPercentile.textContent = "";
+        return;
+      }
+
+      if (standing.rank) {
+        els.matchPercentile.textContent = `🎉 Ranked ${ordinal(standing.rank)} of ${standing.total} who've played this lesson!`;
+      } else {
+        els.matchPercentile.textContent = "🎉 You're the first to play this lesson!";
+      }
+
+      if (standing.leaderboard && standing.leaderboard.length) {
+        const user = window.vocabAuth && window.vocabAuth.getUser();
+        els.matchLeaderboardWrap.hidden = false;
+        standing.leaderboard.forEach((entry, i) => {
+          const tr = document.createElement("tr");
+          if (user && entry.uid === user.uid) tr.classList.add("report-me");
+          tr.innerHTML = `<td>#${i + 1}</td><td>${entry.displayName || "Member"}</td><td>${formatMatchSeconds(
+            entry.bestSeconds
+          )}</td>`;
+          els.matchCompleteLeaderboardBody.appendChild(tr);
+        });
+      }
+    });
   }
 
   els.newGameBtn.addEventListener("click", startMatchGame);

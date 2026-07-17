@@ -130,7 +130,14 @@
     </div>
     <div class="match-complete" id="match-complete" hidden>
       <p>🎉 All matched in <span id="match-final-time"></span>!</p>
+      <p class="report-block-note" id="match-completions"></p>
       <p class="percentile-note" id="match-percentile"></p>
+      <div class="report-table-wrap" id="match-leaderboard-wrap" hidden>
+        <table class="report-table" id="match-complete-leaderboard-table">
+          <thead><tr><th>Rank</th><th>Player</th><th>Best time</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
       <button id="match-again-btn">Play Again</button>
     </div>
   </section>
