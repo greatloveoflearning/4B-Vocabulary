@@ -56,6 +56,7 @@
         masteredIds.add(card.id);
         const masteredCount = masteredIds.size;
         const matchPoints = data.matchPoints || 0;
+        const assessmentPoints = data.assessmentPoints || 0;
         tx.set(
           scoreRef,
           {
@@ -63,7 +64,8 @@
             masteredIds: Array.from(masteredIds),
             masteredCount,
             matchPoints,
-            totalScore: masteredCount + matchPoints,
+            assessmentPoints,
+            totalScore: masteredCount + matchPoints + assessmentPoints,
             updatedAt: sdk.serverTimestamp(),
           },
           { merge: true }
@@ -134,6 +136,7 @@
         const data = snap.exists() ? snap.data() : {};
         const masteredCount = data.masteredCount || 0;
         const matchPoints = (data.matchPoints || 0) + points;
+        const assessmentPoints = data.assessmentPoints || 0;
         tx.set(
           scoreRef,
           {
@@ -141,7 +144,8 @@
             masteredIds: data.masteredIds || [],
             masteredCount,
             matchPoints,
-            totalScore: masteredCount + matchPoints,
+            assessmentPoints,
+            totalScore: masteredCount + matchPoints + assessmentPoints,
             updatedAt: sdk.serverTimestamp(),
           },
           { merge: true }
@@ -154,5 +158,54 @@
     return { points, percentile };
   }
 
-  window.vocabActivity = { recordEliminate, recordMatchComplete, matchGamePoints };
+  async function recordAssessmentAnswer(lesson, card, correct) {
+    const user = window.vocabAuth.getUser();
+    if (!user) return;
+
+    const points = correct ? 1 : 0;
+    const displayName = user.displayName || user.email;
+
+    sdk.addDoc(sdk.collection(db, "activity"), {
+      uid: user.uid,
+      type: "assessment_answer",
+      lesson,
+      hanzi: card.hanzi,
+      cardId: card.id,
+      correct,
+      points,
+      createdAt: sdk.serverTimestamp(),
+    });
+
+    touchLessonStats(lesson, user.uid);
+
+    if (points === 0) return;
+
+    const scoreRef = sdk.doc(db, "scores", user.uid);
+    try {
+      await sdk.runTransaction(db, async (tx) => {
+        const snap = await tx.get(scoreRef);
+        const data = snap.exists() ? snap.data() : {};
+        const masteredCount = data.masteredCount || 0;
+        const matchPoints = data.matchPoints || 0;
+        const assessmentPoints = (data.assessmentPoints || 0) + points;
+        tx.set(
+          scoreRef,
+          {
+            displayName,
+            masteredIds: data.masteredIds || [],
+            masteredCount,
+            matchPoints,
+            assessmentPoints,
+            totalScore: masteredCount + matchPoints + assessmentPoints,
+            updatedAt: sdk.serverTimestamp(),
+          },
+          { merge: true }
+        );
+      });
+    } catch (e) {
+      /* offline or permission issue: activity is already logged, score sync can lag */
+    }
+  }
+
+  window.vocabActivity = { recordEliminate, recordMatchComplete, recordAssessmentAnswer, matchGamePoints };
 })();

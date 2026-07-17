@@ -383,6 +383,7 @@
       els.answerFeedback.className = "answer-feedback wrong";
     }
     els.answerFeedback.hidden = false;
+    if (window.vocabActivity) window.vocabActivity.recordAssessmentAnswer(sessionData.lesson, card, correct);
     recordAnswer(correct ? 1 : 0, {
       cardId: card.id,
       hanzi: card.hanzi,

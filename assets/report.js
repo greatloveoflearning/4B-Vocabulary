@@ -45,6 +45,8 @@
   function activityLabel(event) {
     if (event.type === "eliminate") return `💥 Mastered ${event.hanzi || ""}`;
     if (event.type === "match_complete") return `🧩 Match: ${event.pairs} pairs in ${event.seconds}s (+${event.points} pts)`;
+    if (event.type === "assessment_answer")
+      return event.correct ? `🏆 Assessment: correct (${event.hanzi || ""})` : `🏆 Assessment: wrong (${event.hanzi || ""})`;
     return event.type;
   }
 
@@ -80,6 +82,7 @@
     const tiles = [
       { label: "Mastered words", value: score.masteredCount || 0 },
       { label: "Match points", value: score.matchPoints || 0 },
+      { label: "Assessment points", value: score.assessmentPoints || 0 },
       { label: "Total score", value: score.totalScore || 0 },
       { label: "Score / 7 days", value: gain7 == null ? "–" : `+${gain7}` },
       { label: "Score / 30 days", value: gain30 == null ? "–" : `+${gain30}` },
@@ -198,7 +201,7 @@
   }
 
   async function renderLeaderboard(uid) {
-    els.leaderboardTableBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
+    els.leaderboardTableBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
     try {
       const q = sdk.query(sdk.collection(db, "scores"), sdk.orderBy("totalScore", "desc"), sdk.limit(50));
       const snap = await sdk.getDocs(q);
@@ -211,14 +214,14 @@
         if (docSnap.id === uid) tr.classList.add("report-me");
         tr.innerHTML = `<td>#${rank}</td><td>${s.displayName || "Member"}</td><td>${s.masteredCount || 0}</td><td>${
           s.matchPoints || 0
-        }</td><td>${s.totalScore || 0}</td>`;
+        }</td><td>${s.assessmentPoints || 0}</td><td>${s.totalScore || 0}</td>`;
         els.leaderboardTableBody.appendChild(tr);
       });
       if (rank === 0) {
-        els.leaderboardTableBody.innerHTML = `<tr><td colspan="5">No scores yet.</td></tr>`;
+        els.leaderboardTableBody.innerHTML = `<tr><td colspan="6">No scores yet.</td></tr>`;
       }
     } catch (err) {
-      els.leaderboardTableBody.innerHTML = `<tr><td colspan="5">Couldn't load leaderboard (${err.code || err.message}).</td></tr>`;
+      els.leaderboardTableBody.innerHTML = `<tr><td colspan="6">Couldn't load leaderboard (${err.code || err.message}).</td></tr>`;
     }
   }
 
