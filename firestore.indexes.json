@@ -7,6 +7,14 @@
         { "fieldPath": "uid", "order": "ASCENDING" },
         { "fieldPath": "createdAt", "order": "DESCENDING" }
       ]
+    },
+    {
+      "collectionGroup": "lessonMatchBest",
+      "queryScope": "COLLECTION",
+      "fields": [
+        { "fieldPath": "lesson", "order": "ASCENDING" },
+        { "fieldPath": "secondsPerPair", "order": "ASCENDING" }
+      ]
     }
   ],
   "fieldOverrides": []

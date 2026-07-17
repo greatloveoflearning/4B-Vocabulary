@@ -42,6 +42,15 @@
     return `${mm}:${ss}`;
   }
 
+  function formatQueryError(err) {
+    const msg = (err && err.message) || "";
+    const urlMatch = msg.match(/https:\/\/console\.firebase\.google\.com\S*/);
+    if (urlMatch) {
+      return `Firestore needs an index for this — <a href="${urlMatch[0]}" target="_blank" rel="noopener">click here to create it</a>, then reload.`;
+    }
+    return `Couldn't load (${(err && err.code) || msg}).`;
+  }
+
   function activityLabel(event) {
     if (event.type === "eliminate") return `💥 Mastered ${event.hanzi || ""}`;
     if (event.type === "match_complete") return `🧩 Match: ${event.pairs} pairs in ${event.seconds}s (+${event.points} pts)`;
@@ -168,9 +177,7 @@
         els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">No match games played for this lesson yet.</td></tr>`;
       }
     } catch (err) {
-      els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">Couldn't load leaderboard (${
-        err.code || err.message
-      }).</td></tr>`;
+      els.matchLeaderboardBody.innerHTML = `<tr><td colspan="4">${formatQueryError(err)}</td></tr>`;
     }
   }
 
@@ -196,7 +203,7 @@
         els.activityTableBody.appendChild(tr);
       });
     } catch (err) {
-      els.activityTableBody.innerHTML = `<tr><td colspan="3">Couldn't load activity (${err.code || err.message}).</td></tr>`;
+      els.activityTableBody.innerHTML = `<tr><td colspan="3">${formatQueryError(err)}</td></tr>`;
     }
   }
 
@@ -334,7 +341,7 @@
         els.adminActivityBody.appendChild(tr);
       });
     } catch (err) {
-      els.adminActivityBody.innerHTML = `<tr><td colspan="3">Couldn't load activity (${err.code || err.message}).</td></tr>`;
+      els.adminActivityBody.innerHTML = `<tr><td colspan="3">${formatQueryError(err)}</td></tr>`;
     }
   }
 
