@@ -16,16 +16,15 @@ if (window.FIREBASE_USE_EMULATOR) {
     appId: "1:000000000000:web:0000000000000000000000",
   };
 } else {
-  // Replace these placeholder values with your own Firebase project's web
-  // app config (Firebase console -> Project settings -> General -> Your apps
-  // -> SDK setup and configuration). These values are safe to be public —
-  // they are not secrets, they just identify which Firebase project to talk to.
+  // kt-ai-learn Firebase project's web app config. Not a secret — this just
+  // identifies which Firebase project the site talks to; access is enforced
+  // by firestore.rules, not by hiding this value.
   window.FIREBASE_CONFIG = {
-    apiKey: "REPLACE_WITH_YOUR_API_KEY",
-    authDomain: "REPLACE_WITH_YOUR_PROJECT.firebaseapp.com",
-    projectId: "REPLACE_WITH_YOUR_PROJECT",
-    storageBucket: "REPLACE_WITH_YOUR_PROJECT.appspot.com",
-    messagingSenderId: "REPLACE_WITH_YOUR_SENDER_ID",
-    appId: "REPLACE_WITH_YOUR_APP_ID",
+    apiKey: "AIzaSyAhQkgutTvMGsZ7zxRHOASmybVlOJUN1Vo",
+    authDomain: "kt-ai-learn.firebaseapp.com",
+    projectId: "kt-ai-learn",
+    storageBucket: "kt-ai-learn.firebasestorage.app",
+    messagingSenderId: "499347040375",
+    appId: "1:499347040375:web:260dd15bcefbdff2ae3e72",
   };
 }
