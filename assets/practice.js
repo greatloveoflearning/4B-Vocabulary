@@ -237,14 +237,13 @@
     document.getElementById("account-btn").click();
   });
 
-  function onTabShown(reset) {
+  function onTabShown() {
     const user = window.vocabAuth.getUser();
     if (!user) {
       showView(els.signedOut);
       return;
     }
     ensureLessonOptions();
-    if (reset) els.lessonSelect.value = "all";
     if (currentView === els.signedOut) showView(els.setup);
     else showView(currentView);
   }
