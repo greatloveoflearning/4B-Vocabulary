@@ -10,6 +10,9 @@
     stats: document.getElementById("report-stats"),
     adminBlock: document.getElementById("admin-block"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
+    adminActivitySelect: document.getElementById("admin-activity-select"),
+    adminActivityStats: document.getElementById("admin-activity-stats"),
+    adminActivityBody: document.querySelector("#admin-activity-table tbody"),
     lessonTableBody: document.querySelector("#report-lesson-table tbody"),
     matchLessonSelect: document.getElementById("report-match-lesson-select"),
     matchLeaderboardBody: document.querySelector("#report-match-leaderboard-table tbody"),
@@ -219,6 +222,8 @@
     }
   }
 
+  let adminMembers = [];
+
   async function renderAdminPanel(profile) {
     if (!profile || !profile.isAdmin) {
       els.adminBlock.hidden = true;
@@ -229,9 +234,12 @@
     try {
       const snap = await sdk.getDocs(sdk.collection(db, "users"));
       els.adminMembersBody.innerHTML = "";
+      adminMembers = [];
       snap.forEach((docSnap) => {
         const u = docSnap.data();
         const uid = docSnap.id;
+        adminMembers.push({ uid, displayName: u.displayName || "Member" });
+
         const tr = document.createElement("tr");
         const td = document.createElement("td");
         td.textContent = u.displayName || "Member";
@@ -262,10 +270,72 @@
         tr.appendChild(tdHost);
         els.adminMembersBody.appendChild(tr);
       });
+
+      els.adminActivitySelect.innerHTML = "";
+      adminMembers.forEach((m) => {
+        const opt = document.createElement("option");
+        opt.value = m.uid;
+        opt.textContent = m.displayName;
+        els.adminActivitySelect.appendChild(opt);
+      });
+      if (adminMembers.length) renderMemberActivity(adminMembers[0].uid);
     } catch (err) {
       els.adminMembersBody.innerHTML = `<tr><td colspan="3">Couldn't load members (${err.code || err.message}).</td></tr>`;
     }
   }
+
+  async function renderMemberActivity(uid) {
+    const member = adminMembers.find((m) => m.uid === uid);
+    els.adminActivityStats.innerHTML = "";
+    els.adminActivityBody.innerHTML = `<tr><td colspan="3">Loading…</td></tr>`;
+
+    try {
+      const scoreSnap = await sdk.getDoc(sdk.doc(db, "scores", uid));
+      const score = scoreSnap.exists()
+        ? scoreSnap.data()
+        : { masteredCount: 0, matchPoints: 0, totalScore: 0 };
+      const tiles = [
+        { label: "Mastered words", value: score.masteredCount || 0 },
+        { label: "Match points", value: score.matchPoints || 0 },
+        { label: "Total score", value: score.totalScore || 0 },
+      ];
+      tiles.forEach((t) => {
+        const div = document.createElement("div");
+        div.className = "report-stat-tile";
+        div.innerHTML = `<div class="value">${t.value}</div><div class="label">${t.label}</div>`;
+        els.adminActivityStats.appendChild(div);
+      });
+    } catch (e) {
+      /* leave stats empty */
+    }
+
+    try {
+      const q = sdk.query(
+        sdk.collection(db, "activity"),
+        sdk.where("uid", "==", uid),
+        sdk.orderBy("createdAt", "desc"),
+        sdk.limit(30)
+      );
+      const snap = await sdk.getDocs(q);
+      els.adminActivityBody.innerHTML = "";
+      if (snap.empty) {
+        els.adminActivityBody.innerHTML = `<tr><td colspan="3">${
+          member ? member.displayName : "This member"
+        } hasn't done any activity yet.</td></tr>`;
+        return;
+      }
+      snap.forEach((docSnap) => {
+        const e = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${formatWhen(e.createdAt)}</td><td>${activityLabel(e)}</td><td>${e.lesson}</td>`;
+        els.adminActivityBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminActivityBody.innerHTML = `<tr><td colspan="3">Couldn't load activity (${err.code || err.message}).</td></tr>`;
+    }
+  }
+
+  els.adminActivitySelect.addEventListener("change", (e) => renderMemberActivity(e.target.value));
 
   async function refresh() {
     const user = window.vocabAuth.getUser();

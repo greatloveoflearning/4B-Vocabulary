@@ -689,6 +689,15 @@ main {
   margin-bottom: 0.75rem;
 }
 
+.admin-activity-header {
+  margin-top: 1.5rem;
+}
+
+.admin-activity-header h3 {
+  margin: 0;
+  font-size: 0.9rem;
+}
+
 .report-block-header h2 {
   margin: 0;
 }
