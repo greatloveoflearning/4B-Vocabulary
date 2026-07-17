@@ -9,8 +9,10 @@
     setupForm: document.getElementById("practice-setup-form"),
     lessonSelect: document.getElementById("practice-lesson-select"),
     questionTypeSelect: document.getElementById("practice-question-type-select"),
+    countSelect: document.getElementById("practice-count-select"),
 
     running: document.getElementById("practice-running"),
+    progress: document.getElementById("practice-progress"),
     tally: document.getElementById("practice-tally"),
     speakCnBtn: document.getElementById("practice-speak-cn-btn"),
     speakEnBtn: document.getElementById("practice-speak-en-btn"),
@@ -60,6 +62,7 @@
 
   let lesson = "all";
   let questionType = "mixed";
+  let targetCount = 20;
   let correctCount = 0;
   let wrongCount = 0;
   let answerLog = [];
@@ -93,6 +96,8 @@
 
   function updateTally() {
     els.tally.textContent = `✅ ${correctCount} · ❌ ${wrongCount}`;
+    const answered = correctCount + wrongCount;
+    els.progress.textContent = `Question ${Math.min(answered + 1, targetCount)} of ${targetCount}`;
   }
 
   function renderQuestion() {
@@ -160,7 +165,6 @@
       wrongCount++;
     }
     els.feedback.hidden = false;
-    updateTally();
     answerLog.push({
       hanzi: card.hanzi,
       meaning: card.meaning,
@@ -169,8 +173,13 @@
       guess,
       correct,
     });
+    updateTally();
+
+    const done = correctCount + wrongCount >= targetCount;
     setTimeout(() => {
-      if (currentView === els.running) renderQuestion();
+      if (currentView !== els.running) return;
+      if (done) endPractice();
+      else renderQuestion();
     }, 500);
   });
 
@@ -186,6 +195,7 @@
   function startPractice() {
     lesson = els.lessonSelect.value;
     questionType = els.questionTypeSelect.value;
+    targetCount = Number(els.countSelect.value);
     correctCount = 0;
     wrongCount = 0;
     answerLog = [];
@@ -197,7 +207,8 @@
 
   function endPractice() {
     showView(els.summary);
-    els.summaryLine.textContent = `✅ ${correctCount} correct · ❌ ${wrongCount} wrong`;
+    const answered = correctCount + wrongCount;
+    els.summaryLine.textContent = `${answered} question${answered === 1 ? "" : "s"}: ✅ ${correctCount} correct · ❌ ${wrongCount} wrong`;
     const wrongEntries = answerLog.filter((a) => !a.correct);
     els.summaryBody.innerHTML = "";
     if (wrongEntries.length === 0) {

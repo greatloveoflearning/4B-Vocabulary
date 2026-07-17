@@ -383,12 +383,20 @@
             <option value="mixed" selected>Mixed</option>
           </select>
         </label>
+        <label>Number of questions
+          <select id="practice-count-select">
+            <option value="20" selected>20 questions</option>
+            <option value="30">30 questions</option>
+            <option value="40">40 questions</option>
+          </select>
+        </label>
         <button type="submit">Start practice</button>
       </form>
     </div>
 
     <div class="assessment-running" id="practice-running" hidden>
       <div class="running-top">
+        <span class="stat-chip" id="practice-progress">Question 1 of 20</span>
         <span class="stat-chip" id="practice-tally">✅ 0 · ❌ 0</span>
       </div>
       <div class="assessment-question" id="practice-question">
