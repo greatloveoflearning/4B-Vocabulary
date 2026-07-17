@@ -50,6 +50,8 @@
     matchPairsSelect: document.getElementById("match-pairs-select"),
     newGameBtn: document.getElementById("new-game-btn"),
     matchTimer: document.getElementById("match-timer"),
+    matchIntro: document.getElementById("match-intro"),
+    matchColumns: document.getElementById("match-columns"),
     matchColCn: document.getElementById("match-col-cn"),
     matchColEn: document.getElementById("match-col-en"),
     matchComplete: document.getElementById("match-complete"),
@@ -347,6 +349,8 @@
   function startMatchGame() {
     stopMatchTimer();
     els.matchComplete.hidden = true;
+    els.matchIntro.hidden = false;
+    els.matchColumns.hidden = false;
     selectedTile = null;
     matchLocked = false;
     matchedCount = 0;
@@ -448,6 +452,8 @@
   function finishMatchGame() {
     stopMatchTimer();
     els.matchFinalTime.textContent = els.matchTimer.textContent;
+    els.matchIntro.hidden = true;
+    els.matchColumns.hidden = true;
     els.matchComplete.hidden = false;
     els.matchCompletions.textContent = "";
     els.matchPercentile.textContent = "";
