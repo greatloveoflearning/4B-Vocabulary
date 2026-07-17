@@ -457,6 +457,7 @@
   const toolbar = document.getElementById("toolbar");
   const reportView = document.getElementById("report-view");
   const assessmentView = document.getElementById("assessment-view");
+  const practiceView = document.getElementById("practice-view");
 
   els.modeTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -470,7 +471,8 @@
       els.matchView.hidden = mode !== "match";
       reportView.hidden = mode !== "report";
       assessmentView.hidden = mode !== "assessment";
-      toolbar.hidden = mode === "report" || mode === "assessment";
+      practiceView.hidden = mode !== "practice";
+      toolbar.hidden = mode === "report" || mode === "assessment" || mode === "practice";
       els.studyControls.hidden = mode !== "study";
       els.matchControls.hidden = mode !== "match";
 
@@ -482,6 +484,7 @@
 
       if (mode === "report" && window.vocabReport) window.vocabReport.refresh();
       if (mode === "assessment" && window.vocabAssessment) window.vocabAssessment.onTabShown();
+      if (mode === "practice" && window.vocabPractice) window.vocabPractice.onTabShown();
     });
   });
 

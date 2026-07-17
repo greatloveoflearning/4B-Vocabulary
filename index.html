@@ -14,6 +14,7 @@
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
     <button class="mode-tab" data-mode="report" role="tab" aria-selected="false">📊 Report</button>
     <button class="mode-tab" data-mode="assessment" role="tab" aria-selected="false">🏆 Assessment</button>
+    <button class="mode-tab" data-mode="practice" role="tab" aria-selected="false">📝 Practice</button>
   </nav>
   <div class="account-widget">
     <button id="account-btn" class="ghost-btn" type="button">Sign in</button>
@@ -355,6 +356,66 @@
       </div>
     </div>
   </section>
+
+  <section id="practice-view" hidden>
+    <div class="practice-signed-out" id="practice-signed-out">
+      <p>Sign in to practice with the assessment question types.</p>
+      <button type="button" id="practice-signin-btn" class="ghost-btn">Sign in</button>
+    </div>
+
+    <div class="assessment-card" id="practice-setup" hidden>
+      <h2>Practice</h2>
+      <form id="practice-setup-form" class="assessment-form assessment-form-grid">
+        <label>Lesson
+          <select id="practice-lesson-select"></select>
+        </label>
+        <label>Question type
+          <select id="practice-question-type-select">
+            <option value="1">Type 1 — see the word, type the word</option>
+            <option value="2">Type 2 — fill in the blank</option>
+            <option value="mixed" selected>Mixed</option>
+          </select>
+        </label>
+        <button type="submit">Start practice</button>
+      </form>
+    </div>
+
+    <div class="assessment-running" id="practice-running" hidden>
+      <div class="running-top">
+        <span class="stat-chip" id="practice-tally">✅ 0 · ❌ 0</span>
+      </div>
+      <div class="assessment-question" id="practice-question">
+        <div class="speak-row">
+          <button type="button" class="speak-btn" id="practice-speak-cn-btn">🔊 中文</button>
+          <button type="button" class="speak-btn" id="practice-speak-en-btn" hidden>🔊 English</button>
+        </div>
+        <div id="practice-prompt" class="question-prompt"></div>
+        <form id="practice-answer-form" class="assessment-form">
+          <input type="text" id="practice-answer-input" autocomplete="off" placeholder="Type the Chinese word…" lang="zh-CN">
+          <button type="submit">Submit</button>
+        </form>
+        <p id="practice-feedback" class="answer-feedback" hidden></p>
+      </div>
+      <div class="assessment-lobby-actions">
+        <button type="button" id="practice-end-btn" class="ghost-btn">End practice</button>
+      </div>
+    </div>
+
+    <div class="assessment-results" id="practice-summary" hidden>
+      <h2>📝 Practice summary</h2>
+      <p class="report-block-note" id="practice-summary-line"></p>
+      <div class="report-table-wrap">
+        <table class="report-table" id="practice-summary-table">
+          <thead><tr><th>Question</th><th>Your answer</th><th>Correct answer</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="assessment-lobby-actions">
+        <button type="button" id="practice-again-btn">Practice again</button>
+        <button type="button" id="practice-change-btn" class="ghost-btn">Change lesson/type</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -371,5 +432,6 @@
 <script src="assets/app.js"></script>
 <script src="assets/report.js"></script>
 <script src="assets/assessment.js"></script>
+<script src="assets/practice.js"></script>
 </body>
 </html>
