@@ -165,6 +165,7 @@
       wrongCount++;
     }
     els.feedback.hidden = false;
+    window.vocabAudio.speak(card.hanzi, "zh-CN");
     answerLog.push({
       hanzi: card.hanzi,
       meaning: card.meaning,
