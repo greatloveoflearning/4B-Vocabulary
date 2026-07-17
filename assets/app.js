@@ -54,6 +54,7 @@
     matchColEn: document.getElementById("match-col-en"),
     matchComplete: document.getElementById("match-complete"),
     matchFinalTime: document.getElementById("match-final-time"),
+    matchPercentile: document.getElementById("match-percentile"),
     matchAgainBtn: document.getElementById("match-again-btn"),
   };
 
@@ -142,6 +143,8 @@
     utter.rate = lang.startsWith("zh") ? 0.9 : 1;
     window.speechSynthesis.speak(utter);
   }
+
+  window.vocabAudio = { speak, playCorrectSound, playWrongSound, playEliminateSound };
 
   // ---------- helpers ----------
 
@@ -431,9 +434,18 @@
     stopMatchTimer();
     els.matchFinalTime.textContent = els.matchTimer.textContent;
     els.matchComplete.hidden = false;
+    els.matchPercentile.textContent = "";
     const pairs = matchTiles.length / 2;
     const seconds = Math.max(1, Math.round((Date.now() - matchStartTime) / 1000));
-    if (window.vocabActivity) window.vocabActivity.recordMatchComplete(els.setSelect.value, pairs, seconds);
+    if (window.vocabActivity) {
+      window.vocabActivity.recordMatchComplete(els.setSelect.value, pairs, seconds).then((result) => {
+        if (result && result.percentile != null) {
+          els.matchPercentile.textContent = `🎉 You beat ${result.percentile}% of everyone who's played this lesson!`;
+        } else if (result) {
+          els.matchPercentile.textContent = "🎉 You're the first to play this lesson!";
+        }
+      });
+    }
   }
 
   els.newGameBtn.addEventListener("click", startMatchGame);
@@ -444,6 +456,7 @@
 
   const toolbar = document.getElementById("toolbar");
   const reportView = document.getElementById("report-view");
+  const assessmentView = document.getElementById("assessment-view");
 
   els.modeTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -456,7 +469,8 @@
       els.studyView.hidden = mode !== "study";
       els.matchView.hidden = mode !== "match";
       reportView.hidden = mode !== "report";
-      toolbar.hidden = mode === "report";
+      assessmentView.hidden = mode !== "assessment";
+      toolbar.hidden = mode === "report" || mode === "assessment";
       els.studyControls.hidden = mode !== "study";
       els.matchControls.hidden = mode !== "match";
 
@@ -467,6 +481,7 @@
       }
 
       if (mode === "report" && window.vocabReport) window.vocabReport.refresh();
+      if (mode === "assessment" && window.vocabAssessment) window.vocabAssessment.onTabShown();
     });
   });
 

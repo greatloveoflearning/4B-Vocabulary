@@ -13,6 +13,7 @@
     <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 Flashcards</button>
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
     <button class="mode-tab" data-mode="report" role="tab" aria-selected="false">📊 Report</button>
+    <button class="mode-tab" data-mode="assessment" role="tab" aria-selected="false">🏆 Assessment</button>
   </nav>
   <div class="account-widget">
     <button id="account-btn" class="ghost-btn" type="button">Sign in</button>
@@ -128,6 +129,7 @@
     </div>
     <div class="match-complete" id="match-complete" hidden>
       <p>🎉 All matched in <span id="match-final-time"></span>!</p>
+      <p class="percentile-note" id="match-percentile"></p>
       <button id="match-again-btn">Play Again</button>
     </div>
   </section>
@@ -206,6 +208,117 @@
       </div>
     </div>
   </section>
+
+  <section id="assessment-view" hidden>
+    <div class="assessment-signed-out" id="assessment-signed-out">
+      <p>Sign in to join or host an online assessment.</p>
+      <button type="button" id="assessment-signin-btn" class="ghost-btn">Sign in</button>
+    </div>
+
+    <div class="assessment-home" id="assessment-home" hidden>
+      <div class="assessment-card">
+        <h2>Join a game</h2>
+        <form id="join-form" class="assessment-form">
+          <input type="text" id="join-code-input" placeholder="Room code" maxlength="6" autocomplete="off">
+          <button type="submit">Join</button>
+        </form>
+        <p class="assessment-error" id="join-error" hidden></p>
+      </div>
+      <div class="assessment-card" id="host-entry-card" hidden>
+        <h2>Host a game</h2>
+        <p class="report-block-note">Start a live assessment other members can join.</p>
+        <button type="button" id="host-new-btn">Host a new assessment</button>
+      </div>
+    </div>
+
+    <div class="assessment-card" id="assessment-host-setup" hidden>
+      <h2>New assessment</h2>
+      <form id="host-setup-form" class="assessment-form assessment-form-grid">
+        <label>Lesson
+          <select id="host-lesson-select"></select>
+        </label>
+        <label>Question type
+          <select id="host-question-type-select">
+            <option value="1">Type 1 — see the word, type the word</option>
+            <option value="2">Type 2 — fill in the blank</option>
+            <option value="mixed" selected>Mixed</option>
+          </select>
+        </label>
+        <label>Duration
+          <select id="host-duration-select">
+            <option value="60">1 minute</option>
+            <option value="120" selected>2 minutes</option>
+            <option value="180">3 minutes</option>
+            <option value="300">5 minutes</option>
+          </select>
+        </label>
+        <button type="submit">Create room</button>
+      </form>
+      <button type="button" id="host-setup-cancel-btn" class="ghost-btn">Cancel</button>
+    </div>
+
+    <div class="assessment-lobby" id="assessment-lobby" hidden>
+      <div class="lobby-code-block">
+        <div class="lobby-code-label">Room code</div>
+        <div class="lobby-code" id="lobby-code"></div>
+        <p id="lobby-info"></p>
+      </div>
+      <div class="report-table-wrap">
+        <table class="report-table">
+          <thead><tr><th>Player</th></tr></thead>
+          <tbody id="lobby-players-body"></tbody>
+        </table>
+      </div>
+      <div class="assessment-lobby-actions">
+        <button type="button" id="lobby-start-btn" hidden>Start</button>
+        <button type="button" id="lobby-leave-btn" class="ghost-btn">Leave</button>
+      </div>
+    </div>
+
+    <div class="assessment-running" id="assessment-running" hidden>
+      <div class="running-top">
+        <span class="stat-chip" id="running-timer">00:00</span>
+        <span class="stat-chip" id="running-score">Score: 0</span>
+      </div>
+      <div class="assessment-question" id="assessment-question">
+        <div class="speak-row">
+          <button type="button" class="speak-btn" id="question-speak-cn-btn">🔊 中文</button>
+          <button type="button" class="speak-btn" id="question-speak-en-btn" hidden>🔊 English</button>
+        </div>
+        <div id="question-prompt" class="question-prompt"></div>
+        <form id="answer-form" class="assessment-form">
+          <input type="text" id="answer-input" autocomplete="off" placeholder="Type the Chinese word…" lang="zh-CN">
+          <button type="submit">Submit</button>
+        </form>
+        <p id="answer-feedback" class="answer-feedback" hidden></p>
+      </div>
+      <div class="report-block">
+        <h3>Live leaderboard</h3>
+        <div class="report-table-wrap">
+          <table class="report-table" id="running-leaderboard-table">
+            <thead><tr><th>Rank</th><th>Player</th><th>Score</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="assessment-results" id="assessment-results" hidden>
+      <h2>🏁 Results</h2>
+      <div class="podium" id="podium"></div>
+      <p class="percentile-note" id="assessment-percentile"></p>
+      <div class="report-table-wrap">
+        <table class="report-table" id="results-table">
+          <thead><tr><th>Rank</th><th>Player</th><th>Score</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="assessment-lobby-actions">
+        <button type="button" id="host-again-btn" hidden>Host another round</button>
+        <button type="button" id="results-leave-btn" class="ghost-btn">Leave</button>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -221,5 +334,6 @@
 <script src="assets/vocab.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/report.js"></script>
+<script src="assets/assessment.js"></script>
 </body>
 </html>

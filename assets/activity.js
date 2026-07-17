@@ -86,9 +86,29 @@
     touchLessonStats(card.lesson, user.uid);
   }
 
+  async function getLessonMatchPercentile(lesson, uid, mySecondsPerPair) {
+    if (lesson === "all") return null;
+    try {
+      const q = sdk.query(sdk.collection(db, "lessonMatchBest"), sdk.where("lesson", "==", Number(lesson)));
+      const snap = await sdk.getDocs(q);
+      let total = 0;
+      let beaten = 0;
+      snap.forEach((docSnap) => {
+        const d = docSnap.data();
+        if (d.uid === uid) return;
+        total++;
+        if (d.secondsPerPair > mySecondsPerPair) beaten++;
+      });
+      if (total === 0) return null;
+      return Math.round((beaten / total) * 100);
+    } catch (e) {
+      return null;
+    }
+  }
+
   async function recordMatchComplete(lesson, pairs, seconds) {
     const user = window.vocabAuth.getUser();
-    if (!user) return;
+    if (!user) return null;
 
     const points = matchGamePoints(pairs, seconds);
     const displayName = user.displayName || user.email;
@@ -104,7 +124,8 @@
     });
 
     touchLessonStats(lesson, user.uid);
-    updateLessonMatchBest(lesson, user.uid, displayName, pairs, seconds);
+    await updateLessonMatchBest(lesson, user.uid, displayName, pairs, seconds);
+    const percentile = await getLessonMatchPercentile(lesson, user.uid, seconds / pairs);
 
     const scoreRef = sdk.doc(db, "scores", user.uid);
     try {
@@ -129,6 +150,8 @@
     } catch (e) {
       /* offline or permission issue: activity is already logged, score sync can lag */
     }
+
+    return { points, percentile };
   }
 
   window.vocabActivity = { recordEliminate, recordMatchComplete, matchGamePoints };

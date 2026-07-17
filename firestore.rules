@@ -12,6 +12,13 @@ service cloud.firestore {
         get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
 
+    function canHost() {
+      return isSignedIn() && (
+        isAdmin() ||
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("canHost", false) == true
+      );
+    }
+
     match /users/{uid} {
       allow read: if isSignedIn();
       // isAdmin can only be granted by hand in the Firebase console (the
@@ -52,6 +59,31 @@ service cloud.firestore {
     match /lessonMatchBest/{docId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /assessmentBest/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn() && canHost() && request.resource.data.hostUid == request.auth.uid &&
+        request.resource.data.status == "lobby";
+      allow update: if isSignedIn() && (
+        request.auth.uid == resource.data.hostUid ||
+        (resource.data.status == "running" && request.resource.data.status == "finished" &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status"]))
+      );
+      allow delete: if isSignedIn() && request.auth.uid == resource.data.hostUid;
+
+      match /players/{uid} {
+        allow read: if isSignedIn();
+        allow create: if isSignedIn() && request.auth.uid == uid && request.resource.data.score == 0;
+        allow update: if isSignedIn() && request.auth.uid == uid &&
+          request.resource.data.diff(resource.data).affectedKeys().hasOnly(["score", "answered", "lastAnswerAt"]);
+        allow delete: if isSignedIn() && request.auth.uid == uid;
+      }
     }
   }
 }
