@@ -235,7 +235,7 @@
   function startPractice() {
     lesson = els.lessonSelect.value;
     questionType = els.questionTypeSelect.value;
-    targetCount = Number(els.countSelect.value);
+    targetCount = els.countSelect.value === "all" ? getPool().length : Number(els.countSelect.value);
     correctCount = 0;
     wrongCount = 0;
     answerLog = [];
