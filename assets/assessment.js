@@ -516,6 +516,7 @@
   async function enterResults() {
     hasEnded = true;
     if (timerInterval) clearInterval(timerInterval);
+    if (isPlaying && window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
     showView(els.results);
     els.hostAgainBtn.hidden = !isHost;
     els.assessmentPercentile.textContent = "";

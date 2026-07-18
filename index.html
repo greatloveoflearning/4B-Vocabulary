@@ -7,6 +7,33 @@
 <link rel="stylesheet" href="assets/style.css">
 </head>
 <body>
+<div id="paywall-overlay" class="paywall-overlay" hidden>
+  <div class="paywall-card">
+    <h2>试用额度已用完 · Trial limit reached</h2>
+    <p>你已经免费体验了 <strong id="paywall-limit-text">15</strong> 局 Match / Practice / Live Game，感谢试用！继续使用需要解锁全部功能。</p>
+
+    <div class="paywall-section">
+      <h3>方式一：Interac e-Transfer（加拿大境内）</h3>
+      <p>请转账 <strong>CAD $50</strong> 到：<strong>info@ktailearn.com</strong></p>
+      <p>备注栏请填写你的登录邮箱：<strong id="paywall-student-email"></strong></p>
+      <p>我们会在 <strong>24 小时内</strong>为你开通全部功能。</p>
+    </div>
+
+    <div class="paywall-section">
+      <h3>方式二：不能在加拿大境内转账？</h3>
+      <p>请填写以下联系方式，管理员将在一天内与您电话或微信联系。</p>
+      <form id="paywall-lead-form">
+        <input type="text" id="paywall-lead-name" placeholder="姓名" required>
+        <input type="text" id="paywall-lead-contact" placeholder="电话或微信号" required>
+        <input type="email" id="paywall-lead-email" placeholder="邮箱" required>
+        <button type="submit" id="paywall-lead-submit-btn">提交</button>
+      </form>
+      <p id="paywall-lead-msg" class="paywall-lead-msg" hidden></p>
+    </div>
+
+    <button type="button" id="paywall-signout-btn" class="ghost-btn">Sign out</button>
+  </div>
+</div>
 <header class="topbar">
   <h1>4B Vocabulary Study Set</h1>
   <nav class="mode-tabs" role="tablist">
@@ -157,7 +184,18 @@
         <div class="report-table-wrap">
           <table class="report-table" id="admin-members-table">
             <thead>
-              <tr><th>Member</th><th>Email</th><th>Can host</th></tr>
+              <tr><th>Member</th><th>Email</th><th>Can host</th><th>Trial games</th><th>Unlocked</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>Potential customers (leads)</h3>
+        <p class="report-block-note">Submitted via the trial-limit paywall for members who can't e-Transfer.</p>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-leads-table">
+            <thead>
+              <tr><th>When</th><th>Name</th><th>Contact</th><th>Email</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -445,6 +483,7 @@
 <script src="assets/firebase-init.js"></script>
 <script src="assets/auth.js"></script>
 <script src="assets/activity.js"></script>
+<script src="assets/paywall.js"></script>
 <script src="assets/vocab.js"></script>
 <script src="assets/app.js"></script>
 <script src="assets/report.js"></script>

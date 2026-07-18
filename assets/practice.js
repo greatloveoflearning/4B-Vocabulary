@@ -248,6 +248,7 @@
   function endPractice() {
     showView(els.summary);
     const answered = correctCount + wrongCount;
+    if (answered > 0 && window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
     els.summaryLine.textContent = `${answered} question${answered === 1 ? "" : "s"}: ✅ ${correctCount} correct · ❌ ${wrongCount} wrong`;
     const wrongEntries = answerLog.filter((a) => !a.correct);
     els.summaryBody.innerHTML = "";

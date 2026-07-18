@@ -492,6 +492,8 @@
     const seconds = Math.max(1, Math.round((Date.now() - matchStartTime) / 1000));
     if (!window.vocabActivity) return;
 
+    if (window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
+
     window.vocabActivity.recordMatchComplete(els.setSelect.value, pairs, seconds).then((result) => {
       if (!result) return;
 

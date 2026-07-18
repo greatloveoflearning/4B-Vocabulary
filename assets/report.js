@@ -10,6 +10,7 @@
     stats: document.getElementById("report-stats"),
     adminBlock: document.getElementById("admin-block"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
+    adminLeadsBody: document.querySelector("#admin-leads-table tbody"),
     adminActivitySelect: document.getElementById("admin-activity-select"),
     adminActivityStats: document.getElementById("admin-activity-stats"),
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
@@ -240,7 +241,7 @@
       return;
     }
     els.adminBlock.hidden = false;
-    els.adminMembersBody.innerHTML = `<tr><td colspan="3">Loading…</td></tr>`;
+    els.adminMembersBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
     try {
       const snap = await sdk.getDocs(sdk.collection(db, "users"));
       els.adminMembersBody.innerHTML = "";
@@ -275,9 +276,36 @@
           }
         });
         tdHost.appendChild(btn);
+
+        const tdTrial = document.createElement("td");
+        tdTrial.textContent = `${u.trialGamesPlayed || 0} / ${window.vocabPaywall ? window.vocabPaywall.FREE_GAME_LIMIT : 15}`;
+
+        const tdUnlocked = document.createElement("td");
+        const unlockBtn = document.createElement("button");
+        unlockBtn.type = "button";
+        unlockBtn.className = "host-toggle-btn ghost-btn" + (u.unlocked ? " is-on" : "");
+        unlockBtn.textContent = u.unlocked ? "Unlocked: on" : "Unlocked: off";
+        unlockBtn.addEventListener("click", async () => {
+          const next = !u.unlocked;
+          unlockBtn.disabled = true;
+          try {
+            await sdk.updateDoc(sdk.doc(db, "users", uid), { unlocked: next });
+            u.unlocked = next;
+            unlockBtn.classList.toggle("is-on", next);
+            unlockBtn.textContent = next ? "Unlocked: on" : "Unlocked: off";
+          } catch (e) {
+            /* ignore */
+          } finally {
+            unlockBtn.disabled = false;
+          }
+        });
+        tdUnlocked.appendChild(unlockBtn);
+
         tr.appendChild(td);
         tr.appendChild(tdEmail);
         tr.appendChild(tdHost);
+        tr.appendChild(tdTrial);
+        tr.appendChild(tdUnlocked);
         els.adminMembersBody.appendChild(tr);
       });
 
@@ -290,7 +318,32 @@
       });
       if (adminMembers.length) renderMemberActivity(adminMembers[0].uid);
     } catch (err) {
-      els.adminMembersBody.innerHTML = `<tr><td colspan="3">Couldn't load members (${err.code || err.message}).</td></tr>`;
+      els.adminMembersBody.innerHTML = `<tr><td colspan="5">Couldn't load members (${err.code || err.message}).</td></tr>`;
+    }
+
+    renderAdminLeads();
+  }
+
+  async function renderAdminLeads() {
+    els.adminLeadsBody.innerHTML = `<tr><td colspan="4">Loading…</td></tr>`;
+    try {
+      const q = sdk.query(sdk.collection(db, "leads"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
+      const snap = await sdk.getDocs(q);
+      els.adminLeadsBody.innerHTML = "";
+      if (snap.empty) {
+        els.adminLeadsBody.innerHTML = `<tr><td colspan="4">No leads yet.</td></tr>`;
+        return;
+      }
+      snap.forEach((docSnap) => {
+        const l = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${l.contact || ""}</td><td>${
+          l.contactEmail || l.loginEmail || ""
+        }</td>`;
+        els.adminLeadsBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminLeadsBody.innerHTML = `<tr><td colspan="4">${formatQueryError(err)}</td></tr>`;
     }
   }
 

@@ -23,16 +23,23 @@ service cloud.firestore {
       allow read: if isSignedIn();
       // isAdmin can only be granted by hand in the Firebase console (the
       // Admin SDK bypasses rules); no client write may change it.
-      // canHost may only be changed by an existing admin.
+      // canHost and unlocked may only be changed by an existing admin.
       allow create: if isSignedIn() && request.auth.uid == uid &&
         request.resource.data.get("isAdmin", false) != true &&
-        request.resource.data.get("canHost", false) != true;
+        request.resource.data.get("canHost", false) != true &&
+        request.resource.data.get("unlocked", false) != true;
       allow update: if isSignedIn() && (
         (request.auth.uid == uid &&
           request.resource.data.get("isAdmin", false) == resource.data.get("isAdmin", false) &&
-          request.resource.data.get("canHost", false) == resource.data.get("canHost", false)) ||
-        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost"]))
+          request.resource.data.get("canHost", false) == resource.data.get("canHost", false) &&
+          request.resource.data.get("unlocked", false) == resource.data.get("unlocked", false)) ||
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlocked"]))
       );
+    }
+
+    match /leads/{leadId} {
+      allow read, update, delete: if isAdmin();
+      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
     }
 
     match /activity/{eventId} {
