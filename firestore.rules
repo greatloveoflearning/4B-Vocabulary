@@ -23,17 +23,18 @@ service cloud.firestore {
       allow read: if isSignedIn();
       // isAdmin can only be granted by hand in the Firebase console (the
       // Admin SDK bypasses rules); no client write may change it.
-      // canHost and unlocked may only be changed by an existing admin.
+      // canHost and unlockedUntil (subscription expiry, epoch ms) may only
+      // be changed by an existing admin.
       allow create: if isSignedIn() && request.auth.uid == uid &&
         request.resource.data.get("isAdmin", false) != true &&
         request.resource.data.get("canHost", false) != true &&
-        request.resource.data.get("unlocked", false) != true;
+        request.resource.data.get("unlockedUntil", null) == null;
       allow update: if isSignedIn() && (
         (request.auth.uid == uid &&
           request.resource.data.get("isAdmin", false) == resource.data.get("isAdmin", false) &&
           request.resource.data.get("canHost", false) == resource.data.get("canHost", false) &&
-          request.resource.data.get("unlocked", false) == resource.data.get("unlocked", false)) ||
-        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlocked"]))
+          request.resource.data.get("unlockedUntil", null) == resource.data.get("unlockedUntil", null)) ||
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlockedUntil"]))
       );
     }
 

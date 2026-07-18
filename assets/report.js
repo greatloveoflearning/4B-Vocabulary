@@ -241,7 +241,7 @@
       return;
     }
     els.adminBlock.hidden = false;
-    els.adminMembersBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
+    els.adminMembersBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
     try {
       const snap = await sdk.getDocs(sdk.collection(db, "users"));
       els.adminMembersBody.innerHTML = "";
@@ -280,32 +280,60 @@
         const tdTrial = document.createElement("td");
         tdTrial.textContent = `${u.trialGamesPlayed || 0} / ${window.vocabPaywall ? window.vocabPaywall.FREE_GAME_LIMIT : 15}`;
 
-        const tdUnlocked = document.createElement("td");
-        const unlockBtn = document.createElement("button");
-        unlockBtn.type = "button";
-        unlockBtn.className = "host-toggle-btn ghost-btn" + (u.unlocked ? " is-on" : "");
-        unlockBtn.textContent = u.unlocked ? "Unlocked: on" : "Unlocked: off";
-        unlockBtn.addEventListener("click", async () => {
-          const next = !u.unlocked;
-          unlockBtn.disabled = true;
+        const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
+        function subStatusText(member) {
+          if (!member.unlockedUntil) return "Not subscribed";
+          const until = new Date(member.unlockedUntil).toLocaleDateString();
+          return member.unlockedUntil > Date.now() ? `Active until ${until}` : `Expired ${until}`;
+        }
+
+        const tdSub = document.createElement("td");
+        tdSub.textContent = subStatusText(u);
+
+        const tdSubActions = document.createElement("td");
+        const renewBtn = document.createElement("button");
+        renewBtn.type = "button";
+        renewBtn.className = "host-toggle-btn ghost-btn";
+        renewBtn.textContent = "+1 Year";
+        renewBtn.addEventListener("click", async () => {
+          renewBtn.disabled = true;
           try {
-            await sdk.updateDoc(sdk.doc(db, "users", uid), { unlocked: next });
-            u.unlocked = next;
-            unlockBtn.classList.toggle("is-on", next);
-            unlockBtn.textContent = next ? "Unlocked: on" : "Unlocked: off";
+            const base = u.unlockedUntil && u.unlockedUntil > Date.now() ? u.unlockedUntil : Date.now();
+            const next = base + YEAR_MS;
+            await sdk.updateDoc(sdk.doc(db, "users", uid), { unlockedUntil: next });
+            u.unlockedUntil = next;
+            tdSub.textContent = subStatusText(u);
           } catch (e) {
             /* ignore */
           } finally {
-            unlockBtn.disabled = false;
+            renewBtn.disabled = false;
           }
         });
-        tdUnlocked.appendChild(unlockBtn);
+        const clearBtn = document.createElement("button");
+        clearBtn.type = "button";
+        clearBtn.className = "host-toggle-btn ghost-btn";
+        clearBtn.textContent = "Clear";
+        clearBtn.addEventListener("click", async () => {
+          clearBtn.disabled = true;
+          try {
+            await sdk.updateDoc(sdk.doc(db, "users", uid), { unlockedUntil: null });
+            u.unlockedUntil = null;
+            tdSub.textContent = subStatusText(u);
+          } catch (e) {
+            /* ignore */
+          } finally {
+            clearBtn.disabled = false;
+          }
+        });
+        tdSubActions.appendChild(renewBtn);
+        tdSubActions.appendChild(clearBtn);
 
         tr.appendChild(td);
         tr.appendChild(tdEmail);
         tr.appendChild(tdHost);
         tr.appendChild(tdTrial);
-        tr.appendChild(tdUnlocked);
+        tr.appendChild(tdSub);
+        tr.appendChild(tdSubActions);
         els.adminMembersBody.appendChild(tr);
       });
 
@@ -318,7 +346,7 @@
       });
       if (adminMembers.length) renderMemberActivity(adminMembers[0].uid);
     } catch (err) {
-      els.adminMembersBody.innerHTML = `<tr><td colspan="5">Couldn't load members (${err.code || err.message}).</td></tr>`;
+      els.adminMembersBody.innerHTML = `<tr><td colspan="6">Couldn't load members (${err.code || err.message}).</td></tr>`;
     }
 
     renderAdminLeads();

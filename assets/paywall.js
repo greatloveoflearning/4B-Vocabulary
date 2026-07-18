@@ -22,7 +22,9 @@
   els.limitText.textContent = String(FREE_GAME_LIMIT);
 
   function isUnlocked(profile) {
-    return !!(profile && (profile.isAdmin || profile.canHost || profile.unlocked));
+    if (!profile) return false;
+    if (profile.isAdmin || profile.canHost) return true;
+    return !!(profile.unlockedUntil && profile.unlockedUntil > Date.now());
   }
 
   function showOverlay() {
