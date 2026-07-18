@@ -11,7 +11,8 @@
     studentName: document.getElementById("paywall-student-name"),
     leadForm: document.getElementById("paywall-lead-form"),
     leadName: document.getElementById("paywall-lead-name"),
-    leadContact: document.getElementById("paywall-lead-contact"),
+    leadPhone: document.getElementById("paywall-lead-phone"),
+    leadWechat: document.getElementById("paywall-lead-wechat"),
     leadEmail: document.getElementById("paywall-lead-email"),
     leadSubmitBtn: document.getElementById("paywall-lead-submit-btn"),
     leadMsg: document.getElementById("paywall-lead-msg"),
@@ -71,6 +72,14 @@
     e.preventDefault();
     const user = window.vocabAuth.getUser();
     if (!user) return;
+    const phone = els.leadPhone.value.trim();
+    const wechat = els.leadWechat.value.trim();
+    if (!phone && !wechat) {
+      els.leadMsg.textContent = "请至少填写电话或微信号其中一项。";
+      els.leadMsg.className = "paywall-lead-msg error";
+      els.leadMsg.hidden = false;
+      return;
+    }
     els.leadSubmitBtn.disabled = true;
     els.leadMsg.hidden = true;
     try {
@@ -78,7 +87,8 @@
         uid: user.uid,
         loginEmail: user.email,
         name: els.leadName.value.trim(),
-        contact: els.leadContact.value.trim(),
+        phone,
+        wechat,
         contactEmail: els.leadEmail.value.trim(),
         createdAt: sdk.serverTimestamp(),
       });

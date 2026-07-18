@@ -24,7 +24,8 @@
       <p>请填写以下联系方式，管理员将在一天内与您电话或微信联系。</p>
       <form id="paywall-lead-form">
         <input type="text" id="paywall-lead-name" placeholder="姓名" required>
-        <input type="text" id="paywall-lead-contact" placeholder="电话或微信号" required>
+        <input type="text" id="paywall-lead-phone" placeholder="电话">
+        <input type="text" id="paywall-lead-wechat" placeholder="微信号">
         <input type="email" id="paywall-lead-email" placeholder="邮箱" required>
         <button type="submit" id="paywall-lead-submit-btn">提交</button>
       </form>
@@ -195,7 +196,7 @@
         <div class="report-table-wrap">
           <table class="report-table" id="admin-leads-table">
             <thead>
-              <tr><th>When</th><th>Name</th><th>Contact</th><th>Email</th></tr>
+              <tr><th>When</th><th>Name</th><th>Phone</th><th>WeChat</th><th>Email</th></tr>
             </thead>
             <tbody></tbody>
           </table>

@@ -325,25 +325,25 @@
   }
 
   async function renderAdminLeads() {
-    els.adminLeadsBody.innerHTML = `<tr><td colspan="4">Loading…</td></tr>`;
+    els.adminLeadsBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
     try {
       const q = sdk.query(sdk.collection(db, "leads"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
       const snap = await sdk.getDocs(q);
       els.adminLeadsBody.innerHTML = "";
       if (snap.empty) {
-        els.adminLeadsBody.innerHTML = `<tr><td colspan="4">No leads yet.</td></tr>`;
+        els.adminLeadsBody.innerHTML = `<tr><td colspan="5">No leads yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
         const l = docSnap.data();
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${l.contact || ""}</td><td>${
-          l.contactEmail || l.loginEmail || ""
-        }</td>`;
+        tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${l.phone || ""}</td><td>${
+          l.wechat || ""
+        }</td><td>${l.contactEmail || l.loginEmail || ""}</td>`;
         els.adminLeadsBody.appendChild(tr);
       });
     } catch (err) {
-      els.adminLeadsBody.innerHTML = `<tr><td colspan="4">${formatQueryError(err)}</td></tr>`;
+      els.adminLeadsBody.innerHTML = `<tr><td colspan="5">${formatQueryError(err)}</td></tr>`;
     }
   }
 
