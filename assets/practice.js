@@ -1,6 +1,24 @@
 (function () {
   "use strict";
 
+  const LESSON_STORAGE_KEY = "4b-vocab-last-lesson";
+
+  function loadLastLesson() {
+    try {
+      return localStorage.getItem(LESSON_STORAGE_KEY) || "all";
+    } catch (e) {
+      return "all";
+    }
+  }
+
+  function saveLastLesson(value) {
+    try {
+      localStorage.setItem(LESSON_STORAGE_KEY, value);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
   const els = {
     signedOut: document.getElementById("practice-signed-out"),
     signinBtn: document.getElementById("practice-signin-btn"),
@@ -57,6 +75,14 @@
       els.lessonSelect.appendChild(opt);
     });
   }
+
+  function syncLessonSelectFromStorage() {
+    const saved = loadLastLesson();
+    const values = Array.from(els.lessonSelect.options).map((o) => o.value);
+    els.lessonSelect.value = values.includes(saved) ? saved : "all";
+  }
+
+  els.lessonSelect.addEventListener("change", (e) => saveLastLesson(e.target.value));
 
   // ---------- state ----------
 
@@ -244,6 +270,7 @@
       return;
     }
     ensureLessonOptions();
+    syncLessonSelectFromStorage();
     if (currentView === els.signedOut) showView(els.setup);
     else showView(currentView);
   }

@@ -2,6 +2,7 @@
   "use strict";
 
   const STORAGE_KEY = "4b-vocab-eliminated-v1";
+  const LESSON_STORAGE_KEY = "4b-vocab-last-lesson";
 
   let allCards = [];
   let deck = [];
@@ -82,6 +83,32 @@
     }
   }
 
+  function loadLastLesson() {
+    try {
+      return localStorage.getItem(LESSON_STORAGE_KEY) || "all";
+    } catch (e) {
+      return "all";
+    }
+  }
+
+  function saveLastLesson(value) {
+    try {
+      localStorage.setItem(LESSON_STORAGE_KEY, value);
+    } catch (e) {
+      /* ignore */
+    }
+  }
+
+  function syncSetSelectFromStorage() {
+    const saved = loadLastLesson();
+    const values = Array.from(els.setSelect.options).map((o) => o.value);
+    const target = values.includes(saved) ? saved : "all";
+    if (els.setSelect.value !== target) {
+      els.setSelect.value = target;
+      loadSet(target);
+    }
+  }
+
   // ---------- audio ----------
 
   let audioCtx = null;
@@ -145,7 +172,7 @@
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
-    utter.rate = lang.startsWith("zh") ? 0.63 : 1;
+    utter.rate = lang.startsWith("zh") ? 0.44 : 1;
     window.speechSynthesis.speak(utter);
   }
 
@@ -288,6 +315,7 @@
   els.studyCompleteResetBtn.addEventListener("click", resetEliminated);
 
   els.setSelect.addEventListener("change", (e) => {
+    saveLastLesson(e.target.value);
     loadSet(e.target.value);
     if (!els.matchView.hidden) startMatchGame();
   });
@@ -526,6 +554,10 @@
       els.studyControls.hidden = mode !== "study";
       els.matchControls.hidden = mode !== "match";
 
+      if (mode === "study" || mode === "match") {
+        syncSetSelectFromStorage();
+      }
+
       if (mode === "match") {
         startMatchGame();
       } else {
@@ -542,5 +574,8 @@
 
   allCards = (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
   buildSetOptions();
-  loadSet("all");
+  const savedLesson = loadLastLesson();
+  const optionValues = Array.from(els.setSelect.options).map((o) => o.value);
+  els.setSelect.value = optionValues.includes(savedLesson) ? savedLesson : "all";
+  loadSet(els.setSelect.value);
 })();
