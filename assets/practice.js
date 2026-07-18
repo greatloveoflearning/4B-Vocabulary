@@ -82,7 +82,19 @@
     els.lessonSelect.value = values.includes(saved) ? saved : "all";
   }
 
-  els.lessonSelect.addEventListener("change", (e) => saveLastLesson(e.target.value));
+  function syncQuestionTypeAvailability() {
+    const value = els.lessonSelect.value;
+    const restricted = value !== "all" && window.TYPE1_ONLY_LESSONS && window.TYPE1_ONLY_LESSONS.has(Number(value));
+    Array.from(els.questionTypeSelect.options).forEach((opt) => {
+      opt.disabled = restricted && opt.value !== "1";
+    });
+    if (restricted) els.questionTypeSelect.value = "1";
+  }
+
+  els.lessonSelect.addEventListener("change", (e) => {
+    saveLastLesson(e.target.value);
+    syncQuestionTypeAvailability();
+  });
 
   // ---------- state ----------
 
@@ -100,7 +112,8 @@
     return lesson === "all" ? all : all.filter((c) => c.lesson === Number(lesson));
   }
 
-  function pickQuestionType() {
+  function pickQuestionType(card) {
+    if (window.TYPE1_ONLY_LESSONS && window.TYPE1_ONLY_LESSONS.has(card.lesson)) return "1";
     if (questionType === "mixed") return Math.random() < 0.5 ? "1" : "2";
     return questionType;
   }
@@ -117,7 +130,7 @@
       }
     }
     lastCardId = card.id;
-    return { card, type: pickQuestionType() };
+    return { card, type: pickQuestionType(card) };
   }
 
   function updateTally() {
@@ -271,6 +284,7 @@
     }
     ensureLessonOptions();
     syncLessonSelectFromStorage();
+    syncQuestionTypeAvailability();
     if (currentView === els.signedOut) showView(els.setup);
     else showView(currentView);
   }

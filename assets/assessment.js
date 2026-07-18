@@ -128,8 +128,20 @@
     });
   }
 
+  function syncHostQuestionTypeAvailability() {
+    const value = els.hostLessonSelect.value;
+    const restricted = window.TYPE1_ONLY_LESSONS && window.TYPE1_ONLY_LESSONS.has(Number(value));
+    Array.from(els.hostQuestionTypeSelect.options).forEach((opt) => {
+      opt.disabled = restricted && opt.value !== "1";
+    });
+    if (restricted) els.hostQuestionTypeSelect.value = "1";
+  }
+
+  els.hostLessonSelect.addEventListener("change", syncHostQuestionTypeAvailability);
+
   els.hostNewBtn.addEventListener("click", () => {
     ensureHostLessonOptions();
+    syncHostQuestionTypeAvailability();
     showView(els.hostSetup);
   });
 
@@ -141,7 +153,8 @@
     if (!user) return;
 
     const lesson = Number(els.hostLessonSelect.value);
-    const questionType = els.hostQuestionTypeSelect.value;
+    const questionType =
+      window.TYPE1_ONLY_LESSONS && window.TYPE1_ONLY_LESSONS.has(lesson) ? "1" : els.hostQuestionTypeSelect.value;
     const durationSeconds = Number(els.hostDurationSelect.value);
     const code = generateCode();
 
@@ -301,6 +314,7 @@
   // ---------- running ----------
 
   function pickQuestionType() {
+    if (window.TYPE1_ONLY_LESSONS && window.TYPE1_ONLY_LESSONS.has(sessionData.lesson)) return "1";
     if (sessionData.questionType === "mixed") return Math.random() < 0.5 ? "1" : "2";
     return sessionData.questionType;
   }
