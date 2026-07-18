@@ -8,7 +8,7 @@
   const els = {
     overlay: document.getElementById("paywall-overlay"),
     limitText: document.getElementById("paywall-limit-text"),
-    studentEmail: document.getElementById("paywall-student-email"),
+    studentName: document.getElementById("paywall-student-name"),
     leadForm: document.getElementById("paywall-lead-form"),
     leadName: document.getElementById("paywall-lead-name"),
     leadContact: document.getElementById("paywall-lead-contact"),
@@ -26,7 +26,7 @@
 
   function showOverlay() {
     const user = window.vocabAuth.getUser();
-    els.studentEmail.textContent = user ? user.email : "";
+    els.studentName.textContent = user ? user.displayName || user.email : "";
     els.overlay.hidden = false;
   }
 
