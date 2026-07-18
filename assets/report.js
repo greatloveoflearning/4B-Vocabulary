@@ -130,7 +130,7 @@
         /* leave as – */
       }
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>Lesson ${lesson}</td><td>${mastered}</td><td>${cards.length}</td><td>${learners}</td>`;
+      tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${learners}</td>`;
       els.lessonTableBody.appendChild(tr);
     }
   }
@@ -140,7 +140,7 @@
     getLessons().forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
-      opt.textContent = `Lesson ${lesson}`;
+      opt.textContent = window.lessonLabel(lesson);
       els.matchLessonSelect.appendChild(opt);
     });
   }

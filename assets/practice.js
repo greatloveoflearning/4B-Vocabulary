@@ -71,7 +71,7 @@
     getLessons().forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
-      opt.textContent = `Lesson ${lesson}`;
+      opt.textContent = window.lessonLabel(lesson);
       els.lessonSelect.appendChild(opt);
     });
   }

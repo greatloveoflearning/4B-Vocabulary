@@ -123,7 +123,7 @@
     getLessons().forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
-      opt.textContent = `Lesson ${lesson}`;
+      opt.textContent = window.lessonLabel(lesson);
       els.hostLessonSelect.appendChild(opt);
     });
   }
@@ -245,7 +245,7 @@
   function renderLobby() {
     showView(els.lobby);
     els.lobbyCode.textContent = sessionId;
-    els.lobbyInfo.textContent = `Lesson ${sessionData.lesson} · ${questionTypeLabel(
+    els.lobbyInfo.textContent = `${window.lessonLabel(sessionData.lesson)} · ${questionTypeLabel(
       sessionData.questionType
     )} · ${sessionData.durationSeconds}s`;
     els.lobbyStartBtn.hidden = !isHost;

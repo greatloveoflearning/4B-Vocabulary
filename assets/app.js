@@ -209,7 +209,7 @@
       const count = allCards.filter((c) => c.lesson === lesson).length;
       const opt = document.createElement("option");
       opt.value = String(lesson);
-      opt.textContent = `Lesson ${lesson} (${count} cards)`;
+      opt.textContent = `${window.lessonLabel(lesson)} (${count} cards)`;
       els.setSelect.appendChild(opt);
     });
   }
