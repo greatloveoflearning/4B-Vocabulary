@@ -167,12 +167,49 @@
     playTone(160, 0.25, "square", 0.15);
   }
 
+  let cachedVoices = [];
+  function loadVoices() {
+    cachedVoices = window.speechSynthesis.getVoices();
+  }
+  if ("speechSynthesis" in window) {
+    loadVoices();
+    window.speechSynthesis.onvoiceschanged = loadVoices;
+  }
+
+  const PREFERRED_VOICE_NAMES = {
+    en: [
+      "Google US English",
+      "Microsoft Aria Online",
+      "Microsoft Jenny Online",
+      "Microsoft Zira",
+      "Samantha",
+      "Alex",
+      "Daniel",
+      "Microsoft David",
+    ],
+  };
+
+  function pickVoice(lang) {
+    if (!cachedVoices.length) return null;
+    const short = lang.slice(0, 2).toLowerCase();
+    const candidates = cachedVoices.filter((v) => v.lang && v.lang.toLowerCase().startsWith(short));
+    if (!candidates.length) return null;
+    const preferred = PREFERRED_VOICE_NAMES[short] || [];
+    for (const name of preferred) {
+      const match = candidates.find((v) => v.name.toLowerCase().includes(name.toLowerCase()));
+      if (match) return match;
+    }
+    return candidates[0];
+  }
+
   function speak(text, lang) {
     if (!("speechSynthesis" in window) || !text) return;
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
     utter.rate = lang.startsWith("zh") ? 0.44 : 1;
+    const voice = pickVoice(lang);
+    if (voice) utter.voice = voice;
     window.speechSynthesis.speak(utter);
   }
 
