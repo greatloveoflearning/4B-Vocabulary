@@ -118,7 +118,7 @@
 
   async function renderLessonBreakdown(masteredIds) {
     const allCards = getAllCards();
-    const lessons = getLessons();
+    const lessons = window.sortLessonIds(getLessons());
     const masteredSet = new Set(masteredIds || []);
 
     els.lessonTableBody.innerHTML = "";
