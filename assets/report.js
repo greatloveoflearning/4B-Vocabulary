@@ -59,6 +59,10 @@
     if (event.type === "match_complete") return `🧩 Match: ${event.pairs} pairs in ${event.seconds}s (+${event.points} pts)`;
     if (event.type === "assessment_answer")
       return event.correct ? `🏆 Assessment: correct (${event.hanzi || ""})` : `🏆 Assessment: wrong (${event.hanzi || ""})`;
+    if (event.type === "practice_complete") {
+      const typeLabel = event.questionType === "mixed" ? "Mixed" : `Type ${event.questionType || ""}`;
+      return `📝 Practice (${typeLabel}): ✅ ${event.correctCount || 0} · ❌ ${event.wrongCount || 0}`;
+    }
     return event.type;
   }
 

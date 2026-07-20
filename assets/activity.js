@@ -219,7 +219,7 @@
     }
   }
 
-  async function recordPracticeComplete(lesson, questionType) {
+  async function recordPracticeComplete(lesson, questionType, correctCount, wrongCount) {
     const user = window.vocabAuth.getUser();
     if (!user) return;
 
@@ -243,6 +243,18 @@
     } catch (e) {
       /* offline or permission issue */
     }
+
+    sdk.addDoc(sdk.collection(db, "activity"), {
+      uid: user.uid,
+      type: "practice_complete",
+      lesson: key,
+      questionType,
+      correctCount: correctCount || 0,
+      wrongCount: wrongCount || 0,
+      createdAt: sdk.serverTimestamp(),
+    });
+
+    touchLessonStats(lesson, user.uid);
   }
 
   window.vocabActivity = {
