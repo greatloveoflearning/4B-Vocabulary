@@ -244,7 +244,7 @@
     showView(els.summary);
     const answered = correctCount + wrongCount;
     if (answered > 0 && window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
-    if (answered > 0 && window.vocabActivity) window.vocabActivity.recordPracticeComplete(lesson);
+    if (answered > 0 && window.vocabActivity) window.vocabActivity.recordPracticeComplete(lesson, questionType);
     els.summaryLine.textContent = `${answered} question${answered === 1 ? "" : "s"}: ✅ ${correctCount} correct · ❌ ${wrongCount} wrong`;
     const wrongEntries = answerLog.filter((a) => !a.correct);
     els.summaryBody.innerHTML = "";

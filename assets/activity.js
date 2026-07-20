@@ -219,17 +219,26 @@
     }
   }
 
-  async function recordPracticeComplete(lesson) {
+  async function recordPracticeComplete(lesson, questionType) {
     const user = window.vocabAuth.getUser();
     if (!user) return;
 
     const key = lessonKey(lesson);
+    const incType1 = questionType === "1" || questionType === "mixed";
+    const incType2 = questionType === "2" || questionType === "mixed";
     const ref = sdk.doc(db, "lessonPracticeCompletions", `${key}_${user.uid}`);
     try {
       await sdk.runTransaction(db, async (tx) => {
         const snap = await tx.get(ref);
-        const completions = (snap.exists() ? snap.data().completions || 0 : 0) + 1;
-        tx.set(ref, { uid: user.uid, lesson: key, completions, updatedAt: sdk.serverTimestamp() }, { merge: true });
+        const data = snap.exists() ? snap.data() : {};
+        const completions = (data.completions || 0) + 1;
+        const completionsType1 = (data.completionsType1 || 0) + (incType1 ? 1 : 0);
+        const completionsType2 = (data.completionsType2 || 0) + (incType2 ? 1 : 0);
+        tx.set(
+          ref,
+          { uid: user.uid, lesson: key, completions, completionsType1, completionsType2, updatedAt: sdk.serverTimestamp() },
+          { merge: true }
+        );
       });
     } catch (e) {
       /* offline or permission issue */

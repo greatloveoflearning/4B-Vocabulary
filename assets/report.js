@@ -434,7 +434,7 @@
   }
 
   async function renderMemberProgress(uid) {
-    els.adminProgressBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
+    els.adminProgressBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
     try {
       const [scoreSnap, matchSnap, practiceSnap] = await Promise.all([
         sdk.getDoc(sdk.doc(db, "scores", uid)),
@@ -448,10 +448,12 @@
         const d = docSnap.data();
         matchMap[d.lesson] = d.completions || 0;
       });
-      const practiceMap = {};
+      const practiceType1Map = {};
+      const practiceType2Map = {};
       practiceSnap.forEach((docSnap) => {
         const d = docSnap.data();
-        practiceMap[d.lesson] = d.completions || 0;
+        practiceType1Map[d.lesson] = d.completionsType1 || 0;
+        practiceType2Map[d.lesson] = d.completionsType2 || 0;
       });
 
       const allCards = getAllCards();
@@ -463,11 +465,11 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${
           matchMap[lesson] || 0
-        }</td><td>${practiceMap[lesson] || 0}</td>`;
+        }</td><td>${practiceType1Map[lesson] || 0}</td><td>${practiceType2Map[lesson] || 0}</td>`;
         els.adminProgressBody.appendChild(tr);
       });
     } catch (err) {
-      els.adminProgressBody.innerHTML = `<tr><td colspan="5">${formatQueryError(err)}</td></tr>`;
+      els.adminProgressBody.innerHTML = `<tr><td colspan="6">${formatQueryError(err)}</td></tr>`;
     }
   }
 
