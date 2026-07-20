@@ -194,13 +194,14 @@
       const q = sdk.query(
         sdk.collection(db, "activity"),
         sdk.where("uid", "==", uid),
+        sdk.where("type", "in", ["match_complete", "practice_complete"]),
         sdk.orderBy("createdAt", "desc"),
         sdk.limit(20)
       );
       const snap = await sdk.getDocs(q);
       els.activityTableBody.innerHTML = "";
       if (snap.empty) {
-        els.activityTableBody.innerHTML = `<tr><td colspan="3">No activity yet — start studying!</td></tr>`;
+        els.activityTableBody.innerHTML = `<tr><td colspan="3">No Match or Practice activity yet — start studying!</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
@@ -415,6 +416,7 @@
       const q = sdk.query(
         sdk.collection(db, "activity"),
         sdk.where("uid", "==", uid),
+        sdk.where("type", "in", ["match_complete", "practice_complete"]),
         sdk.orderBy("createdAt", "desc"),
         sdk.limit(150)
       );
@@ -423,7 +425,7 @@
       if (snap.empty) {
         els.adminActivityBody.innerHTML = `<tr><td colspan="3">${
           member ? member.displayName : "This member"
-        } hasn't done any activity yet.</td></tr>`;
+        } hasn't done any Match or Practice activity yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
