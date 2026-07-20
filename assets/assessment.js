@@ -50,9 +50,7 @@
     hostAgainBtn: document.getElementById("host-again-btn"),
     resultsLeaveBtn: document.getElementById("results-leave-btn"),
 
-    answerReportPlayerSelect: document.getElementById("answer-report-player-select"),
-    answerReportSummary: document.getElementById("answer-report-summary"),
-    answerReportBody: document.querySelector("#answer-report-table tbody"),
+    studentOverviewList: document.getElementById("student-overview-list"),
   };
 
   const views = [els.signedOut, els.home, els.hostSetup, els.lobby, els.running, els.results];
@@ -583,29 +581,8 @@
     }
   }
 
-  let reportPlayers = [];
-
   function renderAnswerReportOptions(players) {
-    reportPlayers = players;
-    const user = window.vocabAuth.getUser();
-    els.answerReportPlayerSelect.innerHTML = "";
-
-    if (players.length === 0) {
-      els.answerReportSummary.textContent = "No players.";
-      els.answerReportBody.innerHTML = "";
-      return;
-    }
-
-    players.forEach((p) => {
-      const opt = document.createElement("option");
-      opt.value = p.uid;
-      opt.textContent = p.displayName;
-      els.answerReportPlayerSelect.appendChild(opt);
-    });
-
-    const defaultUid = user && players.some((p) => p.uid === user.uid) ? user.uid : players[0].uid;
-    els.answerReportPlayerSelect.value = defaultUid;
-    renderAnswerReport(defaultUid);
+    renderStudentOverview(players);
   }
 
   function questionLabel(entry) {
@@ -617,35 +594,66 @@
     return `${entry.meaning} — ${blanked}`;
   }
 
-  function renderAnswerReport(uid) {
-    const player = reportPlayers.find((p) => p.uid === uid);
-    els.answerReportBody.innerHTML = "";
-    if (!player) {
-      els.answerReportSummary.textContent = "";
+  function renderStudentOverview(players) {
+    const container = els.studentOverviewList;
+    container.innerHTML = "";
+    if (players.length === 0) {
+      container.innerHTML = `<p class="report-block-note">No players.</p>`;
       return;
     }
-    const log = player.answerLog || [];
-    const correctCount = log.filter((a) => a.correct).length;
-    const wrongEntries = log.filter((a) => !a.correct);
-    els.answerReportSummary.textContent =
-      log.length === 0
-        ? `${player.displayName} didn't answer any questions this round.`
-        : `${player.displayName}: ✅ ${correctCount} correct · ❌ ${wrongEntries.length} wrong`;
 
-    if (wrongEntries.length === 0) {
-      els.answerReportBody.innerHTML = log.length
-        ? `<tr><td colspan="3">Perfect round — no mistakes! 🎉</td></tr>`
-        : "";
-      return;
-    }
-    wrongEntries.forEach((entry) => {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${questionLabel(entry)}</td><td>${entry.guess || "(blank)"}</td><td>${entry.hanzi}</td>`;
-      els.answerReportBody.appendChild(tr);
+    const user = window.vocabAuth.getUser();
+    players.forEach((p) => {
+      const log = p.answerLog || [];
+      const correctCount = log.filter((a) => a.correct).length;
+      const wrongEntries = log.filter((a) => !a.correct);
+      const accuracy = log.length ? Math.round((correctCount / log.length) * 100) : 0;
+
+      const row = document.createElement("div");
+      row.className = "student-row";
+      if (user && p.uid === user.uid) row.classList.add("report-me");
+
+      const main = document.createElement("div");
+      main.className = "student-row-main";
+      main.innerHTML = `
+        <div class="student-name">${p.displayName}</div>
+        <div class="student-stats">
+          <div class="stat-tile stat-correct" title="Correct">${correctCount}</div>
+          <button type="button" class="stat-tile stat-wrong" title="Wrong — click to see which"${
+            wrongEntries.length ? "" : " disabled"
+          }>${wrongEntries.length}</button>
+          <div class="stat-tile stat-accuracy" title="Accuracy">${accuracy}%</div>
+        </div>`;
+      row.appendChild(main);
+
+      const panel = document.createElement("div");
+      panel.className = "student-wrong-panel";
+      panel.hidden = true;
+      if (wrongEntries.length) {
+        const wrap = document.createElement("div");
+        wrap.className = "report-table-wrap";
+        const table = document.createElement("table");
+        table.className = "report-table";
+        table.innerHTML = `<thead><tr><th>Question</th><th>Their answer</th><th>Correct answer</th></tr></thead><tbody></tbody>`;
+        const tbody = table.querySelector("tbody");
+        wrongEntries.forEach((entry) => {
+          const tr = document.createElement("tr");
+          tr.innerHTML = `<td>${questionLabel(entry)}</td><td>${entry.guess || "(blank)"}</td><td>${entry.hanzi}</td>`;
+          tbody.appendChild(tr);
+        });
+        wrap.appendChild(table);
+        panel.appendChild(wrap);
+      }
+      row.appendChild(panel);
+
+      const wrongBtn = main.querySelector(".stat-wrong");
+      wrongBtn.addEventListener("click", () => {
+        panel.hidden = !panel.hidden;
+      });
+
+      container.appendChild(row);
     });
   }
-
-  els.answerReportPlayerSelect.addEventListener("change", (e) => renderAnswerReport(e.target.value));
 
   els.hostAgainBtn.addEventListener("click", async () => {
     await leaveSession();

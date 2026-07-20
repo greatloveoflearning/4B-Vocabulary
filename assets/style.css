@@ -1166,3 +1166,69 @@ footer {
 #paywall-signout-btn {
   margin-top: 1.25rem;
 }
+
+/* ---------- student overview (answer report) ---------- */
+
+#student-overview-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.student-row {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+}
+
+.student-row.report-me {
+  border-color: var(--accent);
+}
+
+.student-row-main {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.student-name {
+  font-weight: 600;
+  font-size: 1.05rem;
+}
+
+.student-stats {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.stat-tile {
+  min-width: 3.25rem;
+  text-align: center;
+  padding: 0.4rem 0.7rem;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  font-family: inherit;
+  font-size: 1rem;
+}
+
+.stat-correct { color: #16a34a; }
+.stat-wrong { color: #dc2626; cursor: pointer; }
+.stat-wrong:disabled { cursor: default; opacity: 0.5; }
+.stat-accuracy { color: var(--accent); }
+
+.student-wrong-panel {
+  margin-top: 0.75rem;
+  border-top: 1px solid var(--border);
+  padding-top: 0.75rem;
+}
+
+.student-wrong-panel .report-table-wrap {
+  box-shadow: none;
+  border: 1px solid var(--border);
+}
