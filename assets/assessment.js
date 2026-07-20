@@ -79,10 +79,6 @@
     return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
   }
 
-  function getLessons() {
-    return Array.from(new Set(getAllCards().map((c) => c.lesson))).sort((a, b) => a - b);
-  }
-
   function generateCode() {
     let code = "";
     for (let i = 0; i < 5; i++) code += CODE_CHARS[Math.floor(Math.random() * CODE_CHARS.length)];
@@ -120,7 +116,7 @@
 
   function ensureHostLessonOptions() {
     if (els.hostLessonSelect.options.length) return;
-    getLessons().forEach((lesson) => {
+    window.getSortedLessonIds(getAllCards()).forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = window.lessonLabel(lesson);
@@ -320,7 +316,7 @@
   }
 
   function nextQuestion() {
-    const pool = getAllCards().filter((c) => c.lesson === sessionData.lesson);
+    const pool = window.getCardsForLessonValue(getAllCards(), sessionData.lesson);
     if (pool.length === 0) return null;
     let card = pool[Math.floor(Math.random() * pool.length)];
     if (pool.length > 1) {

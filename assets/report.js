@@ -138,7 +138,7 @@
 
   function ensureMatchLessonOptions() {
     if (els.matchLessonSelect.options.length) return;
-    getLessons().forEach((lesson) => {
+    window.getSortedLessonIds(getAllCards()).forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = window.lessonLabel(lesson);

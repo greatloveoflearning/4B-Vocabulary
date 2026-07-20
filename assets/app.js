@@ -226,7 +226,7 @@
   }
 
   function getLessonCards(value) {
-    return value === "all" ? allCards.slice() : allCards.filter((c) => c.lesson === Number(value));
+    return window.getCardsForLessonValue(allCards, value);
   }
 
   function getActiveCards() {
@@ -236,14 +236,14 @@
   // ---------- study mode ----------
 
   function buildSetOptions() {
-    const lessons = Array.from(new Set(allCards.map((c) => c.lesson))).sort((a, b) => a - b);
+    const lessons = window.getSortedLessonIds(allCards);
     const allOption = document.createElement("option");
     allOption.value = "all";
     allOption.textContent = `All lessons (${allCards.length} cards)`;
     els.setSelect.appendChild(allOption);
 
     lessons.forEach((lesson) => {
-      const count = allCards.filter((c) => c.lesson === lesson).length;
+      const count = window.getCardsForLessonValue(allCards, lesson).length;
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = `${window.lessonLabel(lesson)} (${count} cards)`;

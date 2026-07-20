@@ -58,17 +58,13 @@
     return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
   }
 
-  function getLessons() {
-    return Array.from(new Set(getAllCards().map((c) => c.lesson))).sort((a, b) => a - b);
-  }
-
   function ensureLessonOptions() {
     if (els.lessonSelect.options.length) return;
     const allOpt = document.createElement("option");
     allOpt.value = "all";
     allOpt.textContent = "All lessons";
     els.lessonSelect.appendChild(allOpt);
-    getLessons().forEach((lesson) => {
+    window.getSortedLessonIds(getAllCards()).forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = window.lessonLabel(lesson);
@@ -108,8 +104,7 @@
   let lastCardId = null;
 
   function getPool() {
-    const all = getAllCards();
-    return lesson === "all" ? all : all.filter((c) => c.lesson === Number(lesson));
+    return window.getCardsForLessonValue(getAllCards(), lesson);
   }
 
   function pickQuestionType(card) {
