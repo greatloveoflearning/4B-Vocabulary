@@ -278,7 +278,7 @@
         tdHost.appendChild(btn);
 
         const tdTrial = document.createElement("td");
-        tdTrial.textContent = `${u.trialGamesPlayed || 0} / ${window.vocabPaywall ? window.vocabPaywall.FREE_GAME_LIMIT : 15}`;
+        tdTrial.textContent = `${u.trialGamesPlayed || 0} / ${window.vocabPaywall ? window.vocabPaywall.FREE_GAME_LIMIT : 50}`;
 
         const YEAR_MS = 365 * 24 * 60 * 60 * 1000;
         function subStatusText(member) {

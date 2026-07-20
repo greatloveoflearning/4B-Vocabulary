@@ -3,7 +3,7 @@
 
   const { db, sdk } = window.vocabFirebase;
 
-  const FREE_GAME_LIMIT = 15;
+  const FREE_GAME_LIMIT = 50;
 
   const els = {
     overlay: document.getElementById("paywall-overlay"),

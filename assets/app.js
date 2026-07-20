@@ -251,12 +251,19 @@
     });
   }
 
+  let lastCountedFlashcardLesson = null;
+
   function loadSet(value) {
     const base = getLessonCards(value);
     deck = shuffleMode ? shuffleArray(base) : base;
     activeIndex = 0;
     flipped = false;
     renderStudy();
+
+    if (value !== lastCountedFlashcardLesson) {
+      lastCountedFlashcardLesson = value;
+      if (window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
+    }
   }
 
   function renderStudy() {
