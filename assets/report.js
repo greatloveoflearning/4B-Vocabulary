@@ -455,7 +455,7 @@
       });
 
       const allCards = getAllCards();
-      const lessons = getLessons();
+      const lessons = window.sortLessonIds(getLessons());
       els.adminProgressBody.innerHTML = "";
       lessons.forEach((lesson) => {
         const cards = allCards.filter((c) => c.lesson === lesson);
