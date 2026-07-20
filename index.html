@@ -292,7 +292,7 @@
       <div class="assessment-card">
         <h2>Join a game</h2>
         <form id="join-form" class="assessment-form">
-          <input type="text" id="join-code-input" placeholder="Room code" maxlength="6" autocomplete="off">
+          <input type="text" id="join-code-input" placeholder="Room code" maxlength="6" autocomplete="off" inputmode="numeric" pattern="[0-9]*">
           <button type="submit">Join</button>
         </form>
         <p class="assessment-error" id="join-error" hidden></p>

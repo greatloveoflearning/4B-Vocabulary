@@ -2,7 +2,7 @@
   "use strict";
 
   const { db, sdk } = window.vocabFirebase;
-  const CODE_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // no 0/O/1/I
+  const CODE_CHARS = "0123456789";
 
   const els = {
     signedOut: document.getElementById("assessment-signed-out"),
