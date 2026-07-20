@@ -8,12 +8,14 @@
     signinBtn: document.getElementById("report-signin-btn"),
     content: document.getElementById("report-content"),
     stats: document.getElementById("report-stats"),
-    adminBlock: document.getElementById("admin-block"),
+    adminBlockTop: document.getElementById("admin-block-top"),
+    adminBlockBottom: document.getElementById("admin-block-bottom"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
     adminLeadsBody: document.querySelector("#admin-leads-table tbody"),
     adminActivitySelect: document.getElementById("admin-activity-select"),
     adminActivityStats: document.getElementById("admin-activity-stats"),
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
+    adminProgressBody: document.querySelector("#admin-progress-table tbody"),
     lessonTableBody: document.querySelector("#report-lesson-table tbody"),
     matchLessonSelect: document.getElementById("report-match-lesson-select"),
     matchLeaderboardBody: document.querySelector("#report-match-leaderboard-table tbody"),
@@ -200,7 +202,7 @@
       snap.forEach((docSnap) => {
         const e = docSnap.data();
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${formatWhen(e.createdAt)}</td><td>${activityLabel(e)}</td><td>${e.lesson}</td>`;
+        tr.innerHTML = `<td>${formatWhen(e.createdAt)}</td><td>${activityLabel(e)}</td><td>${window.lessonLabel(e.lesson)}</td>`;
         els.activityTableBody.appendChild(tr);
       });
     } catch (err) {
@@ -237,10 +239,12 @@
 
   async function renderAdminPanel(profile) {
     if (!profile || !profile.isAdmin) {
-      els.adminBlock.hidden = true;
+      els.adminBlockTop.hidden = true;
+      els.adminBlockBottom.hidden = true;
       return;
     }
-    els.adminBlock.hidden = false;
+    els.adminBlockTop.hidden = false;
+    els.adminBlockBottom.hidden = false;
     els.adminMembersBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
     try {
       const snap = await sdk.getDocs(sdk.collection(db, "users"));
@@ -344,7 +348,10 @@
         opt.textContent = m.displayName;
         els.adminActivitySelect.appendChild(opt);
       });
-      if (adminMembers.length) renderMemberActivity(adminMembers[0].uid);
+      if (adminMembers.length) {
+        renderMemberActivity(adminMembers[0].uid);
+        renderMemberProgress(adminMembers[0].uid);
+      }
     } catch (err) {
       els.adminMembersBody.innerHTML = `<tr><td colspan="6">Couldn't load members (${err.code || err.message}).</td></tr>`;
     }
@@ -418,7 +425,7 @@
       snap.forEach((docSnap) => {
         const e = docSnap.data();
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${formatWhen(e.createdAt)}</td><td>${activityLabel(e)}</td><td>${e.lesson}</td>`;
+        tr.innerHTML = `<td>${formatWhen(e.createdAt)}</td><td>${activityLabel(e)}</td><td>${window.lessonLabel(e.lesson)}</td>`;
         els.adminActivityBody.appendChild(tr);
       });
     } catch (err) {
@@ -426,7 +433,30 @@
     }
   }
 
-  els.adminActivitySelect.addEventListener("change", (e) => renderMemberActivity(e.target.value));
+  async function renderMemberProgress(uid) {
+    els.adminProgressBody.innerHTML = `<tr><td colspan="3">Loading…</td></tr>`;
+    try {
+      const scoreSnap = await sdk.getDoc(sdk.doc(db, "scores", uid));
+      const masteredSet = new Set(scoreSnap.exists() ? scoreSnap.data().masteredIds || [] : []);
+      const allCards = getAllCards();
+      const lessons = getLessons();
+      els.adminProgressBody.innerHTML = "";
+      lessons.forEach((lesson) => {
+        const cards = allCards.filter((c) => c.lesson === lesson);
+        const mastered = cards.filter((c) => masteredSet.has(c.id)).length;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td>`;
+        els.adminProgressBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminProgressBody.innerHTML = `<tr><td colspan="3">${formatQueryError(err)}</td></tr>`;
+    }
+  }
+
+  els.adminActivitySelect.addEventListener("change", (e) => {
+    renderMemberActivity(e.target.value);
+    renderMemberProgress(e.target.value);
+  });
 
   async function refresh() {
     const user = window.vocabAuth.getUser();

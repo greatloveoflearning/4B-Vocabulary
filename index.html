@@ -179,7 +179,46 @@
     <div class="report-content" id="report-content" hidden>
       <div class="report-stats" id="report-stats"></div>
 
-      <div class="report-block" id="admin-block" hidden>
+      <div class="report-block" id="admin-block-top" hidden>
+        <div class="report-block-header admin-activity-header">
+          <h2>Member Activity</h2>
+          <select id="admin-activity-select"></select>
+        </div>
+        <div class="report-stats" id="admin-activity-stats"></div>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-activity-table">
+            <thead>
+              <tr><th>When</th><th>What</th><th>Lesson</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>Member's Progress by Lesson</h3>
+        <p class="report-block-note">Uses the member picked above.</p>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-progress-table">
+            <thead>
+              <tr><th>Lesson</th><th>Mastered</th><th>Total</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-block">
+        <h2>Leaderboard</h2>
+        <div class="report-table-wrap">
+          <table class="report-table" id="report-leaderboard-table">
+            <thead>
+              <tr><th>Rank</th><th>Member</th><th>Mastered</th><th>Match pts</th><th>Assessment pts</th><th>Score</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-block" id="admin-block-bottom" hidden>
         <h2>Members (admin)</h2>
         <p class="report-block-note">Grant "can host" to let a member start online assessments.</p>
         <div class="report-table-wrap">
@@ -197,20 +236,6 @@
           <table class="report-table" id="admin-leads-table">
             <thead>
               <tr><th>When</th><th>Name</th><th>Phone</th><th>WeChat</th><th>Email</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-
-        <div class="report-block-header admin-activity-header">
-          <h3>Member activity</h3>
-          <select id="admin-activity-select"></select>
-        </div>
-        <div class="report-stats" id="admin-activity-stats"></div>
-        <div class="report-table-wrap">
-          <table class="report-table" id="admin-activity-table">
-            <thead>
-              <tr><th>When</th><th>What</th><th>Lesson</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -250,18 +275,6 @@
           <table class="report-table" id="report-activity-table">
             <thead>
               <tr><th>When</th><th>What</th><th>Lesson</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="report-block">
-        <h2>Leaderboard</h2>
-        <div class="report-table-wrap">
-          <table class="report-table" id="report-leaderboard-table">
-            <thead>
-              <tr><th>Rank</th><th>Member</th><th>Mastered</th><th>Match pts</th><th>Assessment pts</th><th>Score</th></tr>
             </thead>
             <tbody></tbody>
           </table>
