@@ -645,7 +645,7 @@ main {
   flex-direction: column;
   gap: 1.75rem;
   width: 100%;
-  max-width: 720px;
+  max-width: min(1100px, 95vw);
 }
 
 .report-stats {
