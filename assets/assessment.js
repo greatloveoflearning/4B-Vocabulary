@@ -33,7 +33,6 @@
     runningTimer: document.getElementById("running-timer"),
     runningScore: document.getElementById("running-score"),
     questionSpeakRow: document.getElementById("question-speak-row"),
-    questionSpeakCnBtn: document.getElementById("question-speak-cn-btn"),
     questionSpeakEnBtn: document.getElementById("question-speak-en-btn"),
     questionPrompt: document.getElementById("question-prompt"),
     answerForm: document.getElementById("answer-form"),
@@ -345,7 +344,6 @@
         ? card.example_cn.replace(card.hanzi, '<span class="blank">（　）</span>')
         : `<span class="blank">（　）</span>${card.example_cn || ""}`;
       els.questionSpeakRow.hidden = false;
-      els.questionSpeakCnBtn.hidden = false;
       els.questionSpeakEnBtn.hidden = false;
       els.questionPrompt.innerHTML = `<span class="meaning no-copy">${card.meaning}</span>${blanked}<span class="en-sentence no-copy">${
         card.example_en || ""
@@ -356,12 +354,6 @@
 
   ["copy", "cut", "contextmenu", "selectstart", "dragstart"].forEach((evt) => {
     els.questionPrompt.addEventListener(evt, (e) => e.preventDefault());
-  });
-
-  els.questionSpeakCnBtn.addEventListener("click", () => {
-    if (!currentQuestion || currentQuestion.type === "1") return;
-    const { card } = currentQuestion;
-    window.vocabAudio.speak(`${card.example_cn || ""}`, "zh-CN");
   });
 
   els.questionSpeakEnBtn.addEventListener("click", () => {
