@@ -412,7 +412,7 @@
         sdk.collection(db, "activity"),
         sdk.where("uid", "==", uid),
         sdk.orderBy("createdAt", "desc"),
-        sdk.limit(30)
+        sdk.limit(150)
       );
       const snap = await sdk.getDocs(q);
       els.adminActivityBody.innerHTML = "";
