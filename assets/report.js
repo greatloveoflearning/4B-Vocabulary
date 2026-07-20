@@ -434,10 +434,26 @@
   }
 
   async function renderMemberProgress(uid) {
-    els.adminProgressBody.innerHTML = `<tr><td colspan="3">Loading…</td></tr>`;
+    els.adminProgressBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
     try {
-      const scoreSnap = await sdk.getDoc(sdk.doc(db, "scores", uid));
+      const [scoreSnap, matchSnap, practiceSnap] = await Promise.all([
+        sdk.getDoc(sdk.doc(db, "scores", uid)),
+        sdk.getDocs(sdk.query(sdk.collection(db, "lessonMatchBest"), sdk.where("uid", "==", uid))),
+        sdk.getDocs(sdk.query(sdk.collection(db, "lessonPracticeCompletions"), sdk.where("uid", "==", uid))),
+      ]);
       const masteredSet = new Set(scoreSnap.exists() ? scoreSnap.data().masteredIds || [] : []);
+
+      const matchMap = {};
+      matchSnap.forEach((docSnap) => {
+        const d = docSnap.data();
+        matchMap[d.lesson] = d.completions || 0;
+      });
+      const practiceMap = {};
+      practiceSnap.forEach((docSnap) => {
+        const d = docSnap.data();
+        practiceMap[d.lesson] = d.completions || 0;
+      });
+
       const allCards = getAllCards();
       const lessons = getLessons();
       els.adminProgressBody.innerHTML = "";
@@ -445,11 +461,13 @@
         const cards = allCards.filter((c) => c.lesson === lesson);
         const mastered = cards.filter((c) => masteredSet.has(c.id)).length;
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td>`;
+        tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${
+          matchMap[lesson] || 0
+        }</td><td>${practiceMap[lesson] || 0}</td>`;
         els.adminProgressBody.appendChild(tr);
       });
     } catch (err) {
-      els.adminProgressBody.innerHTML = `<tr><td colspan="3">${formatQueryError(err)}</td></tr>`;
+      els.adminProgressBody.innerHTML = `<tr><td colspan="5">${formatQueryError(err)}</td></tr>`;
     }
   }
 

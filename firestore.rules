@@ -69,6 +69,11 @@ service cloud.firestore {
       allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
     }
 
+    match /lessonPracticeCompletions/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+    }
+
     match /assessmentBest/{docId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;

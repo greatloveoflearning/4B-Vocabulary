@@ -219,5 +219,28 @@
     }
   }
 
-  window.vocabActivity = { recordEliminate, recordMatchComplete, recordAssessmentAnswer, matchGamePoints };
+  async function recordPracticeComplete(lesson) {
+    const user = window.vocabAuth.getUser();
+    if (!user) return;
+
+    const key = lessonKey(lesson);
+    const ref = sdk.doc(db, "lessonPracticeCompletions", `${key}_${user.uid}`);
+    try {
+      await sdk.runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        const completions = (snap.exists() ? snap.data().completions || 0 : 0) + 1;
+        tx.set(ref, { uid: user.uid, lesson: key, completions, updatedAt: sdk.serverTimestamp() }, { merge: true });
+      });
+    } catch (e) {
+      /* offline or permission issue */
+    }
+  }
+
+  window.vocabActivity = {
+    recordEliminate,
+    recordMatchComplete,
+    recordAssessmentAnswer,
+    recordPracticeComplete,
+    matchGamePoints,
+  };
 })();
