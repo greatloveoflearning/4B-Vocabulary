@@ -242,6 +242,17 @@
     allOption.textContent = `All lessons (${allCards.length} cards)`;
     els.setSelect.appendChild(allOption);
 
+    const mistakesOption = document.createElement("option");
+    mistakesOption.value = "mistakes";
+    els.setSelect.appendChild(mistakesOption);
+    function updateMistakesOption() {
+      const count = window.vocabActivity ? window.vocabActivity.getWrongWordIds().size : 0;
+      mistakesOption.textContent = `${window.lessonLabel("mistakes")} (${count} words)`;
+      mistakesOption.disabled = count === 0;
+    }
+    updateMistakesOption();
+    if (window.vocabActivity) window.vocabActivity.onWrongWordsChange(updateMistakesOption);
+
     lessons.forEach((lesson) => {
       const count = window.getCardsForLessonValue(allCards, lesson).length;
       const opt = document.createElement("option");

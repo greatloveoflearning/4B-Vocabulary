@@ -257,11 +257,68 @@
     touchLessonStats(lesson, user.uid);
   }
 
+  let wrongWordIds = new Set();
+  const wrongWordListeners = [];
+
+  function notifyWrongWordListeners() {
+    wrongWordListeners.forEach((cb) => cb(wrongWordIds));
+  }
+
+  function onWrongWordsChange(cb) {
+    wrongWordListeners.push(cb);
+    cb(wrongWordIds);
+  }
+
+  async function refreshWrongWords() {
+    const user = window.vocabAuth.getUser();
+    if (!user) {
+      wrongWordIds = new Set();
+      notifyWrongWordListeners();
+      return;
+    }
+    try {
+      const snap = await sdk.getDoc(sdk.doc(db, "wrongWords", user.uid));
+      wrongWordIds = new Set(snap.exists() ? snap.data().cardIds || [] : []);
+    } catch (e) {
+      wrongWordIds = new Set();
+    }
+    notifyWrongWordListeners();
+  }
+
+  function getWrongWordIds() {
+    return wrongWordIds;
+  }
+
+  async function updateWrongWord(cardId, correct) {
+    const user = window.vocabAuth.getUser();
+    if (!user) return;
+
+    if (correct) wrongWordIds.delete(cardId);
+    else wrongWordIds.add(cardId);
+    notifyWrongWordListeners();
+
+    const ref = sdk.doc(db, "wrongWords", user.uid);
+    try {
+      await sdk.setDoc(
+        ref,
+        { uid: user.uid, cardIds: correct ? sdk.arrayRemove(cardId) : sdk.arrayUnion(cardId) },
+        { merge: true }
+      );
+    } catch (e) {
+      /* offline or permission issue */
+    }
+  }
+
+  window.vocabAuth.onChange(() => refreshWrongWords());
+
   window.vocabActivity = {
     recordEliminate,
     recordMatchComplete,
     recordAssessmentAnswer,
     recordPracticeComplete,
     matchGamePoints,
+    getWrongWordIds,
+    updateWrongWord,
+    onWrongWordsChange,
   };
 })();

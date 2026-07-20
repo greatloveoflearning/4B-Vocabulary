@@ -64,6 +64,18 @@
     allOpt.value = "all";
     allOpt.textContent = "All lessons";
     els.lessonSelect.appendChild(allOpt);
+
+    const mistakesOpt = document.createElement("option");
+    mistakesOpt.value = "mistakes";
+    els.lessonSelect.appendChild(mistakesOpt);
+    function updateMistakesOption() {
+      const count = window.vocabActivity ? window.vocabActivity.getWrongWordIds().size : 0;
+      mistakesOpt.textContent = `${window.lessonLabel("mistakes")} (${count} words)`;
+      mistakesOpt.disabled = count === 0;
+    }
+    updateMistakesOption();
+    if (window.vocabActivity) window.vocabActivity.onWrongWordsChange(updateMistakesOption);
+
     window.getSortedLessonIds(getAllCards()).forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
@@ -200,6 +212,7 @@
     }
     els.feedback.hidden = false;
     window.vocabAudio.speak(card.hanzi, "zh-CN");
+    if (window.vocabActivity) window.vocabActivity.updateWrongWord(card.id, correct);
     answerLog.push({
       hanzi: card.hanzi,
       meaning: card.meaning,

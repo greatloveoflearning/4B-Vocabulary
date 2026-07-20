@@ -384,6 +384,7 @@
     }
     els.answerFeedback.hidden = false;
     if (window.vocabActivity) window.vocabActivity.recordAssessmentAnswer(sessionData.lesson, card, correct);
+    if (window.vocabActivity) window.vocabActivity.updateWrongWord(card.id, correct);
     recordAnswer(correct ? 1 : 0, {
       cardId: card.id,
       hanzi: card.hanzi,

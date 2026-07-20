@@ -3,6 +3,7 @@ window.LESSON_META = {2:{num:"2",title:"乡下人家",suffix:"词语表"},3:{num
 window.AGGREGATE_LESSON_IDS = { xiezi: 9001, shizi: 9002, ciyu: 9003 };
 window.lessonLabel = function (lesson) {
   if (lesson === "all" || lesson === undefined || lesson === null) return "All lessons";
+  if (lesson === "mistakes") return "📌 My Mistakes (错题集)";
   var meta = window.LESSON_META[Number(lesson)];
   if (!meta) return "Lesson " + lesson;
   if (meta.allCategory) return "All Lessons' " + meta.suffix;
@@ -38,6 +39,10 @@ window.getSortedLessonIds = function (allCards) {
 };
 window.getCardsForLessonValue = function (allCards, value) {
   if (value === "all" || value === undefined || value === null) return allCards.slice();
+  if (value === "mistakes") {
+    var ids = window.vocabActivity && window.vocabActivity.getWrongWordIds ? window.vocabActivity.getWrongWordIds() : new Set();
+    return allCards.filter(function (c) { return ids.has(c.id); });
+  }
   var num = Number(value);
   if (num === window.AGGREGATE_LESSON_IDS.xiezi || num === window.AGGREGATE_LESSON_IDS.shizi || num === window.AGGREGATE_LESSON_IDS.ciyu) {
     var suffix = window.LESSON_META[num].suffix;
