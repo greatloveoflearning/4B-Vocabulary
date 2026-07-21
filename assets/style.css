@@ -51,8 +51,7 @@ body {
   justify-content: space-between;
   gap: 1rem;
   padding: 1.25rem 1.5rem;
-  border-bottom: 1px solid var(--border);
-  background: var(--surface);
+  background: #7c3aed;
 }
 
 .brand-title {
@@ -64,41 +63,43 @@ body {
 .brand-zh-main {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text);
+  color: #ffffff;
 }
 
 .brand-zh-sub {
   font-size: 0.95rem;
   font-weight: 600;
-  color: var(--accent);
+  color: #ffe08a;
 }
 
 .brand-en {
   font-size: 0.75rem;
-  color: var(--muted);
+  color: rgba(255, 255, 255, 0.75);
 }
 
 .guide-link {
   font-size: 0.85rem;
-  color: var(--accent);
+  color: #ffffff;
   text-decoration: none;
-  border: 1px solid var(--accent);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
   border-radius: 999px;
   padding: 0.4rem 0.9rem;
   white-space: nowrap;
 }
 
 .guide-link:hover {
-  background: var(--accent-soft);
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
 }
 
 .mode-tabs {
   display: flex;
   gap: 0.25rem;
   padding: 0.25rem;
-  background: var(--bg);
-  border: 1px solid var(--border);
+  background: #ffffff;
+  border: none;
   border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
 }
 
 .mode-tab {
@@ -108,18 +109,30 @@ body {
   padding: 0.45rem 1rem;
   font: inherit;
   font-size: 0.85rem;
-  color: var(--muted);
+  font-weight: 600;
+  color: #6f6795;
   cursor: pointer;
 }
 
 .mode-tab:hover {
-  color: var(--text);
+  color: #7c3aed;
 }
 
 .mode-tab.active {
-  background: var(--accent);
+  background: #7c3aed;
   color: white;
-  box-shadow: 0 4px 12px rgba(124, 92, 252, 0.35);
+  box-shadow: 0 4px 12px rgba(124, 58, 237, 0.35);
+}
+
+.topbar .account-widget > button {
+  background: #ffffff;
+  color: #7c3aed;
+  border: none;
+  font-weight: 600;
+}
+
+.topbar .account-widget > button:hover {
+  background: #f4eeff;
 }
 
 .account-widget {
