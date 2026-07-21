@@ -1259,6 +1259,12 @@ footer {
   margin: 0.35rem 0;
 }
 
+.paywall-note {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-top: 0.6rem !important;
+}
+
 .paywall-form {
   display: flex;
   flex-direction: column;
