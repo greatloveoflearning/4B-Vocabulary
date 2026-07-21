@@ -8,7 +8,9 @@
   const els = {
     overlay: document.getElementById("paywall-overlay"),
     limitText: document.getElementById("paywall-limit-text"),
+    limitTextEn: document.getElementById("paywall-limit-text-en"),
     studentName: document.getElementById("paywall-student-name"),
+    studentNameEn: document.getElementById("paywall-student-name-en"),
     leadForm: document.getElementById("paywall-lead-form"),
     leadName: document.getElementById("paywall-lead-name"),
     leadPhone: document.getElementById("paywall-lead-phone"),
@@ -16,10 +18,19 @@
     leadEmail: document.getElementById("paywall-lead-email"),
     leadSubmitBtn: document.getElementById("paywall-lead-submit-btn"),
     leadMsg: document.getElementById("paywall-lead-msg"),
+    classForm: document.getElementById("paywall-class-form"),
+    className: document.getElementById("paywall-class-name"),
+    classPhone: document.getElementById("paywall-class-phone"),
+    classWechat: document.getElementById("paywall-class-wechat"),
+    classEmail: document.getElementById("paywall-class-email"),
+    classGrade: document.getElementById("paywall-class-grade"),
+    classSubmitBtn: document.getElementById("paywall-class-submit-btn"),
+    classMsg: document.getElementById("paywall-class-msg"),
     signoutBtn: document.getElementById("paywall-signout-btn"),
   };
 
   els.limitText.textContent = String(FREE_GAME_LIMIT);
+  els.limitTextEn.textContent = String(FREE_GAME_LIMIT);
 
   function isUnlocked(profile) {
     if (!profile) return false;
@@ -29,7 +40,9 @@
 
   function showOverlay() {
     const user = window.vocabAuth.getUser();
-    els.studentName.textContent = user ? user.displayName || user.email : "";
+    const name = user ? user.displayName || user.email : "";
+    els.studentName.textContent = name;
+    els.studentNameEn.textContent = name;
     els.overlay.hidden = false;
   }
 
@@ -104,6 +117,37 @@
       els.leadMsg.hidden = false;
     } finally {
       els.leadSubmitBtn.disabled = false;
+    }
+  });
+
+  els.classForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const user = window.vocabAuth.getUser();
+    if (!user) return;
+    els.classSubmitBtn.disabled = true;
+    els.classMsg.hidden = true;
+    try {
+      await sdk.addDoc(sdk.collection(db, "classInterest"), {
+        uid: user.uid,
+        loginEmail: user.email,
+        name: els.className.value.trim(),
+        phone: els.classPhone.value.trim(),
+        wechat: els.classWechat.value.trim(),
+        contactEmail: els.classEmail.value.trim(),
+        grade: els.classGrade.value,
+        gradeLabel: els.classGrade.options[els.classGrade.selectedIndex].textContent,
+        createdAt: sdk.serverTimestamp(),
+      });
+      els.classMsg.textContent = "已收到，我们会尽快与您联系。· Received — we'll be in touch soon.";
+      els.classMsg.className = "paywall-lead-msg success";
+      els.classMsg.hidden = false;
+      els.classForm.reset();
+    } catch (err) {
+      els.classMsg.textContent = "提交失败，请稍后重试。· Submission failed, please try again.";
+      els.classMsg.className = "paywall-lead-msg error";
+      els.classMsg.hidden = false;
+    } finally {
+      els.classSubmitBtn.disabled = false;
     }
   });
 

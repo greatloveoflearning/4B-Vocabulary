@@ -12,6 +12,7 @@
     adminBlockBottom: document.getElementById("admin-block-bottom"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
     adminLeadsBody: document.querySelector("#admin-leads-table tbody"),
+    adminClassInterestBody: document.querySelector("#admin-class-interest-table tbody"),
     adminActivitySelect: document.getElementById("admin-activity-select"),
     adminActivityStats: document.getElementById("admin-activity-stats"),
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
@@ -362,6 +363,7 @@
     }
 
     renderAdminLeads();
+    renderAdminClassInterest();
   }
 
   async function renderAdminLeads() {
@@ -384,6 +386,29 @@
       });
     } catch (err) {
       els.adminLeadsBody.innerHTML = `<tr><td colspan="5">${formatQueryError(err)}</td></tr>`;
+    }
+  }
+
+  async function renderAdminClassInterest() {
+    els.adminClassInterestBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
+    try {
+      const q = sdk.query(sdk.collection(db, "classInterest"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
+      const snap = await sdk.getDocs(q);
+      els.adminClassInterestBody.innerHTML = "";
+      if (snap.empty) {
+        els.adminClassInterestBody.innerHTML = `<tr><td colspan="6">No submissions yet.</td></tr>`;
+        return;
+      }
+      snap.forEach((docSnap) => {
+        const l = docSnap.data();
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${
+          l.gradeLabel || l.grade || ""
+        }</td><td>${l.phone || ""}</td><td>${l.wechat || ""}</td><td>${l.contactEmail || l.loginEmail || ""}</td>`;
+        els.adminClassInterestBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminClassInterestBody.innerHTML = `<tr><td colspan="6">${formatQueryError(err)}</td></tr>`;
     }
   }
 

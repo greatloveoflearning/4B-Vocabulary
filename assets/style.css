@@ -52,6 +52,20 @@ body {
   margin: 0;
 }
 
+.guide-link {
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  white-space: nowrap;
+}
+
+.guide-link:hover {
+  background: var(--accent-soft);
+}
+
 .mode-tabs {
   display: flex;
   gap: 0.25rem;
@@ -1134,14 +1148,15 @@ footer {
   margin: 0.35rem 0;
 }
 
-#paywall-lead-form {
+.paywall-form {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   margin-top: 0.75rem;
 }
 
-#paywall-lead-form input {
+.paywall-form input,
+.paywall-form select {
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   border: 1px solid var(--border);
@@ -1150,7 +1165,7 @@ footer {
   font-size: 0.95rem;
 }
 
-#paywall-lead-form button {
+.paywall-form button {
   padding: 0.6rem 0.75rem;
   border-radius: 8px;
   border: none;
@@ -1162,6 +1177,21 @@ footer {
 
 .paywall-lead-msg.success { color: #16a34a; }
 .paywall-lead-msg.error { color: #dc2626; }
+
+.paywall-promo ul {
+  margin: 0.5rem 0;
+  padding-left: 1.2rem;
+}
+
+.paywall-promo li {
+  margin: 0.4rem 0;
+}
+
+.i18n-en {
+  color: var(--muted);
+  font-size: 0.85em;
+  margin-top: 0.15rem !important;
+}
 
 #paywall-signout-btn {
   margin-top: 1.25rem;

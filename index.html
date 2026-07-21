@@ -4,32 +4,76 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>4B Vocabulary Study Set</title>
-<link rel="stylesheet" href="assets/style.css?v=7">
+<link rel="stylesheet" href="assets/style.css?v=8">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
   <div class="paywall-card">
     <h2>试用额度已用完 · Trial limit reached</h2>
     <p>你已经免费体验了 <strong id="paywall-limit-text">50</strong> 次 Flashcards / Match / Practice / Live Game，感谢试用！继续使用需要解锁全部功能。</p>
+    <p class="i18n-en">You've used your <strong id="paywall-limit-text-en">50</strong> free tries across Flashcards / Match / Practice / Live Game. Thanks for trying it out! Unlock full access to continue.</p>
 
     <div class="paywall-section">
       <h3>方式一：Interac e-Transfer（加拿大境内）</h3>
-      <p>年费订阅 <strong>CAD $60 / 年</strong>，请转账到：<strong>info@ktailearn.com</strong></p>
+      <p>年费订阅 <strong>CAD $68 / 年</strong>，请转账到：<strong>info@ktailearn.com</strong></p>
       <p>备注栏请填写学生的注册名：<strong id="paywall-student-name"></strong></p>
       <p>我们会在 <strong>24 小时内</strong>为你开通一年的全部功能，到期前我们会提醒续费。</p>
+      <p class="i18n-en">Option 1: Interac e-Transfer (Canada only) — Annual subscription <strong>CAD $68 / year</strong>, sent to <strong>info@ktailearn.com</strong>. Please put your student's registered name (<strong id="paywall-student-name-en"></strong>) in the memo. We'll unlock your account within <strong>24 hours</strong> and remind you before renewal.</p>
+    </div>
+
+    <div class="paywall-section paywall-promo">
+      <h3>优惠方案 · Promotions</h3>
+      <ul>
+        <li>报读线上小组课，可免费赠送一年订阅费。<span class="i18n-en">Enroll in an online group class and get one year of subscription free.</span></li>
+        <li>5 人或以上团购，每人优惠至 <strong>CAD $60</strong>。<span class="i18n-en">Group purchase of 5 or more: <strong>CAD $60</strong> each.</span></li>
+        <li>朋友圈集赞 10 个，或发一次小红书，可优惠至 <strong>CAD $60</strong>。<span class="i18n-en">Get 10 likes on a WeChat Moments post, or post once on Xiaohongshu (RED): <strong>CAD $60</strong>.</span></li>
+      </ul>
+      <p>具体请联系客服 · For details, please contact us:</p>
+      <p>📞 +1-647-407-1280　·　💬 微信 / WeChat：<strong>KTAILEARN</strong>　·　✉️ <strong>info@ktailearn.com</strong></p>
     </div>
 
     <div class="paywall-section">
       <h3>方式二：不能在加拿大境内转账？</h3>
       <p>请填写以下联系方式，管理员将在一天内与您电话或微信联系。</p>
-      <form id="paywall-lead-form">
-        <input type="text" id="paywall-lead-name" placeholder="姓名" required>
-        <input type="text" id="paywall-lead-phone" placeholder="电话">
-        <input type="text" id="paywall-lead-wechat" placeholder="微信号">
-        <input type="email" id="paywall-lead-email" placeholder="邮箱" required>
-        <button type="submit" id="paywall-lead-submit-btn">提交</button>
+      <p class="i18n-en">Option 2: Can't send an Interac e-Transfer from Canada? Fill in your contact info below and we'll reach out by phone or WeChat within a day.</p>
+      <form id="paywall-lead-form" class="paywall-form">
+        <input type="text" id="paywall-lead-name" placeholder="姓名 · Name" required>
+        <input type="text" id="paywall-lead-phone" placeholder="电话 · Phone">
+        <input type="text" id="paywall-lead-wechat" placeholder="微信号 · WeChat ID">
+        <input type="email" id="paywall-lead-email" placeholder="邮箱 · Email" required>
+        <button type="submit" id="paywall-lead-submit-btn">提交 · Submit</button>
       </form>
       <p id="paywall-lead-msg" class="paywall-lead-msg" hidden></p>
+    </div>
+
+    <div class="paywall-section">
+      <h3>报读中国小学语文线上课意向表</h3>
+      <p class="i18n-en">Chinese Elementary Online Class — Enrollment Interest Form</p>
+      <p>有兴趣报读线上小组课？填写以下信息，我们会尽快与您联系。</p>
+      <p class="i18n-en">Interested in our online group class? Leave your details below and we'll be in touch soon.</p>
+      <form id="paywall-class-form" class="paywall-form">
+        <input type="text" id="paywall-class-name" placeholder="姓名 · Name" required>
+        <input type="text" id="paywall-class-phone" placeholder="电话 · Phone">
+        <input type="text" id="paywall-class-wechat" placeholder="微信号 · WeChat ID">
+        <input type="email" id="paywall-class-email" placeholder="电邮 · Email" required>
+        <select id="paywall-class-grade" required>
+          <option value="" disabled selected>报读年级 · Grade level</option>
+          <option value="g1-1">一年级上册班 · Grade 1 (Semester 1)</option>
+          <option value="g1-2">一年级下册班 · Grade 1 (Semester 2)</option>
+          <option value="g2-1">二年级上册班 · Grade 2 (Semester 1)</option>
+          <option value="g2-2">二年级下册班 · Grade 2 (Semester 2)</option>
+          <option value="g3-1">三年级上册班 · Grade 3 (Semester 1)</option>
+          <option value="g3-2">三年级下册班 · Grade 3 (Semester 2)</option>
+          <option value="g4-1">四年级上册班 · Grade 4 (Semester 1)</option>
+          <option value="g4-2">四年级下册班 · Grade 4 (Semester 2)</option>
+          <option value="g5-1">五年级上册班 · Grade 5 (Semester 1)</option>
+          <option value="g5-2">五年级下册班 · Grade 5 (Semester 2)</option>
+          <option value="g6-1">六年级上册班 · Grade 6 (Semester 1)</option>
+          <option value="g6-2">六年级下册班 · Grade 6 (Semester 2)</option>
+        </select>
+        <button type="submit" id="paywall-class-submit-btn">提交 · Submit</button>
+      </form>
+      <p id="paywall-class-msg" class="paywall-lead-msg" hidden></p>
     </div>
 
     <button type="button" id="paywall-signout-btn" class="ghost-btn">Sign out</button>
@@ -37,6 +81,7 @@
 </div>
 <header class="topbar">
   <h1>4B Vocabulary Study Set</h1>
+  <a class="guide-link" href="https://claude.ai/code/artifact/54d2cec1-72ab-4d4b-b890-990a6a140df1" target="_blank" rel="noopener">📖 平台使用介绍 · How to Use</a>
   <nav class="mode-tabs" role="tablist">
     <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 Flashcards</button>
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
@@ -248,6 +293,17 @@
           <table class="report-table" id="admin-leads-table">
             <thead>
               <tr><th>When</th><th>Name</th><th>Phone</th><th>WeChat</th><th>Email</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>Class enrollment interest</h3>
+        <p class="report-block-note">Submitted via the paywall's "报读中国小学语文线上课意向表" form.</p>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-class-interest-table">
+            <thead>
+              <tr><th>When</th><th>Name</th><th>Grade</th><th>Phone</th><th>WeChat</th><th>Email</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -484,16 +540,16 @@
   <p id="footer-stats" class="footer-stats"></p>
 </footer>
 
-<script src="assets/vendor/firebase-vendor.js?v=7"></script>
-<script src="assets/firebase-config.js?v=7"></script>
-<script src="assets/firebase-init.js?v=7"></script>
-<script src="assets/auth.js?v=7"></script>
-<script src="assets/activity.js?v=7"></script>
-<script src="assets/paywall.js?v=7"></script>
-<script src="assets/vocab.js?v=7"></script>
-<script src="assets/app.js?v=7"></script>
-<script src="assets/report.js?v=7"></script>
-<script src="assets/assessment.js?v=7"></script>
-<script src="assets/practice.js?v=7"></script>
+<script src="assets/vendor/firebase-vendor.js?v=8"></script>
+<script src="assets/firebase-config.js?v=8"></script>
+<script src="assets/firebase-init.js?v=8"></script>
+<script src="assets/auth.js?v=8"></script>
+<script src="assets/activity.js?v=8"></script>
+<script src="assets/paywall.js?v=8"></script>
+<script src="assets/vocab.js?v=8"></script>
+<script src="assets/app.js?v=8"></script>
+<script src="assets/report.js?v=8"></script>
+<script src="assets/assessment.js?v=8"></script>
+<script src="assets/practice.js?v=8"></script>
 </body>
 </html>
