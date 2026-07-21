@@ -83,8 +83,9 @@
     els.leadSubmitBtn.disabled = true;
     els.leadMsg.hidden = true;
     try {
+      const user = window.vocabAuth ? window.vocabAuth.getUser() : null;
       await sdk.addDoc(sdk.collection(db, "leads"), {
-        uid: null,
+        uid: user ? user.uid : null,
         source: "public_page",
         name: els.leadName.value.trim(),
         phone,
@@ -110,8 +111,9 @@
     els.classSubmitBtn.disabled = true;
     els.classMsg.hidden = true;
     try {
+      const user = window.vocabAuth ? window.vocabAuth.getUser() : null;
       await sdk.addDoc(sdk.collection(db, "classInterest"), {
-        uid: null,
+        uid: user ? user.uid : null,
         source: "public_page",
         name: els.className.value.trim(),
         phone: els.classPhone.value.trim(),
