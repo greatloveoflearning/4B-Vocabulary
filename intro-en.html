@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Chinese Elementary Vocabulary Study Platform · Feature Overview</title>
+<style>
+  :root {
+    --paper: #F1ECDD;
+    --paper-raised: #FAF7EE;
+    --paper-line: #D2C4A3;
+    --ink: #24303A;
+    --ink-soft: #5B6570;
+    --red: #B72A2E;
+    --red-soft: #E7CFC9;
+    --gold: #9C7A2C;
+    --jade: #3F6659;
+    --jade-soft: #DCE6DF;
+    --shadow: rgba(36, 48, 58, 0.10);
+    --font-display: "Songti SC", "Georgia", "Noto Serif SC", "SimSun", serif;
+    --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Noto Sans SC", sans-serif;
+    --font-mono: "SF Mono", "Menlo", "Consolas", monospace;
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #1C201B;
+    --paper-raised: #242820;
+    --paper-line: #454A3D;
+    --ink: #EFE9D8;
+    --ink-soft: #B9B29B;
+    --red: #E2666A;
+    --red-soft: #4A2B2A;
+    --gold: #D9B24F;
+    --jade: #7FAE9C;
+    --jade-soft: #2B3A34;
+    --shadow: rgba(0, 0, 0, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1C201B;
+      --paper-raised: #242820;
+      --paper-line: #454A3D;
+      --ink: #EFE9D8;
+      --ink-soft: #B9B29B;
+      --red: #E2666A;
+      --red-soft: #4A2B2A;
+      --gold: #D9B24F;
+      --jade: #7FAE9C;
+      --jade-soft: #2B3A34;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  ::selection { background: var(--red-soft); }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 40px);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p { margin: 0; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 1.4em;
+    border-top: 1.5px solid var(--red);
+  }
+
+  /* ---------- tian-zi-ge motif ---------- */
+  .grid-icon {
+    position: relative;
+    width: 3.4rem;
+    height: 3.4rem;
+    min-width: 3.4rem;
+    border: 1.5px solid var(--paper-line);
+    background: var(--paper-raised);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: var(--red);
+  }
+  .grid-icon::before,
+  .grid-icon::after {
+    content: "";
+    position: absolute;
+  }
+  .grid-icon::before {
+    top: 0; bottom: 0; left: 50%;
+    border-left: 1px dashed var(--paper-line);
+  }
+  .grid-icon::after {
+    left: 0; right: 0; top: 50%;
+    border-top: 1px dashed var(--paper-line);
+  }
+  .grid-icon > span { position: relative; z-index: 1; background: var(--paper-raised); padding: 0 0.15em; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: clamp(56px, 10vw, 96px) 0 clamp(40px, 7vw, 64px);
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: clamp(28px, 6vw, 48px);
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.02rem;
+    letter-spacing: 0.01em;
+  }
+  .wordmark .grid-icon { width: 2.3rem; height: 2.3rem; min-width: 2.3rem; font-size: 1.05rem; }
+  .lang-switch {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border: 1px solid var(--paper-line);
+    padding: 6px 12px;
+    white-space: nowrap;
+  }
+  .lang-switch:hover { color: var(--red); border-color: var(--red); }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 2.9rem);
+    line-height: 1.28;
+    margin-top: 14px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--red);
+  }
+  .hero-sub {
+    max-width: 52ch;
+    margin-top: 18px;
+    font-size: 1.06rem;
+    color: var(--ink-soft);
+  }
+
+  .trial-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    font-weight: 700;
+    color: var(--red);
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--red);
+    padding-bottom: 2px;
+  }
+  .trial-link:hover { opacity: 0.75; }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--paper-line);
+    border: 1px solid var(--paper-line);
+    margin-top: clamp(32px, 6vw, 48px);
+  }
+  .stat-cell {
+    background: var(--paper-raised);
+    padding: 20px 18px;
+  }
+  .stat-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--jade);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: clamp(48px, 8vw, 80px) 0; }
+  section + section { border-top: 1px solid var(--paper-line); }
+
+  .section-head { margin-bottom: clamp(28px, 5vw, 40px); max-width: 62ch; }
+  .section-head h2 {
+    font-size: clamp(1.4rem, 3.2vw, 1.8rem);
+    margin-top: 10px;
+  }
+  .section-head p { color: var(--ink-soft); margin-top: 10px; }
+
+  /* mode cards */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--paper-line);
+    border: 1px solid var(--paper-line);
+  }
+  .mode-card {
+    background: var(--paper-raised);
+    padding: clamp(22px, 4vw, 30px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .mode-card-head { display: flex; align-items: center; gap: 14px; }
+  .mode-card h3 { font-size: 1.1rem; font-family: var(--font-body); }
+  .mode-card p { color: var(--ink-soft); font-size: 0.94rem; }
+  .mode-tag {
+    align-self: flex-start;
+    font-size: 0.72rem;
+    color: var(--jade);
+    background: var(--jade-soft);
+    padding: 3px 9px;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+
+  /* mistake spotlight */
+  .spotlight {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(28px, 5vw, 56px);
+    align-items: center;
+  }
+  .spotlight-copy p + p { margin-top: 12px; }
+  .spotlight-copy p { color: var(--ink-soft); }
+  .rule-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--paper-line);
+    padding: clamp(20px, 4vw, 28px);
+  }
+  .rule-card .stamp {
+    display: inline-block;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-weight: 700;
+    font-family: var(--font-display);
+    padding: 4px 14px;
+    transform: rotate(-3deg);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .rule-steps { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .rule-step { display: flex; gap: 12px; align-items: baseline; }
+  .rule-step-mark {
+    font-family: var(--font-mono);
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 1.6em;
+  }
+  .rule-step-text { color: var(--ink); font-size: 0.94rem; }
+  .rule-step-text b { color: var(--red); }
+
+  /* coverage */
+  .coverage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.94rem;
+  }
+  .coverage-table th, .coverage-table td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .coverage-table th {
+    font-family: var(--font-body);
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.76rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .coverage-table td:first-child { font-family: var(--font-display); font-weight: 700; }
+  .coverage-wrap { overflow-x: auto; }
+
+  /* report mock */
+  .report-mock {
+    border: 1px solid var(--paper-line);
+    background: var(--paper-raised);
+  }
+  .report-mock-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px dashed var(--paper-line);
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.02em;
+  }
+  .report-mock-rows { padding: 6px 20px 18px; }
+  .report-mock-row {
+    display: grid;
+    grid-template-columns: 1.4fr 0.7fr 0.7fr 0.7fr;
+    gap: 8px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--paper-line);
+    font-size: 0.9rem;
+    align-items: center;
+  }
+  .report-mock-row:last-child { border-bottom: none; }
+  .report-mock-row.head { color: var(--ink-soft); font-size: 0.76rem; letter-spacing: 0.04em; text-transform: uppercase; }
+  .report-mock-row span.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .report-legend { display:flex; gap: 20px; margin-top: 16px; font-size: 0.85rem; color: var(--ink-soft); flex-wrap: wrap; }
+  .report-legend b { color: var(--ink); }
+
+  /* two-col feature list */
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 32px;
+  }
+  .feature-item { display: flex; gap: 14px; }
+  .feature-item .mark {
+    font-family: var(--font-mono);
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 1.5em;
+  }
+  .feature-item h4 { font-family: var(--font-body); font-weight: 700; font-size: 0.96rem; margin: 0 0 4px; }
+  .feature-item p { color: var(--ink-soft); font-size: 0.88rem; }
+
+  /* pricing */
+  .pricing {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--paper-line);
+    border: 1px solid var(--paper-line);
+  }
+  .price-card {
+    background: var(--paper-raised);
+    padding: clamp(24px, 4vw, 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .price-card .eyebrow { color: var(--jade); }
+  .price-card .eyebrow::before { border-color: var(--jade); }
+  .price-card.featured .eyebrow { color: var(--red); }
+  .price-card.featured .eyebrow::before { border-color: var(--red); }
+  .price-num { font-family: var(--font-display); font-size: 1.7rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .price-num small { font-family: var(--font-body); font-size: 0.9rem; font-weight: 400; color: var(--ink-soft); }
+  .price-card ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--ink-soft); font-size: 0.9rem; }
+  .price-card li + li { margin-top: 6px; }
+
+  .promo-banner {
+    margin-top: 24px;
+    border: 1px dashed var(--paper-line);
+    background: var(--paper-raised);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .promo-banner .stamp {
+    display: inline-block;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+    font-family: var(--font-display);
+    padding: 4px 12px;
+    transform: rotate(-3deg);
+    font-size: 0.8rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+    text-transform: uppercase;
+  }
+  .promo-banner p { color: var(--ink-soft); font-size: 0.94rem; flex: 1; min-width: 220px; }
+  .promo-banner strong { color: var(--ink); }
+
+  /* closing */
+  .closing {
+    text-align: center;
+    padding: clamp(56px, 9vw, 88px) 0 clamp(64px, 10vw, 96px);
+  }
+  .closing h2 { font-size: clamp(1.5rem, 3.4vw, 2rem); max-width: 28ch; margin: 14px auto 0; }
+  .closing p { color: var(--ink-soft); max-width: 48ch; margin: 14px auto 0; }
+
+  .cta-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border: none;
+    transition: transform 0.15s ease;
+  }
+  .cta-primary { background: var(--red); color: var(--paper-raised); }
+  .cta-secondary { background: var(--paper-raised); color: var(--ink); border: 1.5px solid var(--paper-line); }
+  @media (prefers-reduced-motion: no-preference) {
+    .cta:hover { transform: rotate(-1.5deg) scale(1.03); }
+  }
+
+  .contact-block {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-size: 0.94rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .contact-block strong { color: var(--ink); }
+
+  footer {
+    border-top: 1px solid var(--paper-line);
+    padding: 24px 0 40px;
+    font-size: 0.78rem;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .mode-grid, .feature-list, .pricing { grid-template-columns: 1fr; }
+    .spotlight { grid-template-columns: 1fr; }
+    .report-mock-row { grid-template-columns: 1.3fr 0.6fr 0.6fr 0.6fr; font-size: 0.82rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div class="wordmark">
+        <div class="grid-icon"><span>字</span></div>
+        Chinese Elementary Vocabulary Platform
+      </div>
+      <a class="lang-switch" href="intro-zh.html">中文 ↗</a>
+    </div>
+
+    <span class="eyebrow">Feature Overview</span>
+    <h1>Turns the <em>writing, recognition, and vocabulary lists</em><br>from any lesson into practice kids actually open.</h1>
+    <p class="hero-sub">
+      Every lesson's Chinese vocabulary — writing list, recognition list, and word/phrase list — organized and ready
+      to practice with flashcards, a matching game, targeted drills, and a live multiplayer quiz. Add a mistake
+      tracker that follows each word until it's truly learned, plus a progress report parents and teachers can see.
+    </p>
+    <a class="trial-link" href="index.html">👉 Try it free now</a>
+
+    <div class="stat-row">
+      <div class="stat-cell">
+        <span class="stat-num">707</span>
+        <span class="stat-label">words &amp; characters covered</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">4</span>
+        <span class="stat-label">ways to practice</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">3</span>
+        <span class="stat-label">list types, fully covered</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">3×</span>
+        <span class="stat-label">correct answers to clear a mistake</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="modes">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Ways to Practice</span>
+      <h2>One vocabulary list, four ways to learn it</h2>
+      <p>From first exposure to timed recall, from solo review to live competition — built for every stage of learning and every classroom moment.</p>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>卡</span></div>
+          <h3>Flashcards</h3>
+        </div>
+        <p>Flip through characters, pinyin, English meaning, and example sentences, with native audio in both Chinese and English. Great for a first look at new words or a quick review before a test.</p>
+        <span class="mode-tag">Self-paced browsing</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>配</span></div>
+          <h3>Match</h3>
+        </div>
+        <p>Flip and pair characters with their meanings against the clock — the faster the match, the higher the score. Each lesson has its own leaderboard to keep students coming back.</p>
+        <span class="mode-tag">Gamified recall</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>练</span></div>
+          <h3>Practice</h3>
+        </div>
+        <p>Two question types — type the character you see, or fill in the blank from its meaning. Choose 10, 20, 30, 40, or every word in the lesson. Anything missed goes straight into the student's mistake list.</p>
+        <span class="mode-tag">Typing · fill-in-the-blank</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>赛</span></div>
+          <h3>Live Game</h3>
+        </div>
+        <p>A teacher hosts, students join with an all-digit room code, and everyone answers in real time on a shared leaderboard. After the round, the teacher can review exactly which words each student missed.</p>
+        <span class="mode-tag">Live classroom competition</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mistakes">
+  <div class="wrap">
+    <div class="spotlight">
+      <div class="spotlight-copy">
+        <span class="eyebrow">Signature Feature</span>
+        <h2 style="margin-top:10px;">A missed word doesn't just get crossed off —<br>it follows the student until it's truly learned</h2>
+        <p>
+          Whether a word is missed in Match, Practice, or a Live Game round, it's automatically added to that
+          student's own <strong>My Mistakes</strong> list. From there, students can pull up just their missed words
+          for a focused round of Match or Practice.
+        </p>
+        <p>
+          A word doesn't disappear the first time it's answered right — it takes
+          <b style="color:var(--red)">3 correct answers, cumulative</b> (a wrong answer in between doesn't reset the
+          count), before it's actually cleared. That way a lucky guess never gets mistaken for real mastery.
+        </p>
+      </div>
+
+      <div class="rule-card">
+        <span class="stamp">How it works</span>
+        <div class="rule-steps">
+          <div class="rule-step">
+            <span class="rule-step-mark">01</span>
+            <span class="rule-step-text">Miss a word in <b>Practice</b> or a <b>Live Game</b> → it's added to My Mistakes</span>
+          </div>
+          <div class="rule-step">
+            <span class="rule-step-mark">02</span>
+            <span class="rule-step-text">Students can select <b>My Mistakes</b> as a pool for <b>Flashcards / Match / Practice</b></span>
+          </div>
+          <div class="rule-step">
+            <span class="rule-step-mark">03</span>
+            <span class="rule-step-text">After <b>3 cumulative correct answers</b>, the word is cleared automatically</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="report">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Progress Reports</span>
+      <h2>Students see their own progress. Teachers see the whole class.</h2>
+      <p>Once signed in, students can see how many words they've mastered per lesson, their accuracy, and their history. Teacher and parent accounts can also see every student's practice counts and completion per lesson.</p>
+    </div>
+
+    <div class="report-mock">
+      <div class="report-mock-head">
+        <span>Member's Progress by Lesson · sample</span>
+        <span>Teacher-facing view</span>
+      </div>
+      <div class="report-mock-rows">
+        <div class="report-mock-row head">
+          <span>Lesson</span><span>Mastered</span><span>Match</span><span>Practice</span>
+        </div>
+        <div class="report-mock-row">
+          <span>Lesson 3 · Word list</span>
+          <span class="num">12 / 14</span>
+          <span class="num">5×</span>
+          <span class="num">8×</span>
+        </div>
+        <div class="report-mock-row">
+          <span>Lesson 5 · Recognition list</span>
+          <span class="num">9 / 13</span>
+          <span class="num">3×</span>
+          <span class="num">4×</span>
+        </div>
+        <div class="report-mock-row">
+          <span>Lesson 8 · Writing list</span>
+          <span class="num">10 / 10</span>
+          <span class="num">7×</span>
+          <span class="num">11×</span>
+        </div>
+      </div>
+    </div>
+    <div class="report-legend">
+      <span><b>Member Activity</b> — a time-ordered practice log, so it's obvious at a glance who's been keeping up</span>
+      <span><b>Leaderboard</b> — ranks every student by Match speed and total score, a bit of friendly competition</span>
+    </div>
+  </div>
+</section>
+
+<section id="coverage">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">Content Coverage</span>
+      <h2>Organized by lesson — all three lists, fully covered</h2>
+      <p>Every lesson's writing list, recognition list, and word list can be practiced on its own, or combined across "all lessons" for one list type at a time.</p>
+    </div>
+    <div class="coverage-wrap">
+      <table class="coverage-table">
+        <thead>
+          <tr><th>List type</th><th>Content</th><th>Question types</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Writing list</td>
+            <td>Characters students are expected to write from memory</td>
+            <td>Typing only (see the character, type it)</td>
+          </tr>
+          <tr>
+            <td>Recognition list</td>
+            <td>Characters students are expected to recognize and read</td>
+            <td>Typing only (see the character, type it)</td>
+          </tr>
+          <tr>
+            <td>Word list</td>
+            <td>Words, example sentences, and English meanings</td>
+            <td>Typing + fill-in-the-blank</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="extras">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">The Little Things</span>
+      <h2>Details worked out for both teachers and students</h2>
+    </div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>Native audio, both languages</h4><p>Every character and example sentence can be played aloud, so pronunciation gets corrected without a teacher reading each word out loud.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>All-digit room codes</h4><p>Joining a Live Game only takes typing numbers, so even younger students can join on their own.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>Synced to your account</h4><p>Sign in and progress saves automatically — switch devices or browsers without losing anything.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>Runs in the browser</h4><p>No app to install — works on phone, tablet, or computer.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>No copy-paste</h4><p>Answer fields block pasting, so typing practice actually reflects what a student knows.</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>Zero ads</h4><p>A clean interface with nothing competing for attention.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">How to Get Started</span>
+      <h2>Try it free, subscribe when you're ready</h2>
+    </div>
+    <div class="pricing">
+      <div class="price-card">
+        <span class="eyebrow">Free trial</span>
+        <div class="price-num">$0</div>
+        <ul>
+          <li>Full access to Flashcards, Match, and Practice</li>
+          <li>Prompted to subscribe after a set number of uses</li>
+          <li>Try it first, decide later</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <span class="eyebrow">Full subscription</span>
+        <div class="price-num">CAD$68 <small>/ year</small></div>
+        <ul>
+          <li>Unlimited use of every learning mode, all year</li>
+          <li>Progress and My Mistakes carry over and are saved permanently</li>
+          <li>See your own progress report anytime</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <span class="eyebrow">Discounted rate</span>
+        <div class="price-num">CAD$60 <small>/ year</small></div>
+        <ul>
+          <li>Group purchase of 5 or more, per person</li>
+          <li>10 likes on a WeChat Moments post, or one Rednote (Xiaohongshu) post</li>
+          <li>Either condition qualifies</li>
+        </ul>
+      </div>
+    </div>
+    <div class="promo-banner">
+      <span class="stamp">Extra offer</span>
+      <p>Enroll in the online Chinese elementary group class and get <strong>one year of subscription free</strong> — it's already included in the class fee.</p>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <span class="eyebrow" style="justify-content:center;">Get in Touch</span>
+    <h2>Want your child's Chinese vocabulary practice to actually give feedback?</h2>
+    <p>Try the platform free, or leave your purchase interest / class enrollment details and we'll follow up.</p>
+    <div class="cta-row">
+      <a class="cta cta-primary" href="index.html">🎓 Try It Free</a>
+      <a class="cta cta-secondary" href="index.html#purchase-intent">💳 Purchase Interest</a>
+      <a class="cta cta-secondary" href="index.html#class-interest">🏫 Online Class Interest</a>
+    </div>
+    <div class="contact-block">
+      <span>📞 +1&#8209;647&#8209;407&#8209;1280</span>
+      <span>💬 WeChat: <strong>KTAILEARN</strong></span>
+      <span>✉️ info@ktailearn.com</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Chinese Elementary Vocabulary Study Platform · Feature Overview
+</footer>
+</body>
+</html>

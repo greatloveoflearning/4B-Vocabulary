@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>中国小学语文词汇学习平台 · 功能介绍</title>
+<style>
+  :root {
+    --paper: #F1ECDD;
+    --paper-raised: #FAF7EE;
+    --paper-line: #D2C4A3;
+    --ink: #24303A;
+    --ink-soft: #5B6570;
+    --red: #B72A2E;
+    --red-soft: #E7CFC9;
+    --gold: #9C7A2C;
+    --jade: #3F6659;
+    --jade-soft: #DCE6DF;
+    --shadow: rgba(36, 48, 58, 0.10);
+    --font-display: "Songti SC", "STSong", "Noto Serif SC", "SimSun", serif;
+    --font-body: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-mono: "SF Mono", "Menlo", "Consolas", "Noto Sans Mono CJK SC", monospace;
+  }
+
+  :root[data-theme="dark"] {
+    --paper: #1C201B;
+    --paper-raised: #242820;
+    --paper-line: #454A3D;
+    --ink: #EFE9D8;
+    --ink-soft: #B9B29B;
+    --red: #E2666A;
+    --red-soft: #4A2B2A;
+    --gold: #D9B24F;
+    --jade: #7FAE9C;
+    --jade-soft: #2B3A34;
+    --shadow: rgba(0, 0, 0, 0.35);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #1C201B;
+      --paper-raised: #242820;
+      --paper-line: #454A3D;
+      --ink: #EFE9D8;
+      --ink-soft: #B9B29B;
+      --red: #E2666A;
+      --red-soft: #4A2B2A;
+      --gold: #D9B24F;
+      --jade: #7FAE9C;
+      --jade-soft: #2B3A34;
+      --shadow: rgba(0, 0, 0, 0.35);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  a { color: inherit; }
+
+  ::selection { background: var(--red-soft); }
+
+  .wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 40px);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  p { margin: 0; }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5em;
+    font-size: 0.8rem;
+    letter-spacing: 0.14em;
+    color: var(--red);
+    font-weight: 600;
+  }
+
+  .eyebrow::before {
+    content: "";
+    width: 1.4em;
+    border-top: 1.5px solid var(--red);
+  }
+
+  /* ---------- tian-zi-ge motif ---------- */
+  .grid-icon {
+    position: relative;
+    width: 3.4rem;
+    height: 3.4rem;
+    min-width: 3.4rem;
+    border: 1.5px solid var(--paper-line);
+    background: var(--paper-raised);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.5rem;
+    color: var(--red);
+  }
+  .grid-icon::before,
+  .grid-icon::after {
+    content: "";
+    position: absolute;
+  }
+  .grid-icon::before {
+    top: 0; bottom: 0; left: 50%;
+    border-left: 1px dashed var(--paper-line);
+  }
+  .grid-icon::after {
+    left: 0; right: 0; top: 50%;
+    border-top: 1px dashed var(--paper-line);
+  }
+  .grid-icon > span { position: relative; z-index: 1; background: var(--paper-raised); padding: 0 0.15em; }
+
+  /* ---------- hero ---------- */
+  .hero {
+    padding: clamp(56px, 10vw, 96px) 0 clamp(40px, 7vw, 64px);
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .hero-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: clamp(28px, 6vw, 48px);
+  }
+  .wordmark {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 1.05rem;
+    letter-spacing: 0.02em;
+  }
+  .wordmark .grid-icon { width: 2.3rem; height: 2.3rem; min-width: 2.3rem; font-size: 1.05rem; }
+  .lang-switch {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    text-decoration: none;
+    border: 1px solid var(--paper-line);
+    padding: 6px 12px;
+    white-space: nowrap;
+  }
+  .lang-switch:hover { color: var(--red); border-color: var(--red); }
+  .hero h1 {
+    font-size: clamp(2.1rem, 5.2vw, 3.1rem);
+    line-height: 1.28;
+    margin-top: 14px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--red);
+  }
+  .hero-sub {
+    max-width: 46ch;
+    margin-top: 18px;
+    font-size: 1.08rem;
+    color: var(--ink-soft);
+  }
+
+  .trial-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 20px;
+    font-weight: 700;
+    color: var(--red);
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--red);
+    padding-bottom: 2px;
+  }
+  .trial-link:hover { opacity: 0.75; }
+
+  .stat-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 1px;
+    background: var(--paper-line);
+    border: 1px solid var(--paper-line);
+    margin-top: clamp(32px, 6vw, 48px);
+  }
+  .stat-cell {
+    background: var(--paper-raised);
+    padding: 20px 18px;
+  }
+  .stat-num {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    font-size: 1.9rem;
+    font-weight: 700;
+    color: var(--jade);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.86rem;
+    color: var(--ink-soft);
+    margin-top: 4px;
+    display: block;
+  }
+
+  /* ---------- sections ---------- */
+  section { padding: clamp(48px, 8vw, 80px) 0; }
+  section + section { border-top: 1px solid var(--paper-line); }
+
+  .section-head { margin-bottom: clamp(28px, 5vw, 40px); max-width: 60ch; }
+  .section-head h2 {
+    font-size: clamp(1.5rem, 3.4vw, 1.9rem);
+    margin-top: 10px;
+  }
+  .section-head p { color: var(--ink-soft); margin-top: 10px; }
+
+  /* mode cards */
+  .mode-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1px;
+    background: var(--paper-line);
+    border: 1px solid var(--paper-line);
+  }
+  .mode-card {
+    background: var(--paper-raised);
+    padding: clamp(22px, 4vw, 30px);
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+  }
+  .mode-card-head { display: flex; align-items: center; gap: 14px; }
+  .mode-card h3 { font-size: 1.15rem; }
+  .mode-card p { color: var(--ink-soft); font-size: 0.96rem; }
+  .mode-tag {
+    align-self: flex-start;
+    font-size: 0.75rem;
+    color: var(--jade);
+    background: var(--jade-soft);
+    padding: 3px 9px;
+    letter-spacing: 0.04em;
+  }
+
+  /* mistake spotlight */
+  .spotlight {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(28px, 5vw, 56px);
+    align-items: center;
+  }
+  .spotlight-copy p + p { margin-top: 12px; }
+  .spotlight-copy p { color: var(--ink-soft); }
+  .rule-card {
+    background: var(--paper-raised);
+    border: 1px solid var(--paper-line);
+    padding: clamp(20px, 4vw, 28px);
+  }
+  .rule-card .stamp {
+    display: inline-block;
+    border: 2px solid var(--red);
+    color: var(--red);
+    font-weight: 700;
+    font-family: var(--font-display);
+    padding: 4px 14px;
+    transform: rotate(-3deg);
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+  }
+  .rule-steps { margin-top: 20px; display: flex; flex-direction: column; gap: 12px; }
+  .rule-step { display: flex; gap: 12px; align-items: baseline; }
+  .rule-step-mark {
+    font-family: var(--font-mono);
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 1.6em;
+  }
+  .rule-step-text { color: var(--ink); font-size: 0.95rem; }
+  .rule-step-text b { color: var(--red); }
+
+  /* coverage */
+  .coverage-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.96rem;
+  }
+  .coverage-table th, .coverage-table td {
+    text-align: left;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--paper-line);
+  }
+  .coverage-table th {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--ink-soft);
+    font-size: 0.82rem;
+    letter-spacing: 0.06em;
+  }
+  .coverage-table td:first-child { font-family: var(--font-display); font-weight: 700; }
+  .coverage-wrap { overflow-x: auto; }
+
+  /* report mock */
+  .report-mock {
+    border: 1px solid var(--paper-line);
+    background: var(--paper-raised);
+  }
+  .report-mock-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 20px;
+    border-bottom: 1px dashed var(--paper-line);
+    font-size: 0.82rem;
+    color: var(--ink-soft);
+    letter-spacing: 0.04em;
+  }
+  .report-mock-rows { padding: 6px 20px 18px; }
+  .report-mock-row {
+    display: grid;
+    grid-template-columns: 1.3fr 0.7fr 0.7fr 0.7fr;
+    gap: 8px;
+    padding: 11px 0;
+    border-bottom: 1px solid var(--paper-line);
+    font-size: 0.92rem;
+    align-items: center;
+  }
+  .report-mock-row:last-child { border-bottom: none; }
+  .report-mock-row.head { color: var(--ink-soft); font-size: 0.78rem; letter-spacing: 0.04em; }
+  .report-mock-row span.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+  .report-legend { display:flex; gap: 20px; margin-top: 16px; font-size: 0.86rem; color: var(--ink-soft); flex-wrap: wrap; }
+  .report-legend b { color: var(--ink); }
+
+  /* two-col feature list */
+  .feature-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px 32px;
+  }
+  .feature-item { display: flex; gap: 14px; }
+  .feature-item .mark {
+    font-family: var(--font-mono);
+    color: var(--gold);
+    font-weight: 700;
+    min-width: 1.5em;
+  }
+  .feature-item h4 { font-family: var(--font-body); font-weight: 700; font-size: 0.98rem; margin: 0 0 4px; }
+  .feature-item p { color: var(--ink-soft); font-size: 0.9rem; }
+
+  /* pricing */
+  .pricing {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: var(--paper-line);
+    border: 1px solid var(--paper-line);
+  }
+  .price-card {
+    background: var(--paper-raised);
+    padding: clamp(24px, 4vw, 32px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .price-card .eyebrow { color: var(--jade); }
+  .price-card .eyebrow::before { border-color: var(--jade); }
+  .price-card.featured .eyebrow { color: var(--red); }
+  .price-card.featured .eyebrow::before { border-color: var(--red); }
+  .price-num { font-family: var(--font-display); font-size: 1.8rem; font-weight: 700; margin-top: 6px; font-variant-numeric: tabular-nums; }
+  .price-num small { font-family: var(--font-body); font-size: 0.95rem; font-weight: 400; color: var(--ink-soft); }
+  .price-card ul { margin: 6px 0 0; padding-left: 1.1em; color: var(--ink-soft); font-size: 0.92rem; }
+  .price-card li + li { margin-top: 6px; }
+
+  .promo-banner {
+    margin-top: 24px;
+    border: 1px dashed var(--paper-line);
+    background: var(--paper-raised);
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .promo-banner .stamp {
+    display: inline-block;
+    border: 2px solid var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+    font-family: var(--font-display);
+    padding: 4px 12px;
+    transform: rotate(-3deg);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    white-space: nowrap;
+  }
+  .promo-banner p { color: var(--ink-soft); font-size: 0.95rem; flex: 1; min-width: 220px; }
+  .promo-banner strong { color: var(--ink); }
+
+  /* closing */
+  .closing {
+    text-align: center;
+    padding: clamp(56px, 9vw, 88px) 0 clamp(64px, 10vw, 96px);
+  }
+  .closing h2 { font-size: clamp(1.6rem, 3.6vw, 2.1rem); max-width: 26ch; margin: 14px auto 0; }
+  .closing p { color: var(--ink-soft); max-width: 44ch; margin: 14px auto 0; }
+
+  .cta-row {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+  .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 13px 24px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    border: none;
+    transition: transform 0.15s ease;
+  }
+  .cta-primary { background: var(--red); color: var(--paper-raised); }
+  .cta-secondary { background: var(--paper-raised); color: var(--ink); border: 1.5px solid var(--paper-line); }
+  @media (prefers-reduced-motion: no-preference) {
+    .cta:hover { transform: rotate(-1.5deg) scale(1.03); }
+  }
+
+  .contact-block {
+    margin-top: 24px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 8px 24px;
+    font-size: 0.95rem;
+    color: var(--ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+  .contact-block strong { color: var(--ink); }
+
+  footer {
+    border-top: 1px solid var(--paper-line);
+    padding: 24px 0 40px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+    text-align: center;
+  }
+
+  @media (max-width: 640px) {
+    .mode-grid, .feature-list, .pricing { grid-template-columns: 1fr; }
+    .spotlight { grid-template-columns: 1fr; }
+    .report-mock-row { grid-template-columns: 1.2fr 0.6fr 0.6fr 0.6fr; font-size: 0.84rem; }
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="hero-top">
+      <div class="wordmark">
+        <div class="grid-icon"><span>字</span></div>
+        中国小学语文词汇学习平台
+      </div>
+      <a class="lang-switch" href="intro-en.html">English ↗</a>
+    </div>
+
+    <span class="eyebrow">功能介绍</span>
+    <h1>把<em>写字表 · 识字表 · 词语表</em>，<br>变成学生愿意主动打开的练习。</h1>
+    <p class="hero-sub">
+      按课文整理好的语文生字词，配上单词卡、配对游戏、专项练习和线上多人测验四种学习方式，
+      再加上会自动追踪错题的复习系统与老师可查看的学习报告——学生练得有反馈，老师教得有数据。
+    </p>
+    <a class="trial-link" href="index.html">👉 立即免费试用平台</a>
+
+    <div class="stat-row">
+      <div class="stat-cell">
+        <span class="stat-num">707</span>
+        <span class="stat-label">收录生字词总数</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">4</span>
+        <span class="stat-label">种学习模式</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">3</span>
+        <span class="stat-label">类表格全覆盖</span>
+      </div>
+      <div class="stat-cell">
+        <span class="stat-num">3×</span>
+        <span class="stat-label">答对次数才移出错题集</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="modes">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">学习方式</span>
+      <h2>同一份词汇表，四种练法</h2>
+      <p>从认字到听写、从单人练习到多人对战，覆盖不同学习阶段和课堂场景。</p>
+    </div>
+
+    <div class="mode-grid">
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>卡</span></div>
+          <h3>单词卡 Flashcards</h3>
+        </div>
+        <p>汉字、拼音、英文释义、例句正反面翻卡浏览，配中英文真人语音发音，适合初次接触生字或考前快速过一遍。</p>
+        <span class="mode-tag">自主浏览</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>配</span></div>
+          <h3>配对游戏 Match</h3>
+        </div>
+        <p>限时翻牌配对汉字与释义，配对越快分数越高，每课都有独立排行榜，激发学生重复练习的动力。</p>
+        <span class="mode-tag">游戏化记忆</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>练</span></div>
+          <h3>专项练习 Practice</h3>
+        </div>
+        <p>看字打字与看释义填空两种题型，可选10 / 20 / 30 / 40题或本课全部，答错的字会自动进入错题集。</p>
+        <span class="mode-tag">听写 · 填空</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>赛</span></div>
+          <h3>线上测验 Live Game</h3>
+        </div>
+        <p>老师主持、学生用全数字房间号加入，实时抢答、即时排行榜，赛后可逐一查看每位学生答错了哪些字。</p>
+        <span class="mode-tag">课堂实时对战</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="mistakes">
+  <div class="wrap">
+    <div class="spotlight">
+      <div class="spotlight-copy">
+        <span class="eyebrow">重点功能</span>
+        <h2 style="margin-top:10px;">错题不会被划掉就算了——<br>它会一直"跟着"学生，直到真正学会</h2>
+        <p>
+          无论是配对游戏答错、专项练习答错，还是线上测验答错，系统都会把这个字自动收进学生
+          专属的「我的错题集」，学生可以随时挑出错题集单独做配对或练习。
+        </p>
+        <p>
+          错题集不是答对一次就悄悄消失——它要求学生对同一个字<b style="color:var(--red)">累计答对 3 次</b>
+          （中途再答错也不清零、继续累积），才会真正从错题集移出，避免"蒙对一次"被误判为已掌握。
+        </p>
+      </div>
+
+      <div class="rule-card">
+        <span class="stamp">错题集规则</span>
+        <div class="rule-steps">
+          <div class="rule-step">
+            <span class="rule-step-mark">01</span>
+            <span class="rule-step-text">在 <b>Practice</b> 或 <b>线上测验</b> 中答错一个字 → 自动收进错题集</span>
+          </div>
+          <div class="rule-step">
+            <span class="rule-step-mark">02</span>
+            <span class="rule-step-text">学生可单独选「我的错题集」做 <b>单词卡 / 配对 / 练习</b></span>
+          </div>
+          <div class="rule-step">
+            <span class="rule-step-mark">03</span>
+            <span class="rule-step-text">同一个字 <b>累计答对 3 次</b> 后，自动从错题集移出</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="report">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">学习报告</span>
+      <h2>学生看得到进步，老师看得到全班</h2>
+      <p>学生登录后可查看自己每一课的掌握字数、正确率与历史记录；老师 / 家长账号还能看到每位学生每课的练习次数与完成情况。</p>
+    </div>
+
+    <div class="report-mock">
+      <div class="report-mock-head">
+        <span>Member's Progress by Lesson · 示意</span>
+        <span>老师后台视图</span>
+      </div>
+      <div class="report-mock-rows">
+        <div class="report-mock-row head">
+          <span>课文</span><span>已掌握</span><span>Match</span><span>Practice</span>
+        </div>
+        <div class="report-mock-row">
+          <span>Lesson 3 天窗 · 词语表</span>
+          <span class="num">12 / 14</span>
+          <span class="num">5 次</span>
+          <span class="num">8 次</span>
+        </div>
+        <div class="report-mock-row">
+          <span>Lesson 5 秋天的雨 · 识字表</span>
+          <span class="num">9 / 13</span>
+          <span class="num">3 次</span>
+          <span class="num">4 次</span>
+        </div>
+        <div class="report-mock-row">
+          <span>Lesson 8 蟋蟀的住宅 · 写字表</span>
+          <span class="num">10 / 10</span>
+          <span class="num">7 次</span>
+          <span class="num">11 次</span>
+        </div>
+      </div>
+    </div>
+    <div class="report-legend">
+      <span><b>Member Activity</b> — 按时间排序的练习记录，一眼看出学生最近有没有在练</span>
+      <span><b>排行榜</b> — 全体学生配对速度 / 总分排名，激励良性竞争</span>
+    </div>
+  </div>
+</section>
+
+<section id="coverage">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">内容覆盖</span>
+      <h2>按课文整理，三张表一次学全</h2>
+      <p>每一课的写字表、识字表、词语表都单独可选，也可以一次性练习「全部课文」的某一类表。</p>
+    </div>
+    <div class="coverage-wrap">
+      <table class="coverage-table">
+        <thead>
+          <tr><th>表格类型</th><th>内容</th><th>练习题型</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>写字表</td>
+            <td>要求会写、会打字的生字</td>
+            <td>只考打字（看字打字）</td>
+          </tr>
+          <tr>
+            <td>识字表</td>
+            <td>要求认识、会读的生字</td>
+            <td>只考打字（看字打字）</td>
+          </tr>
+          <tr>
+            <td>词语表</td>
+            <td>词语、例句与英文释义</td>
+            <td>打字 + 释义填空两种题型</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section id="extras">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">使用体验</span>
+      <h2>细节都替老师和学生想好了</h2>
+    </div>
+    <div class="feature-list">
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>中英文真人语音</h4><p>汉字与例句均可点击发音，帮助纠正读音，无需老师逐字带读。</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>全数字房间号</h4><p>线上测验加入房间只需输入数字，低年级学生也能自己打字加入。</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>云端账号同步</h4><p>注册登录后学习记录自动保存，换电脑、换设备继续练习不丢进度。</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>网页直接打开</h4><p>无需下载安装 App，手机、平板、电脑浏览器均可使用。</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>防复制粘贴</h4><p>练习作答区禁用复制，确保打字练习真实有效。</p></div>
+      </div>
+      <div class="feature-item">
+        <span class="mark">·</span>
+        <div><h4>零广告干扰</h4><p>专注学习内容本身，界面简洁，不插播任何广告。</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="eyebrow">使用方式</span>
+      <h2>先免费试用，满意再订阅</h2>
+    </div>
+    <div class="pricing">
+      <div class="price-card">
+        <span class="eyebrow">免费试用</span>
+        <div class="price-num">$0</div>
+        <ul>
+          <li>可试用单词卡、配对、练习等全部功能</li>
+          <li>达到一定使用次数后提示开通订阅</li>
+          <li>适合先体验、再决定是否付费</li>
+        </ul>
+      </div>
+      <div class="price-card featured">
+        <span class="eyebrow">正式订阅</span>
+        <div class="price-num">CAD$68 <small>/ 年</small></div>
+        <ul>
+          <li>全年不限次数使用全部学习模式</li>
+          <li>学习记录与错题集持续累积、永久保存</li>
+          <li>随时查看个人学习报告与进步曲线</li>
+        </ul>
+      </div>
+      <div class="price-card">
+        <span class="eyebrow">优惠价</span>
+        <div class="price-num">CAD$60 <small>/ 年</small></div>
+        <ul>
+          <li>5 人或以上团购，每人享受此价</li>
+          <li>朋友圈集赞 10 个，或发一次小红书</li>
+          <li>满足以上任一条件即可申请</li>
+        </ul>
+      </div>
+    </div>
+    <div class="promo-banner">
+      <span class="stamp">额外优惠</span>
+      <p>报读中国小学语文线上小组课，可<strong>免费赠送一年订阅费</strong>——学费里已经包含这份练习工具。</p>
+    </div>
+  </div>
+</section>
+
+<section class="closing">
+  <div class="wrap">
+    <span class="eyebrow" style="justify-content:center;">了解更多</span>
+    <h2>想让孩子的语文生字词练习更有反馈感？</h2>
+    <p>免费试用平台，或直接登记购买意向 / 报读线上小组课，我们会尽快与您联系。</p>
+    <div class="cta-row">
+      <a class="cta cta-primary" href="index.html">🎓 免费试用平台</a>
+      <a class="cta cta-secondary" href="index.html#purchase-intent">💳 登记购买意向</a>
+      <a class="cta cta-secondary" href="index.html#class-interest">🏫 登记线上小组课</a>
+    </div>
+    <div class="contact-block">
+      <span>📞 +1&#8209;647&#8209;407&#8209;1280</span>
+      <span>💬 微信：<strong>KTAILEARN</strong></span>
+      <span>✉️ info@ktailearn.com</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  中国小学语文词汇学习平台 · 功能介绍
+</footer>
+</body>
+</html>
