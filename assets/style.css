@@ -47,9 +47,27 @@ body {
   background: var(--surface);
 }
 
-.topbar h1 {
+.brand-title {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.3;
+}
+
+.brand-zh-main {
   font-size: 1.25rem;
-  margin: 0;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.brand-zh-sub {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--accent);
+}
+
+.brand-en {
+  font-size: 0.75rem;
+  color: var(--muted);
 }
 
 .guide-link {
@@ -1165,6 +1183,19 @@ footer {
   padding: 1rem;
   font-size: 0.8rem;
   color: var(--muted);
+}
+
+.footer-feedback {
+  margin-top: 0.4rem;
+}
+
+.footer-feedback a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.footer-feedback a:hover {
+  text-decoration: underline;
 }
 
 @media (max-width: 480px) {
