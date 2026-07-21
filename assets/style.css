@@ -1198,6 +1198,13 @@ footer {
   text-decoration: underline;
 }
 
+.footer-copyright {
+  margin-top: 0.6rem;
+  font-size: 0.72rem;
+  color: var(--muted);
+  opacity: 0.8;
+}
+
 @media (max-width: 480px) {
   .card { height: 420px; }
   .hanzi { font-size: 2.25rem; }
