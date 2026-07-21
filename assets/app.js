@@ -11,6 +11,9 @@
   let shuffleMode = false;
   let currentCard = null;
   let eliminated = loadEliminated();
+  let randomDrawMode = false;
+  let randomDrawReveal = false;
+  let lastDrawnCards = [];
 
   const els = {
     setSelect: document.getElementById("set-select"),
@@ -47,6 +50,13 @@
     progressFill: document.getElementById("progress-fill"),
     progressLabel: document.getElementById("progress-label"),
     cardIndexLabel: document.getElementById("card-index-label"),
+
+    randomDrawToggle: document.getElementById("random-draw-toggle"),
+    randomDrawPanel: document.getElementById("random-draw-panel"),
+    randomDrawCount: document.getElementById("random-draw-count"),
+    randomDrawBtn: document.getElementById("random-draw-btn"),
+    randomDrawRevealBtn: document.getElementById("random-draw-reveal-btn"),
+    randomDrawList: document.getElementById("random-draw-list"),
 
     matchPairsSelect: document.getElementById("match-pairs-select"),
     newGameBtn: document.getElementById("new-game-btn"),
@@ -278,6 +288,7 @@
   }
 
   function renderStudy() {
+    if (randomDrawMode) return;
     const active = getActiveCards();
     const eliminatedCount = deck.length - active.length;
     els.masteryStat.textContent = `${eliminatedCount} eliminated · ${active.length} remaining`;
@@ -361,6 +372,79 @@
     renderStudy();
   }
 
+  // ---------- random draw (抽读) ----------
+
+  function setRandomDrawMode(on) {
+    randomDrawMode = on;
+    els.randomDrawPanel.hidden = !on;
+    if (on) {
+      els.studyStage.hidden = true;
+      els.progressWrap.hidden = true;
+      els.studyBottomControls.hidden = true;
+      els.studyComplete.hidden = true;
+      drawRandomWords();
+    } else {
+      renderStudy();
+    }
+  }
+
+  function drawRandomWords() {
+    const pool = getLessonCards(els.setSelect.value);
+    if (pool.length === 0) {
+      lastDrawnCards = [];
+      els.randomDrawList.innerHTML = `<p class="report-block-note">This lesson has no words.</p>`;
+      return;
+    }
+    const count = Math.max(1, Math.min(Number(els.randomDrawCount.value) || 1, pool.length));
+    els.randomDrawCount.value = count;
+    lastDrawnCards = shuffleArray(pool.slice()).slice(0, count);
+    renderRandomDrawList();
+  }
+
+  function renderRandomDrawList() {
+    els.randomDrawList.innerHTML = "";
+    els.randomDrawList.classList.toggle("reveal", randomDrawReveal);
+    lastDrawnCards.forEach((c, i) => {
+      const item = document.createElement("div");
+      item.className = "random-draw-item";
+      item.innerHTML = `
+        <span class="random-draw-index">${i + 1}</span>
+        <button type="button" class="speak-btn random-draw-speak-btn" data-id="${c.id}" aria-label="Play pronunciation">🔊</button>
+        <span class="random-draw-hanzi no-copy">${c.hanzi}</span>
+        <span class="random-draw-answer">
+          <span class="random-draw-pinyin">${c.pinyin}</span>
+          <span class="random-draw-meaning">${c.meaning}</span>
+        </span>
+      `;
+      els.randomDrawList.appendChild(item);
+    });
+  }
+
+  els.randomDrawToggle.addEventListener("change", (e) => {
+    setRandomDrawMode(e.target.checked);
+  });
+
+  els.randomDrawBtn.addEventListener("click", () => {
+    randomDrawReveal = false;
+    els.randomDrawRevealBtn.textContent = "👀 显示拼音/释义 · Reveal";
+    drawRandomWords();
+  });
+
+  els.randomDrawRevealBtn.addEventListener("click", () => {
+    randomDrawReveal = !randomDrawReveal;
+    els.randomDrawRevealBtn.textContent = randomDrawReveal
+      ? "🙈 隐藏拼音/释义 · Hide"
+      : "👀 显示拼音/释义 · Reveal";
+    els.randomDrawList.classList.toggle("reveal", randomDrawReveal);
+  });
+
+  els.randomDrawList.addEventListener("click", (e) => {
+    const btn = e.target.closest(".random-draw-speak-btn");
+    if (!btn) return;
+    const card = lastDrawnCards.find((c) => String(c.id) === btn.dataset.id);
+    if (card) speak(card.hanzi, "zh-CN");
+  });
+
   els.card.addEventListener("click", flip);
   els.flipBtn.addEventListener("click", flip);
   els.nextBtn.addEventListener("click", next);
@@ -372,6 +456,7 @@
   els.setSelect.addEventListener("change", (e) => {
     saveLastLesson(e.target.value);
     loadSet(e.target.value);
+    if (randomDrawMode) drawRandomWords();
     if (!els.matchView.hidden) startMatchGame();
   });
 

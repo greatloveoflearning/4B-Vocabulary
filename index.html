@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>4B Vocabulary Study Set</title>
-<link rel="stylesheet" href="assets/style.css?v=9">
+<link rel="stylesheet" href="assets/style.css?v=10">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
@@ -175,6 +175,11 @@
     </label>
     <span class="stat-chip" id="mastery-stat">0 eliminated · 0 remaining</span>
     <button id="reset-eliminated-btn" class="ghost-btn">Reset lesson</button>
+    <label class="switch">
+      <input type="checkbox" id="random-draw-toggle">
+      <span class="switch-track"><span class="switch-thumb"></span></span>
+      <span class="switch-label">🎲 抽读模式 Random draw</span>
+    </label>
   </div>
 
   <div class="toolbar-group" id="match-controls" hidden>
@@ -192,6 +197,16 @@
 
 <main>
   <section id="study-view">
+    <div class="random-draw-panel" id="random-draw-panel" hidden>
+      <div class="random-draw-setup">
+        <label for="random-draw-count">抽读数量 · Draw count</label>
+        <input type="number" id="random-draw-count" min="1" value="10">
+        <button type="button" id="random-draw-btn">🎲 抽取 · Draw</button>
+        <button type="button" id="random-draw-reveal-btn" class="ghost-btn">👀 显示拼音/释义 · Reveal</button>
+      </div>
+      <div class="random-draw-list" id="random-draw-list"></div>
+    </div>
+
     <div class="progress-wrap" id="progress-wrap">
       <div class="progress-bar"><div id="progress-fill"></div></div>
       <span id="progress-label">0 / 0</span>
@@ -590,17 +605,17 @@
   <p id="footer-stats" class="footer-stats"></p>
 </footer>
 
-<script src="assets/vendor/firebase-vendor.js?v=9"></script>
-<script src="assets/firebase-config.js?v=9"></script>
-<script src="assets/firebase-init.js?v=9"></script>
-<script src="assets/auth.js?v=9"></script>
-<script src="assets/activity.js?v=9"></script>
-<script src="assets/paywall.js?v=9"></script>
-<script src="assets/public-intent.js?v=9"></script>
-<script src="assets/vocab.js?v=9"></script>
-<script src="assets/app.js?v=9"></script>
-<script src="assets/report.js?v=9"></script>
-<script src="assets/assessment.js?v=9"></script>
-<script src="assets/practice.js?v=9"></script>
+<script src="assets/vendor/firebase-vendor.js?v=10"></script>
+<script src="assets/firebase-config.js?v=10"></script>
+<script src="assets/firebase-init.js?v=10"></script>
+<script src="assets/auth.js?v=10"></script>
+<script src="assets/activity.js?v=10"></script>
+<script src="assets/paywall.js?v=10"></script>
+<script src="assets/public-intent.js?v=10"></script>
+<script src="assets/vocab.js?v=10"></script>
+<script src="assets/app.js?v=10"></script>
+<script src="assets/report.js?v=10"></script>
+<script src="assets/assessment.js?v=10"></script>
+<script src="assets/practice.js?v=10"></script>
 </body>
 </html>
