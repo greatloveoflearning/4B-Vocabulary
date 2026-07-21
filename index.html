@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>4B Vocabulary Study Set</title>
-<link rel="stylesheet" href="assets/style.css?v=8">
+<link rel="stylesheet" href="assets/style.css?v=9">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
@@ -26,7 +26,7 @@
       <ul>
         <li>报读线上小组课，可免费赠送一年订阅费。<span class="i18n-en">Enroll in an online group class and get one year of subscription free.</span></li>
         <li>5 人或以上团购，每人优惠至 <strong>CAD $60</strong>。<span class="i18n-en">Group purchase of 5 or more: <strong>CAD $60</strong> each.</span></li>
-        <li>朋友圈集赞 10 个，或发一次小红书，可优惠至 <strong>CAD $60</strong>。<span class="i18n-en">Get 10 likes on a WeChat Moments post, or post once on Xiaohongshu (RED): <strong>CAD $60</strong>.</span></li>
+        <li>朋友圈集赞 10 个，或发一次小红书，可优惠至 <strong>CAD $60</strong>。<span class="i18n-en">Get 10 likes on a WeChat Moments post, or post once on Rednote (Xiaohongshu): <strong>CAD $60</strong>.</span></li>
       </ul>
       <p>具体请联系客服 · For details, please contact us:</p>
       <p>📞 +1-647-407-1280　·　💬 微信 / WeChat：<strong>KTAILEARN</strong>　·　✉️ <strong>info@ktailearn.com</strong></p>
@@ -110,6 +110,56 @@
     </div>
   </div>
 </header>
+
+<section class="public-intent" id="public-intent-bar">
+  <div class="public-intent-toggles">
+    <a class="public-intent-toggle-btn" href="#purchase-intent" data-target="public-purchase-panel">💳 购买意向 · Purchase Interest</a>
+    <a class="public-intent-toggle-btn" href="#class-interest" data-target="public-class-panel">🏫 报读线上小组课 · Online Group Class</a>
+  </div>
+
+  <div class="public-intent-panel" id="public-purchase-panel" hidden>
+    <h2>购买意向 · Purchase Interest</h2>
+    <p>还没注册，但想先了解订阅？留下联系方式，我们会主动联系你。</p>
+    <p class="i18n-en">Not registered yet but interested in subscribing? Leave your contact info and we'll reach out.</p>
+    <form id="public-lead-form" class="paywall-form">
+      <input type="text" id="public-lead-name" placeholder="姓名 · Name" required>
+      <input type="text" id="public-lead-phone" placeholder="电话 · Phone">
+      <input type="text" id="public-lead-wechat" placeholder="微信号 · WeChat ID">
+      <input type="email" id="public-lead-email" placeholder="邮箱 · Email" required>
+      <button type="submit" id="public-lead-submit-btn">提交 · Submit</button>
+    </form>
+    <p id="public-lead-msg" class="paywall-lead-msg" hidden></p>
+  </div>
+
+  <div class="public-intent-panel" id="public-class-panel" hidden>
+    <h2>报读中国小学语文线上课意向表 · Online Class Enrollment</h2>
+    <p>有兴趣报读线上小组课？填写以下信息，我们会尽快与您联系。</p>
+    <p class="i18n-en">Interested in our online group class? Leave your details below and we'll be in touch soon.</p>
+    <form id="public-class-form" class="paywall-form">
+      <input type="text" id="public-class-name" placeholder="姓名 · Name" required>
+      <input type="text" id="public-class-phone" placeholder="电话 · Phone">
+      <input type="text" id="public-class-wechat" placeholder="微信号 · WeChat ID">
+      <input type="email" id="public-class-email" placeholder="电邮 · Email" required>
+      <select id="public-class-grade" required>
+        <option value="" disabled selected>报读年级 · Grade level</option>
+        <option value="g1-1">一年级上册班 · Grade 1 (Semester 1)</option>
+        <option value="g1-2">一年级下册班 · Grade 1 (Semester 2)</option>
+        <option value="g2-1">二年级上册班 · Grade 2 (Semester 1)</option>
+        <option value="g2-2">二年级下册班 · Grade 2 (Semester 2)</option>
+        <option value="g3-1">三年级上册班 · Grade 3 (Semester 1)</option>
+        <option value="g3-2">三年级下册班 · Grade 3 (Semester 2)</option>
+        <option value="g4-1">四年级上册班 · Grade 4 (Semester 1)</option>
+        <option value="g4-2">四年级下册班 · Grade 4 (Semester 2)</option>
+        <option value="g5-1">五年级上册班 · Grade 5 (Semester 1)</option>
+        <option value="g5-2">五年级下册班 · Grade 5 (Semester 2)</option>
+        <option value="g6-1">六年级上册班 · Grade 6 (Semester 1)</option>
+        <option value="g6-2">六年级下册班 · Grade 6 (Semester 2)</option>
+      </select>
+      <button type="submit" id="public-class-submit-btn">提交 · Submit</button>
+    </form>
+    <p id="public-class-msg" class="paywall-lead-msg" hidden></p>
+  </div>
+</section>
 
 <div class="toolbar" id="toolbar">
   <div class="toolbar-group">
@@ -288,22 +338,22 @@
         </div>
 
         <h3>Potential customers (leads)</h3>
-        <p class="report-block-note">Submitted via the trial-limit paywall for members who can't e-Transfer.</p>
+        <p class="report-block-note">From the paywall's "can't e-Transfer" form, or the public purchase-intent form on the homepage.</p>
         <div class="report-table-wrap">
           <table class="report-table" id="admin-leads-table">
             <thead>
-              <tr><th>When</th><th>Name</th><th>Phone</th><th>WeChat</th><th>Email</th></tr>
+              <tr><th>When</th><th>Name</th><th>Phone</th><th>WeChat</th><th>Email</th><th>Source</th></tr>
             </thead>
             <tbody></tbody>
           </table>
         </div>
 
         <h3>Class enrollment interest</h3>
-        <p class="report-block-note">Submitted via the paywall's "报读中国小学语文线上课意向表" form.</p>
+        <p class="report-block-note">From the paywall's or the public homepage's "报读中国小学语文线上课意向表" form.</p>
         <div class="report-table-wrap">
           <table class="report-table" id="admin-class-interest-table">
             <thead>
-              <tr><th>When</th><th>Name</th><th>Grade</th><th>Phone</th><th>WeChat</th><th>Email</th></tr>
+              <tr><th>When</th><th>Name</th><th>Grade</th><th>Phone</th><th>WeChat</th><th>Email</th><th>Source</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -540,16 +590,17 @@
   <p id="footer-stats" class="footer-stats"></p>
 </footer>
 
-<script src="assets/vendor/firebase-vendor.js?v=8"></script>
-<script src="assets/firebase-config.js?v=8"></script>
-<script src="assets/firebase-init.js?v=8"></script>
-<script src="assets/auth.js?v=8"></script>
-<script src="assets/activity.js?v=8"></script>
-<script src="assets/paywall.js?v=8"></script>
-<script src="assets/vocab.js?v=8"></script>
-<script src="assets/app.js?v=8"></script>
-<script src="assets/report.js?v=8"></script>
-<script src="assets/assessment.js?v=8"></script>
-<script src="assets/practice.js?v=8"></script>
+<script src="assets/vendor/firebase-vendor.js?v=9"></script>
+<script src="assets/firebase-config.js?v=9"></script>
+<script src="assets/firebase-init.js?v=9"></script>
+<script src="assets/auth.js?v=9"></script>
+<script src="assets/activity.js?v=9"></script>
+<script src="assets/paywall.js?v=9"></script>
+<script src="assets/public-intent.js?v=9"></script>
+<script src="assets/vocab.js?v=9"></script>
+<script src="assets/app.js?v=9"></script>
+<script src="assets/report.js?v=9"></script>
+<script src="assets/assessment.js?v=9"></script>
+<script src="assets/practice.js?v=9"></script>
 </body>
 </html>

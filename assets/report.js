@@ -366,14 +366,18 @@
     renderAdminClassInterest();
   }
 
+  function sourceLabel(l) {
+    return l.source === "public_page" ? "🌐 Public page" : "📱 App";
+  }
+
   async function renderAdminLeads() {
-    els.adminLeadsBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
+    els.adminLeadsBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
     try {
       const q = sdk.query(sdk.collection(db, "leads"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
       const snap = await sdk.getDocs(q);
       els.adminLeadsBody.innerHTML = "";
       if (snap.empty) {
-        els.adminLeadsBody.innerHTML = `<tr><td colspan="5">No leads yet.</td></tr>`;
+        els.adminLeadsBody.innerHTML = `<tr><td colspan="6">No leads yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
@@ -381,22 +385,22 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${l.phone || ""}</td><td>${
           l.wechat || ""
-        }</td><td>${l.contactEmail || l.loginEmail || ""}</td>`;
+        }</td><td>${l.contactEmail || l.loginEmail || ""}</td><td>${sourceLabel(l)}</td>`;
         els.adminLeadsBody.appendChild(tr);
       });
     } catch (err) {
-      els.adminLeadsBody.innerHTML = `<tr><td colspan="5">${formatQueryError(err)}</td></tr>`;
+      els.adminLeadsBody.innerHTML = `<tr><td colspan="6">${formatQueryError(err)}</td></tr>`;
     }
   }
 
   async function renderAdminClassInterest() {
-    els.adminClassInterestBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
+    els.adminClassInterestBody.innerHTML = `<tr><td colspan="7">Loading…</td></tr>`;
     try {
       const q = sdk.query(sdk.collection(db, "classInterest"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
       const snap = await sdk.getDocs(q);
       els.adminClassInterestBody.innerHTML = "";
       if (snap.empty) {
-        els.adminClassInterestBody.innerHTML = `<tr><td colspan="6">No submissions yet.</td></tr>`;
+        els.adminClassInterestBody.innerHTML = `<tr><td colspan="7">No submissions yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
@@ -404,7 +408,9 @@
         const tr = document.createElement("tr");
         tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${
           l.gradeLabel || l.grade || ""
-        }</td><td>${l.phone || ""}</td><td>${l.wechat || ""}</td><td>${l.contactEmail || l.loginEmail || ""}</td>`;
+        }</td><td>${l.phone || ""}</td><td>${l.wechat || ""}</td><td>${l.contactEmail || l.loginEmail || ""}</td><td>${sourceLabel(
+          l
+        )}</td>`;
         els.adminClassInterestBody.appendChild(tr);
       });
     } catch (err) {

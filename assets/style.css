@@ -1187,6 +1187,54 @@ footer {
   margin: 0.4rem 0;
 }
 
+/* ---------- public intent forms (no sign-in required) ---------- */
+
+.public-intent {
+  border-bottom: 1px solid var(--border);
+  background: var(--accent-soft);
+  padding: 0.75rem 1.5rem;
+}
+
+.public-intent-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+.public-intent-toggle-btn {
+  display: inline-block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--accent);
+  background: var(--surface);
+  border: 1px solid var(--accent);
+  border-radius: 999px;
+  padding: 0.4rem 0.9rem;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.public-intent-toggle-btn:hover {
+  background: var(--accent);
+  color: #fff;
+}
+
+.public-intent-panel {
+  max-width: 480px;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid var(--border);
+}
+
+.public-intent-panel h2 {
+  font-size: 1rem;
+  margin: 0 0 0.4rem;
+}
+
+.public-intent-panel p {
+  margin: 0.3rem 0;
+}
+
 .i18n-en {
   color: var(--muted);
   font-size: 0.85em;

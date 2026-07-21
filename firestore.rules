@@ -40,12 +40,16 @@ service cloud.firestore {
 
     match /leads/{leadId} {
       allow read, update, delete: if isAdmin();
-      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      // Signed-in members submit with their own uid (paywall's "can't e-Transfer"
+      // form); anonymous marketing-page visitors submit with uid left null.
+      allow create: if (isSignedIn() && request.resource.data.uid == request.auth.uid) ||
+        (!isSignedIn() && request.resource.data.get("uid", null) == null);
     }
 
     match /classInterest/{docId} {
       allow read, update, delete: if isAdmin();
-      allow create: if isSignedIn() && request.resource.data.uid == request.auth.uid;
+      allow create: if (isSignedIn() && request.resource.data.uid == request.auth.uid) ||
+        (!isSignedIn() && request.resource.data.get("uid", null) == null);
     }
 
     match /activity/{eventId} {
