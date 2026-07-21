@@ -257,7 +257,10 @@
     touchLessonStats(lesson, user.uid);
   }
 
+  const MISTAKE_CLEAR_THRESHOLD = 3;
+
   let wrongWordIds = new Set();
+  let wrongWordCorrectCounts = {};
   const wrongWordListeners = [];
 
   function notifyWrongWordListeners() {
@@ -273,14 +276,18 @@
     const user = window.vocabAuth.getUser();
     if (!user) {
       wrongWordIds = new Set();
+      wrongWordCorrectCounts = {};
       notifyWrongWordListeners();
       return;
     }
     try {
       const snap = await sdk.getDoc(sdk.doc(db, "wrongWords", user.uid));
-      wrongWordIds = new Set(snap.exists() ? snap.data().cardIds || [] : []);
+      const data = snap.exists() ? snap.data() : {};
+      wrongWordIds = new Set(data.cardIds || []);
+      wrongWordCorrectCounts = data.correctCounts || {};
     } catch (e) {
       wrongWordIds = new Set();
+      wrongWordCorrectCounts = {};
     }
     notifyWrongWordListeners();
   }
@@ -289,24 +296,53 @@
     return wrongWordIds;
   }
 
+  // A word leaves the mistake set only once it's been answered correctly
+  // MISTAKE_CLEAR_THRESHOLD times total (a wrong answer in between does not
+  // reset the count). Uses a transaction (not arrayUnion/arrayRemove, which
+  // the vendored SDK build doesn't include) so counts stay correct across
+  // concurrent tabs/devices.
   async function updateWrongWord(cardId, correct) {
     const user = window.vocabAuth.getUser();
     if (!user) return;
 
-    if (correct) wrongWordIds.delete(cardId);
-    else wrongWordIds.add(cardId);
-    notifyWrongWordListeners();
-
+    const key = String(cardId);
     const ref = sdk.doc(db, "wrongWords", user.uid);
+    let nextIds = null;
+    let nextCounts = null;
     try {
-      await sdk.setDoc(
-        ref,
-        { uid: user.uid, cardIds: correct ? sdk.arrayRemove(cardId) : sdk.arrayUnion(cardId) },
-        { merge: true }
-      );
+      await sdk.runTransaction(db, async (tx) => {
+        const snap = await tx.get(ref);
+        const data = snap.exists() ? snap.data() : {};
+        const ids = new Set(data.cardIds || []);
+        const counts = Object.assign({}, data.correctCounts || {});
+
+        if (!correct) {
+          if (!ids.has(cardId)) {
+            ids.add(cardId);
+            counts[key] = 0;
+          }
+        } else if (ids.has(cardId)) {
+          const count = (counts[key] || 0) + 1;
+          if (count >= MISTAKE_CLEAR_THRESHOLD) {
+            ids.delete(cardId);
+            delete counts[key];
+          } else {
+            counts[key] = count;
+          }
+        }
+
+        nextIds = Array.from(ids);
+        nextCounts = counts;
+        tx.set(ref, { uid: user.uid, cardIds: nextIds, correctCounts: counts }, { merge: true });
+      });
     } catch (e) {
       /* offline or permission issue */
+      return;
     }
+
+    wrongWordIds = new Set(nextIds || []);
+    wrongWordCorrectCounts = nextCounts || {};
+    notifyWrongWordListeners();
   }
 
   window.vocabAuth.onChange(() => refreshWrongWords());
