@@ -810,8 +810,31 @@ main {
   font-size: 0.9rem;
 }
 
-.report-block-header h2 {
+.report-block-header h2,
+.report-block-header h3 {
   margin: 0;
+}
+
+.report-block-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.report-table input,
+.report-table select {
+  width: 100%;
+  font-size: 0.82rem;
+  padding: 0.3rem 0.4rem;
+}
+
+.cell-actions {
+  white-space: nowrap;
+}
+
+.cell-actions button {
+  font-size: 0.78rem;
+  padding: 0.3rem 0.55rem;
 }
 
 .report-block-header select {

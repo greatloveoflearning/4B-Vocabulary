@@ -12,7 +12,11 @@
     adminBlockBottom: document.getElementById("admin-block-bottom"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
     adminLeadsBody: document.querySelector("#admin-leads-table tbody"),
+    adminLeadsAddBtn: document.getElementById("admin-leads-add-btn"),
+    adminLeadsExportBtn: document.getElementById("admin-leads-export-btn"),
     adminClassInterestBody: document.querySelector("#admin-class-interest-table tbody"),
+    adminClassInterestAddBtn: document.getElementById("admin-class-interest-add-btn"),
+    adminClassInterestExportBtn: document.getElementById("admin-class-interest-export-btn"),
     adminActivitySelect: document.getElementById("admin-activity-select"),
     adminActivityStats: document.getElementById("admin-activity-stats"),
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
@@ -367,56 +371,320 @@
   }
 
   function sourceLabel(l) {
-    return l.source === "public_page" ? "🌐 Public page" : "📱 App";
+    if (l.source === "public_page") return "🌐 Public page";
+    if (l.source === "admin_manual") return "✍️ Manual";
+    return "📱 App";
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
+  function downloadCSV(filename, headers, rows) {
+    const escapeCsv = (v) => {
+      const s = String(v == null ? "" : v);
+      return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+    };
+    const lines = [headers.map(escapeCsv).join(",")];
+    rows.forEach((row) => lines.push(row.map(escapeCsv).join(",")));
+    const csv = "﻿" + lines.join("\r\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  const GRADE_OPTIONS = [
+    ["g1-1", "一年级上册班 · Grade 1 (Semester 1)"],
+    ["g1-2", "一年级下册班 · Grade 1 (Semester 2)"],
+    ["g2-1", "二年级上册班 · Grade 2 (Semester 1)"],
+    ["g2-2", "二年级下册班 · Grade 2 (Semester 2)"],
+    ["g3-1", "三年级上册班 · Grade 3 (Semester 1)"],
+    ["g3-2", "三年级下册班 · Grade 3 (Semester 2)"],
+    ["g4-1", "四年级上册班 · Grade 4 (Semester 1)"],
+    ["g4-2", "四年级下册班 · Grade 4 (Semester 2)"],
+    ["g5-1", "五年级上册班 · Grade 5 (Semester 1)"],
+    ["g5-2", "五年级下册班 · Grade 5 (Semester 2)"],
+    ["g6-1", "六年级上册班 · Grade 6 (Semester 1)"],
+    ["g6-2", "六年级下册班 · Grade 6 (Semester 2)"],
+  ];
+
+  function gradeSelectHtml(selected) {
+    return (
+      `<select class="edit-grade">` +
+      GRADE_OPTIONS.map(
+        ([v, label]) => `<option value="${v}"${v === selected ? " selected" : ""}>${escapeHtml(label)}</option>`
+      ).join("") +
+      `</select>`
+    );
+  }
+
+  let leadsById = new Map();
+  let classInterestById = new Map();
+
+  function leadRowHtml(id, l) {
+    return `<tr data-id="${id}">
+      <td>${formatWhen(l.createdAt)}</td>
+      <td>${escapeHtml(l.name)}</td>
+      <td>${escapeHtml(l.phone)}</td>
+      <td>${escapeHtml(l.wechat)}</td>
+      <td>${escapeHtml(l.contactEmail || l.loginEmail)}</td>
+      <td>${sourceLabel(l)}</td>
+      <td class="cell-actions">
+        <button type="button" class="ghost-btn row-edit-btn">Edit</button>
+        <button type="button" class="danger-btn row-delete-btn">Delete</button>
+      </td>
+    </tr>`;
+  }
+
+  function leadEditRowHtml(id, l) {
+    return `<tr data-id="${id}" data-editing="1">
+      <td>${l.createdAt ? formatWhen(l.createdAt) : "—"}</td>
+      <td><input type="text" class="edit-name" value="${escapeHtml(l.name)}" placeholder="Name"></td>
+      <td><input type="text" class="edit-phone" value="${escapeHtml(l.phone)}" placeholder="Phone"></td>
+      <td><input type="text" class="edit-wechat" value="${escapeHtml(l.wechat)}" placeholder="WeChat"></td>
+      <td><input type="email" class="edit-email" value="${escapeHtml(l.contactEmail || l.loginEmail)}" placeholder="Email"></td>
+      <td>${l.source ? sourceLabel(l) : "—"}</td>
+      <td class="cell-actions">
+        <button type="button" class="row-save-btn">Save</button>
+        <button type="button" class="ghost-btn row-cancel-btn">Cancel</button>
+      </td>
+    </tr>`;
   }
 
   async function renderAdminLeads() {
-    els.adminLeadsBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
+    els.adminLeadsBody.innerHTML = `<tr><td colspan="7">Loading…</td></tr>`;
     try {
       const q = sdk.query(sdk.collection(db, "leads"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
       const snap = await sdk.getDocs(q);
+      leadsById = new Map();
       els.adminLeadsBody.innerHTML = "";
       if (snap.empty) {
-        els.adminLeadsBody.innerHTML = `<tr><td colspan="6">No leads yet.</td></tr>`;
+        els.adminLeadsBody.innerHTML = `<tr><td colspan="7">No leads yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
-        const l = docSnap.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${l.phone || ""}</td><td>${
-          l.wechat || ""
-        }</td><td>${l.contactEmail || l.loginEmail || ""}</td><td>${sourceLabel(l)}</td>`;
-        els.adminLeadsBody.appendChild(tr);
+        leadsById.set(docSnap.id, docSnap.data());
+      });
+      leadsById.forEach((l, id) => {
+        els.adminLeadsBody.insertAdjacentHTML("beforeend", leadRowHtml(id, l));
       });
     } catch (err) {
-      els.adminLeadsBody.innerHTML = `<tr><td colspan="6">${formatQueryError(err)}</td></tr>`;
+      els.adminLeadsBody.innerHTML = `<tr><td colspan="7">${formatQueryError(err)}</td></tr>`;
     }
   }
 
+  function classRowHtml(id, l) {
+    return `<tr data-id="${id}">
+      <td>${formatWhen(l.createdAt)}</td>
+      <td>${escapeHtml(l.name)}</td>
+      <td>${escapeHtml(l.gradeLabel || l.grade)}</td>
+      <td>${escapeHtml(l.phone)}</td>
+      <td>${escapeHtml(l.wechat)}</td>
+      <td>${escapeHtml(l.contactEmail || l.loginEmail)}</td>
+      <td>${sourceLabel(l)}</td>
+      <td class="cell-actions">
+        <button type="button" class="ghost-btn row-edit-btn">Edit</button>
+        <button type="button" class="danger-btn row-delete-btn">Delete</button>
+      </td>
+    </tr>`;
+  }
+
+  function classEditRowHtml(id, l) {
+    return `<tr data-id="${id}" data-editing="1">
+      <td>${l.createdAt ? formatWhen(l.createdAt) : "—"}</td>
+      <td><input type="text" class="edit-name" value="${escapeHtml(l.name)}" placeholder="Name"></td>
+      <td>${gradeSelectHtml(l.grade || "")}</td>
+      <td><input type="text" class="edit-phone" value="${escapeHtml(l.phone)}" placeholder="Phone"></td>
+      <td><input type="text" class="edit-wechat" value="${escapeHtml(l.wechat)}" placeholder="WeChat"></td>
+      <td><input type="email" class="edit-email" value="${escapeHtml(l.contactEmail || l.loginEmail)}" placeholder="Email"></td>
+      <td>${l.source ? sourceLabel(l) : "—"}</td>
+      <td class="cell-actions">
+        <button type="button" class="row-save-btn">Save</button>
+        <button type="button" class="ghost-btn row-cancel-btn">Cancel</button>
+      </td>
+    </tr>`;
+  }
+
   async function renderAdminClassInterest() {
-    els.adminClassInterestBody.innerHTML = `<tr><td colspan="7">Loading…</td></tr>`;
+    els.adminClassInterestBody.innerHTML = `<tr><td colspan="8">Loading…</td></tr>`;
     try {
       const q = sdk.query(sdk.collection(db, "classInterest"), sdk.orderBy("createdAt", "desc"), sdk.limit(50));
       const snap = await sdk.getDocs(q);
+      classInterestById = new Map();
       els.adminClassInterestBody.innerHTML = "";
       if (snap.empty) {
-        els.adminClassInterestBody.innerHTML = `<tr><td colspan="7">No submissions yet.</td></tr>`;
+        els.adminClassInterestBody.innerHTML = `<tr><td colspan="8">No submissions yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
-        const l = docSnap.data();
-        const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${formatWhen(l.createdAt)}</td><td>${l.name || ""}</td><td>${
-          l.gradeLabel || l.grade || ""
-        }</td><td>${l.phone || ""}</td><td>${l.wechat || ""}</td><td>${l.contactEmail || l.loginEmail || ""}</td><td>${sourceLabel(
-          l
-        )}</td>`;
-        els.adminClassInterestBody.appendChild(tr);
+        classInterestById.set(docSnap.id, docSnap.data());
+      });
+      classInterestById.forEach((l, id) => {
+        els.adminClassInterestBody.insertAdjacentHTML("beforeend", classRowHtml(id, l));
       });
     } catch (err) {
-      els.adminClassInterestBody.innerHTML = `<tr><td colspan="6">${formatQueryError(err)}</td></tr>`;
+      els.adminClassInterestBody.innerHTML = `<tr><td colspan="8">${formatQueryError(err)}</td></tr>`;
     }
   }
+
+  els.adminLeadsBody.addEventListener("click", async (e) => {
+    const tr = e.target.closest("tr[data-id]");
+    if (!tr) return;
+    const id = tr.dataset.id;
+
+    if (e.target.classList.contains("row-edit-btn")) {
+      tr.outerHTML = leadEditRowHtml(id, leadsById.get(id));
+      return;
+    }
+    if (e.target.classList.contains("row-cancel-btn")) {
+      if (id === "__new__") {
+        tr.remove();
+        return;
+      }
+      tr.outerHTML = leadRowHtml(id, leadsById.get(id));
+      return;
+    }
+    if (e.target.classList.contains("row-delete-btn")) {
+      if (!confirm("Delete this lead? This cannot be undone.")) return;
+      try {
+        await sdk.deleteDoc(sdk.doc(db, "leads", id));
+        renderAdminLeads();
+      } catch (err) {
+        alert("Delete failed: " + (err.message || err));
+      }
+      return;
+    }
+    if (e.target.classList.contains("row-save-btn")) {
+      const name = tr.querySelector(".edit-name").value.trim();
+      const phone = tr.querySelector(".edit-phone").value.trim();
+      const wechat = tr.querySelector(".edit-wechat").value.trim();
+      const contactEmail = tr.querySelector(".edit-email").value.trim();
+      try {
+        if (id === "__new__") {
+          await sdk.addDoc(sdk.collection(db, "leads"), {
+            uid: null,
+            source: "admin_manual",
+            name,
+            phone,
+            wechat,
+            contactEmail,
+            createdAt: sdk.serverTimestamp(),
+          });
+        } else {
+          await sdk.updateDoc(sdk.doc(db, "leads", id), { name, phone, wechat, contactEmail });
+        }
+        renderAdminLeads();
+      } catch (err) {
+        alert("Save failed: " + (err.message || err));
+      }
+    }
+  });
+
+  els.adminLeadsAddBtn.addEventListener("click", () => {
+    if (els.adminLeadsBody.querySelector('tr[data-id="__new__"]')) return;
+    els.adminLeadsBody.insertAdjacentHTML("afterbegin", leadEditRowHtml("__new__", {}));
+  });
+
+  els.adminLeadsExportBtn.addEventListener("click", () => {
+    const headers = ["When", "Name", "Phone", "WeChat", "Email", "Source"];
+    const rows = Array.from(leadsById.values()).map((l) => [
+      formatWhen(l.createdAt),
+      l.name || "",
+      l.phone || "",
+      l.wechat || "",
+      l.contactEmail || l.loginEmail || "",
+      sourceLabel(l),
+    ]);
+    downloadCSV("leads.csv", headers, rows);
+  });
+
+  els.adminClassInterestBody.addEventListener("click", async (e) => {
+    const tr = e.target.closest("tr[data-id]");
+    if (!tr) return;
+    const id = tr.dataset.id;
+
+    if (e.target.classList.contains("row-edit-btn")) {
+      tr.outerHTML = classEditRowHtml(id, classInterestById.get(id));
+      return;
+    }
+    if (e.target.classList.contains("row-cancel-btn")) {
+      if (id === "__new__") {
+        tr.remove();
+        return;
+      }
+      tr.outerHTML = classRowHtml(id, classInterestById.get(id));
+      return;
+    }
+    if (e.target.classList.contains("row-delete-btn")) {
+      if (!confirm("Delete this submission? This cannot be undone.")) return;
+      try {
+        await sdk.deleteDoc(sdk.doc(db, "classInterest", id));
+        renderAdminClassInterest();
+      } catch (err) {
+        alert("Delete failed: " + (err.message || err));
+      }
+      return;
+    }
+    if (e.target.classList.contains("row-save-btn")) {
+      const name = tr.querySelector(".edit-name").value.trim();
+      const phone = tr.querySelector(".edit-phone").value.trim();
+      const wechat = tr.querySelector(".edit-wechat").value.trim();
+      const contactEmail = tr.querySelector(".edit-email").value.trim();
+      const gradeSel = tr.querySelector(".edit-grade");
+      const grade = gradeSel.value;
+      const gradeLabel = gradeSel.options[gradeSel.selectedIndex].textContent;
+      try {
+        if (id === "__new__") {
+          await sdk.addDoc(sdk.collection(db, "classInterest"), {
+            uid: null,
+            source: "admin_manual",
+            name,
+            phone,
+            wechat,
+            contactEmail,
+            grade,
+            gradeLabel,
+            createdAt: sdk.serverTimestamp(),
+          });
+        } else {
+          await sdk.updateDoc(sdk.doc(db, "classInterest", id), { name, phone, wechat, contactEmail, grade, gradeLabel });
+        }
+        renderAdminClassInterest();
+      } catch (err) {
+        alert("Save failed: " + (err.message || err));
+      }
+    }
+  });
+
+  els.adminClassInterestAddBtn.addEventListener("click", () => {
+    if (els.adminClassInterestBody.querySelector('tr[data-id="__new__"]')) return;
+    els.adminClassInterestBody.insertAdjacentHTML("afterbegin", classEditRowHtml("__new__", {}));
+  });
+
+  els.adminClassInterestExportBtn.addEventListener("click", () => {
+    const headers = ["When", "Name", "Grade", "Phone", "WeChat", "Email", "Source"];
+    const rows = Array.from(classInterestById.values()).map((l) => [
+      formatWhen(l.createdAt),
+      l.name || "",
+      l.gradeLabel || l.grade || "",
+      l.phone || "",
+      l.wechat || "",
+      l.contactEmail || l.loginEmail || "",
+      sourceLabel(l),
+    ]);
+    downloadCSV("class-enrollment-interest.csv", headers, rows);
+  });
 
   async function renderMemberActivity(uid) {
     const member = adminMembers.find((m) => m.uid === uid);
