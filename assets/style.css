@@ -1,24 +1,30 @@
 :root {
-  --bg: #f5f6fa;
+  --bg: #f6f3ff;
   --surface: #ffffff;
-  --text: #1f2430;
-  --muted: #6b7280;
-  --accent: #4f46e5;
-  --accent-soft: #eef2ff;
-  --border: #e5e7eb;
-  --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  --text: #2c2a4a;
+  --muted: #6f6795;
+  --accent: #7c5cfc;
+  --accent-soft: #efe9ff;
+  --fun: #ff8a65;
+  --fun-soft: #ffe8dd;
+  --success: #22c55e;
+  --border: #e6defe;
+  --shadow: 0 10px 28px rgba(124, 92, 252, 0.14);
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #111318;
-    --surface: #1b1f27;
-    --text: #f1f3f7;
-    --muted: #9aa1ae;
-    --accent: #818cf8;
-    --accent-soft: #262b3a;
-    --border: #2c313d;
-    --shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    --bg: #17142c;
+    --surface: #221d3d;
+    --text: #f1eeff;
+    --muted: #a89fd6;
+    --accent: #a78bfa;
+    --accent-soft: #322a58;
+    --fun: #ff9d7a;
+    --fun-soft: #40291f;
+    --success: #4ade80;
+    --border: #362d5c;
+    --shadow: 0 10px 28px rgba(0, 0, 0, 0.45);
   }
 }
 
@@ -111,6 +117,7 @@ body {
 .mode-tab.active {
   background: var(--accent);
   color: white;
+  box-shadow: 0 4px 12px rgba(124, 92, 252, 0.35);
 }
 
 .account-widget {
@@ -236,22 +243,33 @@ body {
 
 select, button {
   font: inherit;
-  border-radius: 8px;
+  border-radius: 12px;
   border: 1px solid var(--border);
   background: var(--surface);
   color: var(--text);
   padding: 0.5rem 0.75rem;
   cursor: pointer;
+  transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 button:hover, select:hover {
   border-color: var(--accent);
 }
 
+@media (prefers-reduced-motion: no-preference) {
+  button:hover {
+    transform: translateY(-1px);
+  }
+  button:active {
+    transform: translateY(0);
+  }
+}
+
 #flip-btn {
   background: var(--accent);
   color: white;
   border: none;
+  box-shadow: 0 6px 16px rgba(124, 92, 252, 0.35);
 }
 
 #flip-btn:hover {
@@ -446,11 +464,16 @@ main {
   justify-content: center;
   gap: 0.75rem;
   padding: 2rem;
-  border-radius: 16px;
+  border-radius: 22px;
   background: var(--surface);
   box-shadow: var(--shadow);
   backface-visibility: hidden;
   text-align: center;
+  border-top: 6px solid var(--accent);
+}
+
+.card-back {
+  border-top-color: var(--fun);
 }
 
 .card-back {
