@@ -5,7 +5,7 @@ window.lessonLabel = function (lesson) {
   if (lesson === "all" || lesson === undefined || lesson === null) return "All lessons";
   if (lesson === "mistakes") return "📌 My Mistakes (错题集)";
   var meta = window.LESSON_META[Number(lesson)];
-  if (!meta) return "Lesson " + lesson;
+  if (!meta) return isNaN(Number(lesson)) ? "📌 My Mistakes (错题集)" : "Lesson " + lesson;
   if (meta.allCategory) return "All Lessons' " + meta.suffix;
   var prefix = meta.num ? "Lesson " + meta.num + " " : "";
   return prefix + meta.title + "-" + meta.suffix;

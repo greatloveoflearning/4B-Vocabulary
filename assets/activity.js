@@ -17,7 +17,7 @@
   }
 
   function lessonKey(lesson) {
-    return lesson === "all" ? "all" : Number(lesson);
+    return lesson === "all" || lesson === "mistakes" ? lesson : Number(lesson);
   }
 
   async function updateLessonMatchBest(lesson, uid, displayName, pairs, seconds) {
