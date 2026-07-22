@@ -56,6 +56,24 @@ body {
 
 .brand-title {
   display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.brand-logo {
+  display: block;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ffffff;
+  padding: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
+  flex-shrink: 0;
+}
+
+.brand-title-text {
+  display: flex;
   flex-direction: column;
   line-height: 1.3;
 }

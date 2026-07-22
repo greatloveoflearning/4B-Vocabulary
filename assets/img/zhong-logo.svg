@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 420" width="400" height="420">
+
+  <!-- ground arc -->
+  <path d="M 30 402 Q 200 378 370 402" stroke="#7cb342" stroke-width="6" fill="none" stroke-linecap="round"/>
+
+  <!-- trunk / 中 character, brown -->
+  <g fill="#5b3a21">
+    <!-- upper stroke, above the box -->
+    <rect x="189" y="96" width="22" height="46" rx="8"/>
+    <!-- box (口), hollow via evenodd -->
+    <path fill-rule="evenodd" d="
+      M152 140 L248 140 C256 140 262 146 262 154
+      L262 218 C262 226 256 232 248 232
+      L152 232 C144 232 138 226 138 218
+      L138 154 C138 146 144 140 152 140 Z
+      M172 160 L228 160 L228 212 L172 212 Z"/>
+    <!-- lower stroke, below the box -->
+    <rect x="189" y="232" width="22" height="66" rx="8"/>
+    <!-- roots -->
+    <path d="M200 296 C192 320 158 336 128 378 C120 389 130 397 141 390
+             C168 372 190 344 200 328 Z"/>
+    <path d="M200 296 C208 320 242 336 272 378 C280 389 270 397 259 390
+             C232 372 210 344 200 328 Z"/>
+    <!-- branch-curl flourishes at the top corners, sweeping outward like branches -->
+    <path d="M150 138 C110 122 78 100 68 66 C64 52 80 48 86 62
+             C98 92 122 110 158 122 Z"/>
+    <path d="M250 138 C290 122 322 100 332 66 C336 52 320 48 314 62
+             C302 92 278 110 242 122 Z"/>
+  </g>
+
+  <!-- stem connecting trunk to canopy -->
+  <line x1="200" y1="96" x2="200" y2="80" stroke="#6b9b1e" stroke-width="3"/>
+
+  <!-- molecular canopy (shifted down slightly to overlap the branch tips) -->
+  <g transform="translate(0,12)">
+  <g stroke="#6b9b1e" stroke-width="2.5" fill="none">
+    <line x1="200" y1="60" x2="200" y2="30"/>
+    <line x1="200" y1="30" x2="168" y2="14"/>
+    <line x1="200" y1="30" x2="232" y2="16"/>
+    <line x1="168" y1="14" x2="120" y2="18"/>
+    <line x1="168" y1="14" x2="146" y2="58"/>
+    <line x1="120" y1="18" x2="70" y2="45"/>
+    <line x1="146" y1="58" x2="92" y2="68"/>
+    <line x1="92" y1="68" x2="46" y2="88"/>
+    <line x1="92" y1="68" x2="78" y2="118"/>
+    <line x1="78" y1="118" x2="38" y2="150"/>
+    <line x1="232" y1="16" x2="272" y2="10"/>
+    <line x1="232" y1="16" x2="252" y2="58"/>
+    <line x1="272" y1="10" x2="312" y2="36"/>
+    <line x1="252" y1="58" x2="304" y2="66"/>
+    <line x1="304" y1="66" x2="348" y2="90"/>
+    <line x1="304" y1="66" x2="320" y2="116"/>
+    <line x1="320" y1="116" x2="362" y2="140"/>
+  </g>
+
+  <!-- molecular canopy: nodes -->
+  <g>
+    <circle cx="200" cy="60" r="9" fill="#5c8a26"/>
+    <circle cx="200" cy="30" r="8" fill="#5c8a26"/>
+    <circle cx="168" cy="14" r="26" fill="#a8c93f"/>
+    <circle cx="232" cy="16" r="24" fill="#8bc34a"/>
+    <circle cx="120" cy="18" r="14" fill="#bcd35f"/>
+    <circle cx="272" cy="10" r="12" fill="#5c8a26"/>
+    <circle cx="70" cy="45" r="32" fill="#a8c93f"/>
+    <circle cx="312" cy="36" r="19" fill="#8bc34a"/>
+    <circle cx="146" cy="58" r="8" fill="#5c8a26"/>
+    <circle cx="252" cy="58" r="32" fill="#8bc34a"/>
+    <circle cx="92" cy="68" r="9" fill="#5c8a26"/>
+    <circle cx="46" cy="88" r="28" fill="#a8c93f"/>
+    <circle cx="304" cy="66" r="9" fill="#5c8a26"/>
+    <circle cx="348" cy="90" r="26" fill="#558b2f"/>
+    <circle cx="78" cy="118" r="8" fill="#5c8a26"/>
+    <circle cx="320" cy="116" r="8" fill="#5c8a26"/>
+    <circle cx="38" cy="150" r="22" fill="#5c8a26"/>
+    <circle cx="362" cy="140" r="19" fill="#a8c93f"/>
+  </g>
+  </g>
+</svg>
