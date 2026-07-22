@@ -177,6 +177,44 @@
     playTone(160, 0.25, "square", 0.15);
   }
 
+  // ---------- live-game background music & results fanfare ----------
+  // Synthesized in-browser (Web Audio oscillators) — original, no licensing needed.
+
+  const BG_MELODY = [
+    392.0, 440.0, 493.88, 523.25, 493.88, 440.0, 392.0, 349.23,
+    392.0, 440.0, 493.88, 587.33, 523.25, 493.88, 440.0, 392.0,
+  ];
+  const BG_BEAT_SEC = 0.3;
+  let bgMusicTimer = null;
+  let bgMusicStep = 0;
+
+  function playBackgroundMusic() {
+    if (bgMusicTimer) return;
+    bgMusicStep = 0;
+    const tick = () => {
+      playTone(BG_MELODY[bgMusicStep % BG_MELODY.length], BG_BEAT_SEC * 0.8, "triangle", 0.045);
+      bgMusicStep++;
+      bgMusicTimer = setTimeout(tick, BG_BEAT_SEC * 1000);
+    };
+    tick();
+  }
+
+  function stopBackgroundMusic() {
+    if (bgMusicTimer) clearTimeout(bgMusicTimer);
+    bgMusicTimer = null;
+  }
+
+  function playResultsFanfare() {
+    stopBackgroundMusic();
+    const arpeggio = [523.25, 659.25, 783.99, 1046.5];
+    arpeggio.forEach((freq, i) => {
+      setTimeout(() => playTone(freq, 0.32, "triangle", 0.22), i * 130);
+    });
+    setTimeout(() => {
+      [523.25, 659.25, 783.99, 1046.5].forEach((freq) => playTone(freq, 0.8, "sine", 0.16));
+    }, arpeggio.length * 130 + 80);
+  }
+
   let cachedVoices = [];
   function loadVoices() {
     cachedVoices = window.speechSynthesis.getVoices();
@@ -223,7 +261,15 @@
     window.speechSynthesis.speak(utter);
   }
 
-  window.vocabAudio = { speak, playCorrectSound, playWrongSound, playEliminateSound };
+  window.vocabAudio = {
+    speak,
+    playCorrectSound,
+    playWrongSound,
+    playEliminateSound,
+    playBackgroundMusic,
+    stopBackgroundMusic,
+    playResultsFanfare,
+  };
 
   // ---------- helpers ----------
 

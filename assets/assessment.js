@@ -89,6 +89,7 @@
     unsubPlayers = null;
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = null;
+    if (window.vocabAudio) window.vocabAudio.stopBackgroundMusic();
   }
 
   function resetToHome() {
@@ -442,6 +443,7 @@
     if (isPlaying) renderQuestion();
     renderRunningLeaderboard();
     startTimer();
+    if (window.vocabAudio) window.vocabAudio.playBackgroundMusic();
   }
 
   function startTimer() {
@@ -503,6 +505,7 @@
   async function enterResults() {
     hasEnded = true;
     if (timerInterval) clearInterval(timerInterval);
+    if (window.vocabAudio) window.vocabAudio.playResultsFanfare();
     if (isPlaying && window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
     showView(els.results);
     els.hostAgainBtn.hidden = !isHost;
