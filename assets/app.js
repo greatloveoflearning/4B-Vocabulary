@@ -178,30 +178,22 @@
   }
 
   // ---------- live-game background music & results fanfare ----------
-  // Synthesized in-browser (Web Audio oscillators) — original, no licensing needed.
 
-  const BG_MELODY = [
-    392.0, 440.0, 493.88, 523.25, 493.88, 440.0, 392.0, 349.23,
-    392.0, 440.0, 493.88, 587.33, 523.25, 493.88, 440.0, 392.0,
-  ];
-  const BG_BEAT_SEC = 0.3;
-  let bgMusicTimer = null;
-  let bgMusicStep = 0;
+  const bgMusicEl = document.getElementById("live-game-bgm");
+  if (bgMusicEl) bgMusicEl.volume = 0.35;
 
   function playBackgroundMusic() {
-    if (bgMusicTimer) return;
-    bgMusicStep = 0;
-    const tick = () => {
-      playTone(BG_MELODY[bgMusicStep % BG_MELODY.length], BG_BEAT_SEC * 0.8, "triangle", 0.045);
-      bgMusicStep++;
-      bgMusicTimer = setTimeout(tick, BG_BEAT_SEC * 1000);
-    };
-    tick();
+    if (!bgMusicEl) return;
+    bgMusicEl.currentTime = 0;
+    bgMusicEl.play().catch(() => {
+      /* blocked until a user gesture; ignore */
+    });
   }
 
   function stopBackgroundMusic() {
-    if (bgMusicTimer) clearTimeout(bgMusicTimer);
-    bgMusicTimer = null;
+    if (!bgMusicEl) return;
+    bgMusicEl.pause();
+    bgMusicEl.currentTime = 0;
   }
 
   function playResultsFanfare() {
