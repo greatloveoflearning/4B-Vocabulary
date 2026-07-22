@@ -581,7 +581,13 @@
 
     const sample = shuffleArray(pool.slice()).slice(0, n);
     const hanziTiles = sample.map((c) => ({ uid: `${c.id}-h`, pairId: c.id, kind: "hanzi", text: c.hanzi }));
-    const meaningTiles = sample.map((c) => ({ uid: `${c.id}-m`, pairId: c.id, kind: "meaning", text: c.meaning }));
+    const meaningTiles = sample.map((c) => ({
+      uid: `${c.id}-m`,
+      pairId: c.id,
+      kind: "meaning",
+      text: `${c.pinyin} ${c.meaning}`,
+      html: `<span class="match-tile-pinyin">${c.pinyin}</span><span class="match-tile-meaning">${c.meaning}</span>`,
+    }));
     shuffleArray(hanziTiles);
     shuffleArray(meaningTiles);
     matchTiles = hanziTiles.concat(meaningTiles);
@@ -600,7 +606,8 @@
       const btn = document.createElement("button");
       btn.type = "button";
       btn.className = "match-tile";
-      btn.textContent = tile.text;
+      if (tile.html) btn.innerHTML = tile.html;
+      else btn.textContent = tile.text;
       btn.dataset.uid = tile.uid;
       btn.addEventListener("click", () => onTileClick(tile, btn));
       container.appendChild(btn);
