@@ -84,6 +84,12 @@
     els.results.hidden = true;
   }
 
+  function scrollCurrentIntoView() {
+    const el = tokenEls[currentIndex];
+    if (!el) return;
+    el.scrollIntoView({ block: "center", behavior: "smooth" });
+  }
+
   function resetStats() {
     currentIndex = 0;
     correctCount = 0;
@@ -92,6 +98,7 @@
     els.correctCountEl.textContent = "0";
     tokenEls.forEach((el) => el.classList.remove("correct", "wrong", "current"));
     if (tokenEls.length) tokenEls[0].classList.add("current");
+    els.passage.scrollTop = 0;
     updateTimerDisplay();
   }
 
@@ -184,6 +191,7 @@
       return;
     }
     tokenEls[currentIndex].classList.add("current");
+    scrollCurrentIntoView();
   }
 
   els.input.addEventListener("input", () => {
