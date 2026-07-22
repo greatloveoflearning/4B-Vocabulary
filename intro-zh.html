@@ -238,13 +238,14 @@
 
   /* mode cards */
   .mode-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 1px;
     background: var(--paper-line);
     border: 1px solid var(--paper-line);
   }
   .mode-card {
+    flex: 1 1 340px;
     background: var(--paper-raised);
     padding: clamp(22px, 4vw, 30px);
     display: flex;
@@ -482,7 +483,6 @@
   <div class="wrap">
     <div class="hero-top">
       <div class="wordmark">
-        <img class="brand-logo-sm" src="assets/img/zhong-logo.svg" alt="logo">
         <div class="grid-icon"><span>字</span></div>
         中国小学语文词汇学习平台
       </div>
@@ -493,6 +493,7 @@
     <h1>把<em>写字表 · 识字表 · 词语表</em>，<br>变成学生愿意主动打开的练习。</h1>
     <p class="hero-sub">
       按课文整理好的语文生字词，配上单词卡、配对游戏、专项练习和线上多人测验四种学习方式，
+      再加上以普通话水平测试篇目为材料的打字测验，正音、认字、打字三合一，
       再加上会自动追踪错题的复习系统与老师可查看的学习报告——学生练得有反馈，老师教得有数据。
     </p>
     <a class="trial-link" href="index.html">👉 立即免费试用平台</a>
@@ -503,7 +504,7 @@
         <span class="stat-label">收录生字词总数</span>
       </div>
       <div class="stat-cell">
-        <span class="stat-num">4</span>
+        <span class="stat-num">5</span>
         <span class="stat-label">种学习模式</span>
       </div>
       <div class="stat-cell">
@@ -522,8 +523,8 @@
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">学习方式</span>
-      <h2>同一份词汇表，四种练法</h2>
-      <p>从认字到听写、从单人练习到多人对战，覆盖不同学习阶段和课堂场景。</p>
+      <h2>五种练法，从认字到朗读打字全覆盖</h2>
+      <p>从认字到听写、从单人练习到多人对战，再到整篇文章的朗读打字，覆盖不同学习阶段和课堂场景。</p>
     </div>
 
     <div class="mode-grid">
@@ -561,6 +562,15 @@
         </div>
         <p>老师主持、学生用全数字房间号加入，实时抢答、即时排行榜，赛后可逐一查看每位学生答错了哪些字。</p>
         <span class="mode-tag">课堂实时对战</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>键</span></div>
+          <h3>打字测验 Typing Test</h3>
+        </div>
+        <p>文章全部选自「普通话水平测试」指定朗读篇目，边看拼音边打字，标点自动显示但无需输入，正音、认字、打字三项能力一次练到，不计入试用次数，速度与正确率自动记入学习报告。</p>
+        <span class="mode-tag">正音 · 认字 · 打字三合一</span>
       </div>
     </div>
   </div>

@@ -239,13 +239,14 @@
 
   /* mode cards */
   .mode-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 1px;
     background: var(--paper-line);
     border: 1px solid var(--paper-line);
   }
   .mode-card {
+    flex: 1 1 340px;
     background: var(--paper-raised);
     padding: clamp(22px, 4vw, 30px);
     display: flex;
@@ -487,7 +488,6 @@
   <div class="wrap">
     <div class="hero-top">
       <div class="wordmark">
-        <img class="brand-logo-sm" src="assets/img/zhong-logo.svg" alt="logo">
         <div class="grid-icon"><span>字</span></div>
         Chinese Elementary Vocabulary Platform
       </div>
@@ -498,8 +498,10 @@
     <h1>Turns the <em>writing, recognition, and vocabulary lists</em><br>from any lesson into practice kids actually open.</h1>
     <p class="hero-sub">
       Every lesson's Chinese vocabulary — writing list, recognition list, and word/phrase list — organized and ready
-      to practice with flashcards, a matching game, targeted drills, and a live multiplayer quiz. Add a mistake
-      tracker that follows each word until it's truly learned, plus a progress report parents and teachers can see.
+      to practice with flashcards, a matching game, targeted drills, and a live multiplayer quiz. Add a Typing Test
+      built from official Mandarin Proficiency Test (普通话水平测试) reading passages — pronunciation, character
+      recognition, and typing all in one — plus a mistake tracker that follows each word until it's truly learned,
+      and a progress report parents and teachers can see.
     </p>
     <a class="trial-link" href="index.html">👉 Try it free now</a>
 
@@ -509,7 +511,7 @@
         <span class="stat-label">words &amp; characters covered</span>
       </div>
       <div class="stat-cell">
-        <span class="stat-num">4</span>
+        <span class="stat-num">5</span>
         <span class="stat-label">ways to practice</span>
       </div>
       <div class="stat-cell">
@@ -528,8 +530,8 @@
   <div class="wrap">
     <div class="section-head">
       <span class="eyebrow">Ways to Practice</span>
-      <h2>One vocabulary list, four ways to learn it</h2>
-      <p>From first exposure to timed recall, from solo review to live competition — built for every stage of learning and every classroom moment.</p>
+      <h2>Five ways to learn, from first exposure to full passages</h2>
+      <p>From first exposure to timed recall, from solo review to live competition, all the way to typing out full reading passages — built for every stage of learning and every classroom moment.</p>
     </div>
 
     <div class="mode-grid">
@@ -567,6 +569,15 @@
         </div>
         <p>A teacher hosts, students join with an all-digit room code, and everyone answers in real time on a shared leaderboard. After the round, the teacher can review exactly which words each student missed.</p>
         <span class="mode-tag">Live classroom competition</span>
+      </div>
+
+      <div class="mode-card">
+        <div class="mode-card-head">
+          <div class="grid-icon"><span>键</span></div>
+          <h3>Typing Test</h3>
+        </div>
+        <p>Every passage is drawn from the official Mandarin Proficiency Test (普通话水平测试) reading list. Students type the pinyin while reading along with the characters — punctuation shows but doesn't need typing — practicing pronunciation, character recognition, and typing all at once. Doesn't count against the free trial, and speed and accuracy are logged straight into the progress report.</p>
+        <span class="mode-tag">Pronunciation · recognition · typing, all in one</span>
       </div>
     </div>
   </div>
