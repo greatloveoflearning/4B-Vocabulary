@@ -724,6 +724,7 @@
   const reportView = document.getElementById("report-view");
   const assessmentView = document.getElementById("assessment-view");
   const practiceView = document.getElementById("practice-view");
+  const footerHint = document.getElementById("footer-hint");
 
   els.modeTabs.forEach((tab) => {
     tab.addEventListener("click", () => {
@@ -741,6 +742,7 @@
       toolbar.hidden = mode === "report" || mode === "assessment" || mode === "practice";
       els.studyControls.hidden = mode !== "study";
       els.matchControls.hidden = mode !== "match";
+      if (footerHint) footerHint.hidden = mode !== "study";
 
       if (mode === "study" || mode === "match") {
         syncSetSelectFromStorage();
