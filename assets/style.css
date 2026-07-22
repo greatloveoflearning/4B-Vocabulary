@@ -66,9 +66,11 @@ body {
   background: #ffffff;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
   flex-shrink: 0;
+  object-fit: contain;
 }
 
-.brand-logo-zhong {
+.brand-logo-zhong,
+.brand-logo-kt {
   width: 40px;
   height: 40px;
   border-radius: 50%;
