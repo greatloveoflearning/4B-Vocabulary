@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>中国小学语文学习平台 · 四年级下册</title>
-<link rel="stylesheet" href="assets/style.css?v=25">
+<link rel="stylesheet" href="assets/style.css?v=26">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
@@ -90,7 +90,11 @@
       <span class="brand-en">Chinese Elementary Language Learning Platform · Grade 4 (Semester 2)</span>
     </div>
   </div>
-  <a class="guide-link" href="intro-zh.html" target="_blank" rel="noopener">📖 平台使用介绍 · How to Use</a>
+  <div class="header-links">
+    <a class="guide-link" href="intro-zh.html" target="_blank" rel="noopener">📖 平台使用介绍 · How to Use</a>
+    <a class="public-intent-toggle-btn" href="#purchase-intent" data-target="public-purchase-panel">💳 购买意向 · Purchase Interest</a>
+    <a class="public-intent-toggle-btn" href="#class-interest" data-target="public-class-panel">🏫 报读线上小组课 · Online Group Class</a>
+  </div>
   <nav class="mode-tabs" role="tablist">
     <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 闪卡 · Flashcards</button>
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 配对 · Match</button>
@@ -121,12 +125,7 @@
   </div>
 </header>
 
-<section class="public-intent" id="public-intent-bar">
-  <div class="public-intent-toggles">
-    <a class="public-intent-toggle-btn" href="#purchase-intent" data-target="public-purchase-panel">💳 购买意向 · Purchase Interest</a>
-    <a class="public-intent-toggle-btn" href="#class-interest" data-target="public-class-panel">🏫 报读线上小组课 · Online Group Class</a>
-  </div>
-
+<section class="public-intent" id="public-intent-bar" hidden>
   <div class="public-intent-panel" id="public-purchase-panel" hidden>
     <h2>购买意向 · Purchase Interest</h2>
     <p>还没注册，但想先了解订阅？留下联系方式，我们会主动联系你。</p>
@@ -707,7 +706,7 @@
 <script src="assets/auth.js?v=20"></script>
 <script src="assets/activity.js?v=21"></script>
 <script src="assets/paywall.js?v=20"></script>
-<script src="assets/public-intent.js?v=20"></script>
+<script src="assets/public-intent.js?v=21"></script>
 <script src="assets/vocab.js?v=21"></script>
 <script src="assets/typing-articles.js?v=4"></script>
 <script src="assets/app.js?v=27"></script>

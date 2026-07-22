@@ -5,6 +5,7 @@
 
   const els = {
     toggleBtns: Array.from(document.querySelectorAll(".public-intent-toggle-btn")),
+    intentBar: document.getElementById("public-intent-bar"),
     purchasePanel: document.getElementById("public-purchase-panel"),
     classPanel: document.getElementById("public-class-panel"),
 
@@ -35,12 +36,14 @@
     Object.keys(panels).forEach((key) => {
       panels[key].hidden = key !== id;
     });
+    els.intentBar.hidden = false;
   }
 
   function closeAll() {
     Object.keys(panels).forEach((key) => {
       panels[key].hidden = true;
     });
+    els.intentBar.hidden = true;
   }
 
   els.toggleBtns.forEach((btn) => {
@@ -52,6 +55,7 @@
       closeAll();
       if (!alreadyOpen) {
         panel.hidden = false;
+        els.intentBar.hidden = false;
         panel.scrollIntoView({ behavior: "smooth", block: "start" });
       }
     });

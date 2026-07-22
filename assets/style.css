@@ -98,6 +98,13 @@ body {
   color: rgba(255, 255, 255, 0.75);
 }
 
+.header-links {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .guide-link {
   font-size: 0.85rem;
   color: #ffffff;
@@ -111,6 +118,20 @@ body {
 .guide-link:hover {
   background: rgba(255, 255, 255, 0.15);
   border-color: #ffffff;
+}
+
+.header-links .public-intent-toggle-btn {
+  font-size: 0.85rem;
+  color: #ffffff;
+  background: transparent;
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
+  white-space: nowrap;
+}
+
+.header-links .public-intent-toggle-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: #ffffff;
+  color: #ffffff;
 }
 
 .mode-tabs {
@@ -1492,6 +1513,11 @@ footer {
   .brand-en { font-size: 0.6rem; }
 
   .guide-link {
+    font-size: 0.68rem;
+    padding: 0.3rem 0.55rem;
+  }
+
+  .header-links .public-intent-toggle-btn {
     font-size: 0.68rem;
     padding: 0.3rem 0.55rem;
   }
