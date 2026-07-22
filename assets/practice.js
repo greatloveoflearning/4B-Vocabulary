@@ -283,7 +283,8 @@
   els.endBtn.addEventListener("click", endPractice);
   els.againBtn.addEventListener("click", startPractice);
   els.changeBtn.addEventListener("click", () => showView(els.setup));
-  els.signinBtn.addEventListener("click", () => {
+  els.signinBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
     document.getElementById("account-btn").click();
   });
 

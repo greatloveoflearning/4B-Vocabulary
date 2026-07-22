@@ -29,7 +29,8 @@
     footerStats: document.getElementById("footer-stats"),
   };
 
-  els.signinBtn.addEventListener("click", () => {
+  els.signinBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
     document.getElementById("account-btn").click();
   });
 
