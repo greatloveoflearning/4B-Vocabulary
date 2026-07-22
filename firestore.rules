@@ -3,8 +3,21 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    function isSignedIn() {
+    function authed() {
       return request.auth != null;
+    }
+
+    function isBanned() {
+      return authed() &&
+        exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
+        get(/databases/$(database)/documents/users/$(request.auth.uid)).data.get("banned", false) == true;
+    }
+
+    // Banned members are treated as signed out everywhere: every rule below
+    // gates on isSignedIn(), so a ban immediately cuts off all reads/writes
+    // regardless of subscription status.
+    function isSignedIn() {
+      return authed() && !isBanned();
     }
 
     function isAdmin() {
@@ -23,18 +36,20 @@ service cloud.firestore {
       allow read: if isSignedIn();
       // isAdmin can only be granted by hand in the Firebase console (the
       // Admin SDK bypasses rules); no client write may change it.
-      // canHost and unlockedUntil (subscription expiry, epoch ms) may only
-      // be changed by an existing admin.
+      // canHost, unlockedUntil (subscription expiry, epoch ms), and banned
+      // may only be changed by an existing admin.
       allow create: if isSignedIn() && request.auth.uid == uid &&
         request.resource.data.get("isAdmin", false) != true &&
         request.resource.data.get("canHost", false) != true &&
+        request.resource.data.get("banned", false) != true &&
         request.resource.data.get("unlockedUntil", null) == null;
       allow update: if isSignedIn() && (
         (request.auth.uid == uid &&
           request.resource.data.get("isAdmin", false) == resource.data.get("isAdmin", false) &&
           request.resource.data.get("canHost", false) == resource.data.get("canHost", false) &&
+          request.resource.data.get("banned", false) == resource.data.get("banned", false) &&
           request.resource.data.get("unlockedUntil", null) == resource.data.get("unlockedUntil", null)) ||
-        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlockedUntil"]))
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlockedUntil", "banned"]))
       );
     }
 
@@ -79,6 +94,16 @@ service cloud.firestore {
     match /typingTestStats/{articleId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn();
+    }
+
+    match /typingArticlesMeta/{docId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /typingArticleContent/{articleId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
     }
 
     match /lessonMatchBest/{docId} {

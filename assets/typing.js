@@ -23,6 +23,8 @@
     mistakesBody: document.querySelector("#typing-mistakes-table tbody"),
   };
 
+  const { db, sdk } = window.vocabFirebase;
+
   let currentArticle = null;
   let tokenEls = [];
   let currentIndex = 0;
@@ -36,13 +38,29 @@
   let startedAt = 0;
   let timerInterval = null;
 
-  function getArticles() {
-    return window.TYPING_ARTICLES || [];
+  let articlesMeta = [];
+  const contentCache = new Map();
+
+  async function fetchArticlesMeta() {
+    if (articlesMeta.length) return articlesMeta;
+    const snap = await sdk.getDoc(sdk.doc(db, "typingArticlesMeta", "list"));
+    articlesMeta = snap.exists() ? snap.data().articles || [] : [];
+    return articlesMeta;
   }
 
-  function ensureArticleOptions() {
+  async function fetchArticleContent(articleId) {
+    if (contentCache.has(articleId)) return contentCache.get(articleId);
+    const snap = await sdk.getDoc(sdk.doc(db, "typingArticleContent", String(articleId)));
+    if (!snap.exists()) return null;
+    const data = snap.data();
+    contentCache.set(articleId, data);
+    return data;
+  }
+
+  async function ensureArticleOptions() {
     if (els.articleSelect.options.length) return;
-    getArticles().forEach((article) => {
+    const articles = await fetchArticlesMeta();
+    articles.forEach((article) => {
       const opt = document.createElement("option");
       opt.value = String(article.id);
       opt.textContent = `${article.id}${article.title}`;
@@ -80,11 +98,17 @@
     return i;
   }
 
-  function loadArticle(articleId) {
-    const article = getArticles().find((a) => a.id === articleId);
-    if (!article) return;
-    currentArticle = article;
+  async function loadArticle(articleId) {
     stopTest();
+    els.startBtn.disabled = true;
+    els.passage.innerHTML = "";
+    els.passage.textContent = "Loading…";
+    const article = await fetchArticleContent(articleId);
+    if (!article) {
+      els.passage.textContent = "Couldn't load this article. Please try again.";
+      return;
+    }
+    currentArticle = article;
     renderPassage(article);
     resetStats();
     els.startBtn.disabled = false;
@@ -227,8 +251,8 @@
   els.startBtn.addEventListener("click", startTest);
   els.restartBtn.addEventListener("click", startTest);
 
-  els.newTextBtn.addEventListener("click", () => {
-    ensureArticleOptions();
+  els.newTextBtn.addEventListener("click", async () => {
+    await ensureArticleOptions();
     if (currentArticle) els.articleSelect.value = String(currentArticle.id);
     els.articlePicker.hidden = false;
   });
@@ -256,7 +280,7 @@
 
   let initialized = false;
 
-  function onTabShown() {
+  async function onTabShown() {
     const user = window.vocabAuth.getUser();
     if (!user) {
       els.signedOut.hidden = false;
@@ -267,8 +291,8 @@
     els.main.hidden = false;
     if (!initialized) {
       initialized = true;
-      ensureArticleOptions();
-      const articles = getArticles();
+      const articles = await fetchArticlesMeta();
+      await ensureArticleOptions();
       if (articles.length) loadArticle(articles[0].id);
     }
   }

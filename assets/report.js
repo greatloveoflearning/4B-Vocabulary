@@ -278,7 +278,7 @@
 
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.textContent = u.displayName || "Member";
+        td.textContent = (u.banned ? "🚫 " : "") + (u.displayName || "Member");
         const tdEmail = document.createElement("td");
         tdEmail.textContent = u.email || "";
         const tdHost = document.createElement("td");
@@ -350,8 +350,29 @@
             clearBtn.disabled = false;
           }
         });
+        const banBtn = document.createElement("button");
+        banBtn.type = "button";
+        banBtn.className = "host-toggle-btn ghost-btn" + (u.banned ? " is-on" : "");
+        banBtn.textContent = u.banned ? "Unban" : "Ban";
+        banBtn.addEventListener("click", async () => {
+          const next = !u.banned;
+          if (next && !window.confirm(`Ban ${u.displayName || u.email || "this member"}? They will immediately lose all access, paid or not.`)) return;
+          banBtn.disabled = true;
+          try {
+            await sdk.updateDoc(sdk.doc(db, "users", uid), { banned: next });
+            u.banned = next;
+            banBtn.classList.toggle("is-on", next);
+            banBtn.textContent = next ? "Unban" : "Ban";
+            td.textContent = (u.banned ? "🚫 " : "") + (u.displayName || "Member");
+          } catch (e) {
+            /* ignore */
+          } finally {
+            banBtn.disabled = false;
+          }
+        });
         tdSubActions.appendChild(renewBtn);
         tdSubActions.appendChild(clearBtn);
+        tdSubActions.appendChild(banBtn);
 
         tr.appendChild(td);
         tr.appendChild(tdEmail);

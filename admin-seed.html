@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin: Seed Typing Articles</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 40px auto; padding: 0 20px; }
+  button { font-size: 1rem; padding: 10px 20px; cursor: pointer; }
+  #log { margin-top: 20px; white-space: pre-wrap; font-family: monospace; font-size: 0.85rem; background: #f5f5f5; padding: 12px; border-radius: 6px; max-height: 400px; overflow-y: auto; }
+  .warn { color: #b00; font-weight: bold; }
+</style>
+</head>
+<body>
+<h1>One-time: Seed Typing Articles to Firestore</h1>
+<p class="warn">Admin-only tool. Sign in as an admin account first, then click the button below once. Delete this page after use.</p>
+<p>Signed in as: <span id="who">checking…</span></p>
+<button id="seed-btn" disabled>Seed 61 articles to Firestore</button>
+<div id="log"></div>
+
+<script src="assets/vendor/firebase-vendor.js"></script>
+<script src="assets/firebase-config.js"></script>
+<script src="assets/firebase-init.js"></script>
+<script src="assets/auth.js"></script>
+<script src="assets/typing-articles.js"></script>
+<script>
+(function () {
+  const { db, sdk } = window.vocabFirebase;
+  const whoEl = document.getElementById("who");
+  const btn = document.getElementById("seed-btn");
+  const logEl = document.getElementById("log");
+
+  function log(msg) {
+    logEl.textContent += msg + "\n";
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  window.vocabAuth.onChange(async (user) => {
+    if (!user) {
+      whoEl.textContent = "not signed in — sign in via the main site first, then reload this page.";
+      btn.disabled = true;
+      return;
+    }
+    whoEl.textContent = `${user.email} (uid: ${user.uid})`;
+    btn.disabled = false;
+  });
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    const articles = window.TYPING_ARTICLES || [];
+    log(`Found ${articles.length} articles to seed.`);
+    const meta = [];
+    let ok = 0;
+    let failed = 0;
+    for (const article of articles) {
+      try {
+        await sdk.setDoc(sdk.doc(db, "typingArticleContent", String(article.id)), {
+          id: article.id,
+          title: article.title,
+          tokens: article.tokens,
+        });
+        meta.push({ id: article.id, title: article.title });
+        ok++;
+        log(`✓ #${article.id} ${article.title}`);
+      } catch (e) {
+        failed++;
+        log(`✗ #${article.id} ${article.title} — ${e.code || e.message}`);
+      }
+    }
+    try {
+      await sdk.setDoc(sdk.doc(db, "typingArticlesMeta", "list"), { articles: meta });
+      log(`\nWrote metadata list (${meta.length} entries).`);
+    } catch (e) {
+      log(`\n✗ Failed to write metadata list — ${e.code || e.message}`);
+    }
+    log(`\nDone. ${ok} succeeded, ${failed} failed.`);
+    btn.disabled = false;
+  });
+})();
+</script>
+</body>
+</html>
