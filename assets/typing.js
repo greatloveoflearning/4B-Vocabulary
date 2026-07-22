@@ -45,7 +45,7 @@
     getArticles().forEach((article) => {
       const opt = document.createElement("option");
       opt.value = String(article.id);
-      opt.textContent = `#${article.id} ${article.title}`;
+      opt.textContent = `#${article.id}${article.title}`;
       els.articleSelect.appendChild(opt);
     });
   }

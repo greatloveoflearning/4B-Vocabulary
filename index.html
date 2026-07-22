@@ -92,8 +92,8 @@
     <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 Flashcards</button>
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
     <button class="mode-tab" data-mode="practice" role="tab" aria-selected="false">📝 Practice</button>
-    <button class="mode-tab" data-mode="typing" role="tab" aria-selected="false">⌨️ 打字测试</button>
     <button class="mode-tab" data-mode="assessment" role="tab" aria-selected="false">🏆 Live Game</button>
+    <button class="mode-tab" data-mode="typing" role="tab" aria-selected="false">⌨️ 打字测试</button>
     <button class="mode-tab" data-mode="report" role="tab" aria-selected="false">📊 Report</button>
   </nav>
   <div class="account-widget">
@@ -319,15 +319,6 @@
           </table>
         </div>
 
-        <h3>⌨️ Typing Test usage</h3>
-        <div class="report-table-wrap">
-          <table class="report-table" id="admin-typing-stats-table">
-            <thead>
-              <tr><th>Text</th><th>Attempts</th><th>Unique learners</th></tr>
-            </thead>
-            <tbody></tbody>
-          </table>
-        </div>
       </div>
 
       <div class="report-block">
@@ -351,6 +342,18 @@
           <table class="report-table" id="report-leaderboard-table">
             <thead>
               <tr><th>Rank</th><th>Member</th><th>Mastered</th><th>Match pts</th><th>Assessment pts</th><th>Score</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="report-block" id="admin-typing-block" hidden>
+        <h2>⌨️ Typing Test usage</h2>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-typing-stats-table">
+            <thead>
+              <tr><th>Text</th><th>Attempts</th><th>Unique learners</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -703,11 +706,11 @@
 <script src="assets/paywall.js?v=20"></script>
 <script src="assets/public-intent.js?v=20"></script>
 <script src="assets/vocab.js?v=21"></script>
-<script src="assets/typing-articles.js?v=1"></script>
+<script src="assets/typing-articles.js?v=2"></script>
 <script src="assets/app.js?v=26"></script>
-<script src="assets/report.js?v=22"></script>
+<script src="assets/report.js?v=23"></script>
 <script src="assets/assessment.js?v=24"></script>
 <script src="assets/practice.js?v=21"></script>
-<script src="assets/typing.js?v=1"></script>
+<script src="assets/typing.js?v=2"></script>
 </body>
 </html>

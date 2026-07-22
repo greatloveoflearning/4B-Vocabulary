@@ -10,6 +10,7 @@
     stats: document.getElementById("report-stats"),
     adminBlockTop: document.getElementById("admin-block-top"),
     adminBlockBottom: document.getElementById("admin-block-bottom"),
+    adminTypingBlock: document.getElementById("admin-typing-block"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
     adminLeadsBody: document.querySelector("#admin-leads-table tbody"),
     adminLeadsAddBtn: document.getElementById("admin-leads-add-btn"),
@@ -259,10 +260,12 @@
     if (!profile || !profile.isAdmin) {
       els.adminBlockTop.hidden = true;
       els.adminBlockBottom.hidden = true;
+      if (els.adminTypingBlock) els.adminTypingBlock.hidden = true;
       return;
     }
     els.adminBlockTop.hidden = false;
     els.adminBlockBottom.hidden = false;
+    if (els.adminTypingBlock) els.adminTypingBlock.hidden = false;
     els.adminMembersBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
     try {
       const snap = await sdk.getDocs(sdk.collection(db, "users"));
