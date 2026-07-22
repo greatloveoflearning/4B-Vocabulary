@@ -45,7 +45,7 @@
     getArticles().forEach((article) => {
       const opt = document.createElement("option");
       opt.value = String(article.id);
-      opt.textContent = `#${article.id}${article.title}`;
+      opt.textContent = `${article.id}${article.title}`;
       els.articleSelect.appendChild(opt);
     });
   }
@@ -53,21 +53,31 @@
   function renderPassage(article) {
     els.passage.innerHTML = "";
     tokenEls = article.tokens.map((token, i) => {
+      const isPunct = token.pinyin == null;
       const span = document.createElement("span");
-      span.className = "typing-token";
+      span.className = isPunct ? "typing-token typing-token-punct" : "typing-token";
       span.dataset.idx = String(i);
       const hanziEl = document.createElement("span");
       hanziEl.className = "typing-token-hanzi";
       hanziEl.textContent = token.hanzi;
-      const pinyinEl = document.createElement("span");
-      pinyinEl.className = "typing-token-pinyin";
-      pinyinEl.textContent = token.pinyin;
       span.appendChild(hanziEl);
-      span.appendChild(pinyinEl);
+      if (!isPunct) {
+        const pinyinEl = document.createElement("span");
+        pinyinEl.className = "typing-token-pinyin";
+        pinyinEl.textContent = token.pinyin;
+        span.appendChild(pinyinEl);
+      }
       els.passage.appendChild(span);
       return span;
     });
     els.passage.classList.toggle("hide-pinyin", pinyinHidden);
+  }
+
+  function firstTestableIndex(fromIndex) {
+    const tokens = currentArticle ? currentArticle.tokens : [];
+    let i = fromIndex;
+    while (i < tokens.length && tokens[i].pinyin == null) i++;
+    return i;
   }
 
   function loadArticle(articleId) {
@@ -91,13 +101,13 @@
   }
 
   function resetStats() {
-    currentIndex = 0;
+    currentIndex = firstTestableIndex(0);
     correctCount = 0;
     wrongCount = 0;
     mistakes = [];
     els.correctCountEl.textContent = "0";
     tokenEls.forEach((el) => el.classList.remove("correct", "wrong", "current"));
-    if (tokenEls.length) tokenEls[0].classList.add("current");
+    if (tokenEls[currentIndex]) tokenEls[currentIndex].classList.add("current");
     els.passage.scrollTop = 0;
     updateTimerDisplay();
   }
@@ -184,7 +194,7 @@
 
   function advance() {
     tokenEls[currentIndex].classList.remove("current");
-    currentIndex++;
+    currentIndex = firstTestableIndex(currentIndex + 1);
     els.input.value = "";
     if (currentIndex >= tokenEls.length) {
       finishTest();
@@ -197,6 +207,7 @@
   els.input.addEventListener("input", () => {
     if (!running || !currentArticle) return;
     const token = currentArticle.tokens[currentIndex];
+    if (!token || token.pinyin == null) return;
     const typed = els.input.value.trim().toLowerCase();
     const target = token.pinyin.toLowerCase();
     if (typed === target) {

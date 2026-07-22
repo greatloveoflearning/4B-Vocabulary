@@ -1006,6 +1006,16 @@ main {
   color: var(--muted);
 }
 
+.typing-token-punct {
+  padding-left: 0.05rem;
+  padding-right: 0.05rem;
+}
+
+.typing-token-punct .typing-token-hanzi {
+  font-weight: 400;
+  color: var(--muted);
+}
+
 .typing-passage.hide-pinyin .typing-token-pinyin {
   visibility: hidden;
 }
