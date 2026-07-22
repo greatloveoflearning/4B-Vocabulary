@@ -69,12 +69,18 @@ body {
   object-fit: contain;
 }
 
-.brand-logo-zhong,
-.brand-logo-kt {
+.brand-logo-zhong {
   width: 52px;
   height: 52px;
   border-radius: 50%;
   padding: 4px;
+}
+
+.brand-logo-kt {
+  width: auto;
+  height: 56px;
+  border-radius: 8px;
+  padding: 4px 8px;
 }
 
 .brand-title-text {
