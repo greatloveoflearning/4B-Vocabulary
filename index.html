@@ -92,6 +92,7 @@
     <button class="mode-tab active" data-mode="study" role="tab" aria-selected="true">📇 Flashcards</button>
     <button class="mode-tab" data-mode="match" role="tab" aria-selected="false">🧩 Match</button>
     <button class="mode-tab" data-mode="practice" role="tab" aria-selected="false">📝 Practice</button>
+    <button class="mode-tab" data-mode="typing" role="tab" aria-selected="false">⌨️ 打字测试</button>
     <button class="mode-tab" data-mode="assessment" role="tab" aria-selected="false">🏆 Live Game</button>
     <button class="mode-tab" data-mode="report" role="tab" aria-selected="false">📊 Report</button>
   </nav>
@@ -313,6 +314,16 @@
           <table class="report-table" id="admin-activity-table">
             <thead>
               <tr><th>When</th><th>What</th><th>Lesson</th></tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
+
+        <h3>⌨️ Typing Test usage</h3>
+        <div class="report-table-wrap">
+          <table class="report-table" id="admin-typing-stats-table">
+            <thead>
+              <tr><th>Text</th><th>Attempts</th><th>Unique learners</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -616,6 +627,60 @@
       </div>
     </div>
   </section>
+
+  <section id="typing-view" hidden>
+    <div class="typing-signed-out" id="typing-signed-out">
+      <p>Sign in to use the Typing Test.</p>
+      <button type="button" id="typing-signin-btn" class="ghost-btn">Sign in</button>
+    </div>
+
+    <div class="assessment-card" id="typing-main" hidden>
+      <h2>⌨️ 打字测试 · Typing Test</h2>
+      <div class="typing-instructions">
+        <p>Usage: Type tone numbers → 1&macr; 2&acute; 3&#711; 4&#96; 5 = neutral.</p>
+        <p>Example: "我" = wo3</p>
+      </div>
+
+      <div class="typing-toolbar">
+        <label>Duration
+          <select id="typing-duration-select">
+            <option value="30">30s</option>
+            <option value="60" selected>60s</option>
+            <option value="120">120s</option>
+            <option value="0">Unlimited</option>
+          </select>
+        </label>
+        <button type="button" id="typing-start-btn">Start</button>
+        <button type="button" id="typing-restart-btn" class="ghost-btn" disabled>Restart</button>
+        <button type="button" id="typing-newtext-btn" class="ghost-btn">New Text</button>
+        <button type="button" id="typing-toggle-pinyin-btn" class="ghost-btn">Hide all Pinyin</button>
+        <span class="stat-chip" id="typing-correct-count" title="Correct so far">0</span>
+        <span class="stat-chip" id="typing-timer">60s</span>
+      </div>
+
+      <div class="typing-article-picker" id="typing-article-picker" hidden>
+        <label>Choose a text
+          <select id="typing-article-select"></select>
+        </label>
+        <button type="button" id="typing-article-confirm-btn">Load</button>
+        <button type="button" id="typing-article-cancel-btn" class="ghost-btn">Cancel</button>
+      </div>
+
+      <div class="typing-passage" id="typing-passage"></div>
+      <input type="text" id="typing-input" class="typing-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type pinyin here…" disabled>
+
+      <div class="typing-results" id="typing-results" hidden>
+        <h3>Results</h3>
+        <p class="report-block-note" id="typing-results-line"></p>
+        <div class="report-table-wrap">
+          <table class="report-table" id="typing-mistakes-table">
+            <thead><tr><th>Character</th><th>Your input</th><th>Correct pinyin</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
 </main>
 
 <footer>
@@ -638,9 +703,11 @@
 <script src="assets/paywall.js?v=20"></script>
 <script src="assets/public-intent.js?v=20"></script>
 <script src="assets/vocab.js?v=21"></script>
-<script src="assets/app.js?v=25"></script>
-<script src="assets/report.js?v=21"></script>
+<script src="assets/typing-articles.js?v=1"></script>
+<script src="assets/app.js?v=26"></script>
+<script src="assets/report.js?v=22"></script>
 <script src="assets/assessment.js?v=24"></script>
 <script src="assets/practice.js?v=21"></script>
+<script src="assets/typing.js?v=1"></script>
 </body>
 </html>

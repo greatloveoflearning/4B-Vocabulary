@@ -4,6 +4,7 @@ window.AGGREGATE_LESSON_IDS = { xiezi: 9001, shizi: 9002, ciyu: 9003 };
 window.lessonLabel = function (lesson) {
   if (lesson === "all" || lesson === undefined || lesson === null) return "All lessons";
   if (lesson === "mistakes") return "📌 My Mistakes (错题集)";
+  if (lesson === "typing") return "⌨️ Typing Test";
   var meta = window.LESSON_META[Number(lesson)];
   if (!meta) return isNaN(Number(lesson)) ? "📌 My Mistakes (错题集)" : "Lesson " + lesson;
   if (meta.allCategory) return "All Lessons' " + meta.suffix;

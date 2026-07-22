@@ -20,6 +20,7 @@
     adminActivitySelect: document.getElementById("admin-activity-select"),
     adminActivityStats: document.getElementById("admin-activity-stats"),
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
+    adminTypingStatsBody: document.querySelector("#admin-typing-stats-table tbody"),
     adminProgressBody: document.querySelector("#admin-progress-table tbody"),
     lessonTableBody: document.querySelector("#report-lesson-table tbody"),
     matchLessonSelect: document.getElementById("report-match-lesson-select"),
@@ -68,6 +69,12 @@
     if (event.type === "practice_complete") {
       const typeLabel = event.questionType === "mixed" ? "Mixed" : `Type ${event.questionType || ""}`;
       return `📝 Practice (${typeLabel}): ✅ ${event.correctCount || 0} · ❌ ${event.wrongCount || 0}`;
+    }
+    if (event.type === "typing_test_complete") {
+      const cpm = Math.round(((event.correctCount || 0) / Math.max(1, event.elapsedSeconds || 1)) * 60);
+      return `⌨️ Typing Test (${event.articleTitle || ""}): ✅ ${event.correctCount || 0} · ❌ ${
+        event.wrongCount || 0
+      } · ${cpm} CPM`;
     }
     return event.type;
   }
@@ -200,14 +207,14 @@
       const q = sdk.query(
         sdk.collection(db, "activity"),
         sdk.where("uid", "==", uid),
-        sdk.where("type", "in", ["match_complete", "practice_complete"]),
+        sdk.where("type", "in", ["match_complete", "practice_complete", "typing_test_complete"]),
         sdk.orderBy("createdAt", "desc"),
         sdk.limit(20)
       );
       const snap = await sdk.getDocs(q);
       els.activityTableBody.innerHTML = "";
       if (snap.empty) {
-        els.activityTableBody.innerHTML = `<tr><td colspan="3">No Match or Practice activity yet — start studying!</td></tr>`;
+        els.activityTableBody.innerHTML = `<tr><td colspan="3">No Match, Practice, or Typing Test activity yet — start studying!</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {
@@ -369,6 +376,7 @@
 
     renderAdminLeads();
     renderAdminClassInterest();
+    renderTypingTestStats();
   }
 
   function sourceLabel(l) {
@@ -536,6 +544,31 @@
       });
     } catch (err) {
       els.adminClassInterestBody.innerHTML = `<tr><td colspan="8">${formatQueryError(err)}</td></tr>`;
+    }
+  }
+
+  async function renderTypingTestStats() {
+    if (!els.adminTypingStatsBody) return;
+    els.adminTypingStatsBody.innerHTML = `<tr><td colspan="3">Loading…</td></tr>`;
+    try {
+      const snap = await sdk.getDocs(sdk.collection(db, "typingTestStats"));
+      els.adminTypingStatsBody.innerHTML = "";
+      if (snap.empty) {
+        els.adminTypingStatsBody.innerHTML = `<tr><td colspan="3">No Typing Test activity yet.</td></tr>`;
+        return;
+      }
+      const rows = [];
+      snap.forEach((docSnap) => rows.push(docSnap.data()));
+      rows.sort((a, b) => (b.attempts || 0) - (a.attempts || 0));
+      rows.forEach((s) => {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${escapeHtml(s.title || `#${s.articleId}`)}</td><td>${s.attempts || 0}</td><td>${
+          (s.learners || []).length
+        }</td>`;
+        els.adminTypingStatsBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminTypingStatsBody.innerHTML = `<tr><td colspan="3">${formatQueryError(err)}</td></tr>`;
     }
   }
 
@@ -716,7 +749,7 @@
       const q = sdk.query(
         sdk.collection(db, "activity"),
         sdk.where("uid", "==", uid),
-        sdk.where("type", "in", ["match_complete", "practice_complete"]),
+        sdk.where("type", "in", ["match_complete", "practice_complete", "typing_test_complete"]),
         sdk.orderBy("createdAt", "desc"),
         sdk.limit(150)
       );
@@ -725,7 +758,7 @@
       if (snap.empty) {
         els.adminActivityBody.innerHTML = `<tr><td colspan="3">${
           member ? member.displayName : "This member"
-        } hasn't done any Match or Practice activity yet.</td></tr>`;
+        } hasn't done any Match, Practice, or Typing Test activity yet.</td></tr>`;
         return;
       }
       snap.forEach((docSnap) => {

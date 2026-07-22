@@ -724,6 +724,7 @@
   const reportView = document.getElementById("report-view");
   const assessmentView = document.getElementById("assessment-view");
   const practiceView = document.getElementById("practice-view");
+  const typingView = document.getElementById("typing-view");
   const footerHint = document.getElementById("footer-hint");
 
   els.modeTabs.forEach((tab) => {
@@ -739,7 +740,8 @@
       reportView.hidden = mode !== "report";
       assessmentView.hidden = mode !== "assessment";
       practiceView.hidden = mode !== "practice";
-      toolbar.hidden = mode === "report" || mode === "assessment" || mode === "practice";
+      if (typingView) typingView.hidden = mode !== "typing";
+      toolbar.hidden = mode === "report" || mode === "assessment" || mode === "practice" || mode === "typing";
       els.studyControls.hidden = mode !== "study";
       els.matchControls.hidden = mode !== "match";
       if (footerHint) footerHint.hidden = mode !== "study";
@@ -757,6 +759,8 @@
       if (mode === "report" && window.vocabReport) window.vocabReport.refresh();
       if (mode === "assessment" && window.vocabAssessment) window.vocabAssessment.onTabShown();
       if (mode === "practice" && window.vocabPractice) window.vocabPractice.onTabShown();
+      if (mode === "typing" && window.vocabTyping) window.vocabTyping.onTabShown();
+      if (mode !== "typing" && window.vocabTyping) window.vocabTyping.onTabHidden();
     });
   });
 

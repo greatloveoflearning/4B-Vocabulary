@@ -257,6 +257,31 @@
     touchLessonStats(lesson, user.uid);
   }
 
+  async function recordTypingTestComplete(articleId, articleTitle, correctCount, wrongCount, elapsedSeconds) {
+    const user = window.vocabAuth.getUser();
+    if (!user) return;
+
+    sdk.addDoc(sdk.collection(db, "activity"), {
+      uid: user.uid,
+      type: "typing_test_complete",
+      lesson: "typing",
+      articleId,
+      articleTitle,
+      correctCount: correctCount || 0,
+      wrongCount: wrongCount || 0,
+      elapsedSeconds: elapsedSeconds || 0,
+      createdAt: sdk.serverTimestamp(),
+    });
+
+    if (articleId != null) {
+      sdk.setDoc(
+        sdk.doc(db, "typingTestStats", String(articleId)),
+        { articleId, title: articleTitle, learners: sdk.arrayUnion(user.uid), attempts: sdk.increment(1) },
+        { merge: true }
+      );
+    }
+  }
+
   const MISTAKE_CLEAR_THRESHOLD = 3;
 
   let wrongWordIds = new Set();
@@ -352,6 +377,7 @@
     recordMatchComplete,
     recordAssessmentAnswer,
     recordPracticeComplete,
+    recordTypingTestComplete,
     matchGamePoints,
     getWrongWordIds,
     updateWrongWord,
