@@ -89,7 +89,10 @@
     unsubPlayers = null;
     if (timerInterval) clearInterval(timerInterval);
     timerInterval = null;
-    if (window.vocabAudio) window.vocabAudio.stopBackgroundMusic();
+    if (window.vocabAudio) {
+      window.vocabAudio.stopBackgroundMusic();
+      window.vocabAudio.stopResultsFanfare();
+    }
   }
 
   function resetToHome() {

@@ -196,15 +196,22 @@
     bgMusicEl.currentTime = 0;
   }
 
+  const resultsFanfareEl = document.getElementById("results-fanfare");
+  if (resultsFanfareEl) resultsFanfareEl.volume = 0.5;
+
   function playResultsFanfare() {
     stopBackgroundMusic();
-    const arpeggio = [523.25, 659.25, 783.99, 1046.5];
-    arpeggio.forEach((freq, i) => {
-      setTimeout(() => playTone(freq, 0.32, "triangle", 0.22), i * 130);
+    if (!resultsFanfareEl) return;
+    resultsFanfareEl.currentTime = 0;
+    resultsFanfareEl.play().catch(() => {
+      /* blocked until a user gesture; ignore */
     });
-    setTimeout(() => {
-      [523.25, 659.25, 783.99, 1046.5].forEach((freq) => playTone(freq, 0.8, "sine", 0.16));
-    }, arpeggio.length * 130 + 80);
+  }
+
+  function stopResultsFanfare() {
+    if (!resultsFanfareEl) return;
+    resultsFanfareEl.pause();
+    resultsFanfareEl.currentTime = 0;
   }
 
   let cachedVoices = [];
@@ -261,6 +268,7 @@
     playBackgroundMusic,
     stopBackgroundMusic,
     playResultsFanfare,
+    stopResultsFanfare,
   };
 
   // ---------- helpers ----------
