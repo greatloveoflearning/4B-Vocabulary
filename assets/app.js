@@ -254,7 +254,7 @@
     window.speechSynthesis.cancel();
     const utter = new SpeechSynthesisUtterance(text);
     utter.lang = lang;
-    utter.rate = lang.startsWith("zh") ? 0.44 : 0.7;
+    utter.rate = 0.7;
     const voice = pickVoice(lang);
     if (voice) utter.voice = voice;
     window.speechSynthesis.speak(utter);
