@@ -280,11 +280,23 @@
           trialGamesPlayed: u.trialGamesPlayed || 0,
           unlockedUntil: u.unlockedUntil || null,
           banned: !!u.banned,
+          suspiciousFlaggedAt: u.suspiciousFlaggedAt || null,
+          suspiciousCardCount: u.suspiciousCardCount || 0,
         });
+
+        function nameLabel(member) {
+          const flag = member.banned ? "🚫 " : member.suspiciousFlaggedAt ? "⚠️ " : "";
+          return flag + (member.displayName || "Member");
+        }
 
         const tr = document.createElement("tr");
         const td = document.createElement("td");
-        td.textContent = (u.banned ? "🚫 " : "") + (u.displayName || "Member");
+        td.textContent = nameLabel(u);
+        if (u.suspiciousFlaggedAt) {
+          td.title = `Flagged ${new Date(u.suspiciousFlaggedAt).toLocaleString()}: ${
+            u.suspiciousCardCount || "?"
+          } cards mastered in a short burst`;
+        }
         const tdEmail = document.createElement("td");
         tdEmail.textContent = u.email || "";
         const tdHost = document.createElement("td");
@@ -369,7 +381,7 @@
             u.banned = next;
             banBtn.classList.toggle("is-on", next);
             banBtn.textContent = next ? "Unban" : "Ban";
-            td.textContent = (u.banned ? "🚫 " : "") + (u.displayName || "Member");
+            td.textContent = nameLabel(u);
           } catch (e) {
             /* ignore */
           } finally {
@@ -379,6 +391,30 @@
         tdSubActions.appendChild(renewBtn);
         tdSubActions.appendChild(clearBtn);
         tdSubActions.appendChild(banBtn);
+
+        if (u.suspiciousFlaggedAt) {
+          const unflagBtn = document.createElement("button");
+          unflagBtn.type = "button";
+          unflagBtn.className = "host-toggle-btn ghost-btn";
+          unflagBtn.textContent = "Clear ⚠️ flag";
+          unflagBtn.addEventListener("click", async () => {
+            unflagBtn.disabled = true;
+            try {
+              await sdk.updateDoc(sdk.doc(db, "users", uid), {
+                suspiciousFlaggedAt: null,
+                suspiciousCardCount: null,
+              });
+              u.suspiciousFlaggedAt = null;
+              u.suspiciousCardCount = 0;
+              td.textContent = nameLabel(u);
+              td.title = "";
+              unflagBtn.remove();
+            } catch (e) {
+              unflagBtn.disabled = false;
+            }
+          });
+          tdSubActions.appendChild(unflagBtn);
+        }
 
         tr.appendChild(td);
         tr.appendChild(tdEmail);
@@ -661,7 +697,7 @@
   });
 
   els.adminMembersExportBtn.addEventListener("click", () => {
-    const headers = ["Member", "Email", "Can host", "Trial games", "Subscription", "Banned"];
+    const headers = ["Member", "Email", "Can host", "Trial games", "Subscription", "Banned", "Flagged (suspicious speed)"];
     const rows = adminMembers.map((m) => [
       m.displayName || "",
       m.email || "",
@@ -671,6 +707,9 @@
         ? "Not subscribed"
         : `${m.unlockedUntil > Date.now() ? "Active until" : "Expired"} ${new Date(m.unlockedUntil).toLocaleDateString()}`,
       m.banned ? "Yes" : "No",
+      m.suspiciousFlaggedAt
+        ? `${new Date(m.suspiciousFlaggedAt).toLocaleString()} (${m.suspiciousCardCount || "?"} cards)`
+        : "No",
     ]);
     downloadCSV("members.csv", headers, rows);
   });

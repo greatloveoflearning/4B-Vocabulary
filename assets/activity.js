@@ -3,6 +3,59 @@
 
   const { db, sdk } = window.vocabFirebase;
 
+  // ---------- suspicious-speed detection (possible scripted/automated scraping) ----------
+
+  const EMAILJS_PUBLIC_KEY = "LbKAsrtMyqprI-325";
+  const EMAILJS_SERVICE_ID = "service_1ndcjng";
+  const EMAILJS_TEMPLATE_ID = "template_opzyaej";
+  if (window.emailjs) window.emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY });
+
+  const SUSPICIOUS_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+  const SUSPICIOUS_CARD_THRESHOLD = 80;
+  const RE_ALERT_COOLDOWN_MS = 24 * 60 * 60 * 1000; // don't re-email for the same member more than once/day
+
+  let eliminateTimestamps = [];
+  let alertSentThisSession = false;
+
+  async function maybeFlagSuspiciousSpeed(user) {
+    const now = Date.now();
+    eliminateTimestamps.push(now);
+    eliminateTimestamps = eliminateTimestamps.filter((t) => now - t <= SUSPICIOUS_WINDOW_MS);
+    if (eliminateTimestamps.length < SUSPICIOUS_CARD_THRESHOLD || alertSentThisSession) return;
+    alertSentThisSession = true;
+
+    const cardCount = eliminateTimestamps.length;
+    const userRef = sdk.doc(db, "users", user.uid);
+    let alreadyFlaggedRecently = false;
+    let displayName = user.displayName || user.email || "Unknown";
+    try {
+      const snap = await sdk.getDoc(userRef);
+      if (snap.exists()) {
+        const data = snap.data();
+        displayName = data.displayName || displayName;
+        alreadyFlaggedRecently =
+          !!data.suspiciousFlaggedAt && now - data.suspiciousFlaggedAt < RE_ALERT_COOLDOWN_MS;
+      }
+      await sdk.updateDoc(userRef, { suspiciousFlaggedAt: now, suspiciousCardCount: cardCount });
+    } catch (e) {
+      /* offline or permission issue: skip the email too if we couldn't confirm */
+      return;
+    }
+
+    if (alreadyFlaggedRecently || !window.emailjs) return;
+    window.emailjs
+      .send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+        member_name: displayName,
+        member_email: user.email || "",
+        card_count: String(cardCount),
+        time_window: "10 minutes",
+        detected_at: new Date().toLocaleString(),
+      })
+      .catch(() => {
+        /* best-effort notification; a failed send shouldn't break the app */
+      });
+  }
+
   function matchGamePoints(pairs, seconds) {
     const timePerPair = seconds / pairs;
     let speedBonus = 0;
@@ -96,6 +149,7 @@
     });
 
     touchLessonStats(card.lesson, user.uid);
+    if (isNew) maybeFlagSuspiciousSpeed(user);
   }
 
   async function getLessonMatchStanding(lesson, uid) {

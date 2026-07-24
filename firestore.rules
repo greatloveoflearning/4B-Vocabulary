@@ -49,7 +49,7 @@ service cloud.firestore {
           request.resource.data.get("canHost", false) == resource.data.get("canHost", false) &&
           request.resource.data.get("banned", false) == resource.data.get("banned", false) &&
           request.resource.data.get("unlockedUntil", null) == resource.data.get("unlockedUntil", null)) ||
-        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlockedUntil", "banned"]))
+        (isAdmin() && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["canHost", "unlockedUntil", "banned", "suspiciousFlaggedAt", "suspiciousCardCount"]))
       );
     }
 
