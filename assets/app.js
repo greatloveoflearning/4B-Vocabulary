@@ -16,6 +16,7 @@
   let lastDrawnCards = [];
 
   const els = {
+    previewHint: document.getElementById("preview-hint"),
     setSelect: document.getElementById("set-select"),
     modeTabs: Array.from(document.querySelectorAll(".mode-tab")),
     studyView: document.getElementById("study-view"),
@@ -292,6 +293,7 @@
   // ---------- study mode ----------
 
   function buildSetOptions() {
+    els.setSelect.innerHTML = "";
     const lessons = window.getSortedLessonIds(allCards);
     const allOption = document.createElement("option");
     allOption.value = "all";
@@ -773,10 +775,20 @@
 
   // ---------- init ----------
 
-  allCards = (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
-  buildSetOptions();
-  const savedLesson = loadLastLesson();
-  const optionValues = Array.from(els.setSelect.options).map((o) => o.value);
-  els.setSelect.value = optionValues.includes(savedLesson) ? savedLesson : "all";
-  loadSet(els.setSelect.value);
+  function rebuildFromVocabData() {
+    const user = window.vocabAuth && window.vocabAuth.getUser();
+    if (els.previewHint) els.previewHint.hidden = !!user;
+    allCards = (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
+    buildSetOptions();
+    const savedLesson = loadLastLesson();
+    const optionValues = Array.from(els.setSelect.options).map((o) => o.value);
+    els.setSelect.value = optionValues.includes(savedLesson) ? savedLesson : "all";
+    loadSet(els.setSelect.value);
+  }
+
+  rebuildFromVocabData();
+  // Anonymous visitors start on the small preview set (assets/vocab.js); once
+  // sign-in state resolves, vocab-loader.js swaps in the full word list (for
+  // signed-in members) and notifies us to rebuild with it.
+  if (window.onVocabDataChange) window.onVocabDataChange(rebuildFromVocabData);
 })();

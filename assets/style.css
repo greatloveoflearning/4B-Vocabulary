@@ -269,6 +269,16 @@ body {
   margin: 0;
 }
 
+.preview-hint {
+  margin: 0;
+  padding: 0.6rem 1.5rem;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: center;
+}
+
 .toolbar {
   display: flex;
   flex-wrap: wrap;
