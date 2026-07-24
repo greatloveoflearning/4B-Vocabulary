@@ -364,7 +364,12 @@
       </div>
 
       <div class="report-block" id="admin-block-bottom" hidden>
-        <h2>Members (admin)</h2>
+        <div class="report-block-header">
+          <h2>Members (admin)</h2>
+          <div class="report-block-actions">
+            <button type="button" id="admin-members-export-btn" class="ghost-btn">⬇️ Export CSV</button>
+          </div>
+        </div>
         <p class="report-block-note">Grant "can host" to let a member start online assessments.</p>
         <div class="report-table-wrap">
           <table class="report-table" id="admin-members-table">
@@ -711,7 +716,7 @@
 <script src="assets/vocab.js?v=22"></script>
 <script src="assets/vocab-loader.js?v=1"></script>
 <script src="assets/app.js?v=29"></script>
-<script src="assets/report.js?v=25"></script>
+<script src="assets/report.js?v=26"></script>
 <script src="assets/assessment.js?v=24"></script>
 <script src="assets/practice.js?v=21"></script>
 <script src="assets/typing.js?v=5"></script>

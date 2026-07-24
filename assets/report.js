@@ -12,6 +12,7 @@
     adminBlockBottom: document.getElementById("admin-block-bottom"),
     adminTypingBlock: document.getElementById("admin-typing-block"),
     adminMembersBody: document.querySelector("#admin-members-table tbody"),
+    adminMembersExportBtn: document.getElementById("admin-members-export-btn"),
     adminLeadsBody: document.querySelector("#admin-leads-table tbody"),
     adminLeadsAddBtn: document.getElementById("admin-leads-add-btn"),
     adminLeadsExportBtn: document.getElementById("admin-leads-export-btn"),
@@ -271,7 +272,15 @@
       snap.forEach((docSnap) => {
         const u = docSnap.data();
         const uid = docSnap.id;
-        adminMembers.push({ uid, displayName: u.displayName || "Member" });
+        adminMembers.push({
+          uid,
+          displayName: u.displayName || "Member",
+          email: u.email || "",
+          canHost: !!u.canHost,
+          trialGamesPlayed: u.trialGamesPlayed || 0,
+          unlockedUntil: u.unlockedUntil || null,
+          banned: !!u.banned,
+        });
 
         const tr = document.createElement("tr");
         const td = document.createElement("td");
@@ -649,6 +658,21 @@
   els.adminLeadsAddBtn.addEventListener("click", () => {
     if (els.adminLeadsBody.querySelector('tr[data-id="__new__"]')) return;
     els.adminLeadsBody.insertAdjacentHTML("afterbegin", leadEditRowHtml("__new__", {}));
+  });
+
+  els.adminMembersExportBtn.addEventListener("click", () => {
+    const headers = ["Member", "Email", "Can host", "Trial games", "Subscription", "Banned"];
+    const rows = adminMembers.map((m) => [
+      m.displayName || "",
+      m.email || "",
+      m.canHost ? "Yes" : "No",
+      String(m.trialGamesPlayed || 0),
+      !m.unlockedUntil
+        ? "Not subscribed"
+        : `${m.unlockedUntil > Date.now() ? "Active until" : "Expired"} ${new Date(m.unlockedUntil).toLocaleDateString()}`,
+      m.banned ? "Yes" : "No",
+    ]);
+    downloadCSV("members.csv", headers, rows);
   });
 
   els.adminLeadsExportBtn.addEventListener("click", () => {
