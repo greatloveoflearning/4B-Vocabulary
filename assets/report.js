@@ -72,10 +72,7 @@
       return `📝 Practice (${typeLabel}): ✅ ${event.correctCount || 0} · ❌ ${event.wrongCount || 0}`;
     }
     if (event.type === "typing_test_complete") {
-      const cpm = Math.round(((event.correctCount || 0) / Math.max(1, event.elapsedSeconds || 1)) * 60);
-      return `⌨️ Typing Test (${event.articleTitle || ""}): ✅ ${event.correctCount || 0} · ❌ ${
-        event.wrongCount || 0
-      } · ${cpm} CPM`;
+      return `⌨️ Typing Test: ${event.articleTitle || ""}`;
     }
     return event.type;
   }
@@ -767,6 +764,22 @@
       });
     } catch (e) {
       /* leave stats empty */
+    }
+
+    try {
+      const typingSnap = await sdk.getDocs(
+        sdk.query(
+          sdk.collection(db, "activity"),
+          sdk.where("uid", "==", uid),
+          sdk.where("type", "==", "typing_test_complete")
+        )
+      );
+      const div = document.createElement("div");
+      div.className = "report-stat-tile";
+      div.innerHTML = `<div class="value">${typingSnap.size}</div><div class="label">⌨️ Typing Test plays</div>`;
+      els.adminActivityStats.appendChild(div);
+    } catch (e) {
+      /* leave typing stat out */
     }
 
     try {
