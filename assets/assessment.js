@@ -20,6 +20,7 @@
     hostQuestionTypeSelect: document.getElementById("host-question-type-select"),
     hostDurationSelect: document.getElementById("host-duration-select"),
     hostPlayCheckbox: document.getElementById("host-play-checkbox"),
+    hostMusicCheckbox: document.getElementById("host-music-checkbox"),
     hostSetupCancelBtn: document.getElementById("host-setup-cancel-btn"),
 
     lobby: document.getElementById("assessment-lobby"),
@@ -161,6 +162,7 @@
       lesson,
       questionType,
       durationSeconds,
+      musicEnabled: els.hostMusicCheckbox.checked,
       status: "lobby",
       createdAt: sdk.serverTimestamp(),
     });
@@ -508,7 +510,7 @@
   async function enterResults() {
     hasEnded = true;
     if (timerInterval) clearInterval(timerInterval);
-    if (window.vocabAudio) window.vocabAudio.playResultsFanfare();
+    if (window.vocabAudio && sessionData.musicEnabled !== false) window.vocabAudio.playResultsFanfare();
     if (isPlaying && window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
     showView(els.results);
     els.hostAgainBtn.hidden = !isHost;

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>中国小学语文学习平台 · 四年级下册</title>
-<link rel="stylesheet" href="assets/style.css?v=30">
+<link rel="stylesheet" href="assets/style.css?v=31">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
@@ -310,6 +310,11 @@
             <tbody></tbody>
           </table>
         </div>
+        <div class="report-block-actions parent-email-row">
+          <input type="email" id="parent-email-input" placeholder="家长电邮 · Parent's email">
+          <button type="button" id="send-parent-report-btn" class="ghost-btn">📧 发送报告 · Send report</button>
+          <span class="report-block-note" id="parent-email-status"></span>
+        </div>
 
         <h3>Member Activity</h3>
         <div class="report-stats" id="admin-activity-stats"></div>
@@ -420,7 +425,7 @@
         <div class="report-table-wrap">
           <table class="report-table" id="report-lesson-table">
             <thead>
-              <tr><th>Lesson</th><th>Mastered</th><th>Total</th><th>Learners</th></tr>
+              <tr><th>Lesson</th><th>Mastered</th><th>Total</th><th>Match</th><th>Practice T1</th><th>Practice T2</th><th>Learners</th></tr>
             </thead>
             <tbody></tbody>
           </table>
@@ -489,6 +494,10 @@
         <label class="host-play-check">
           <input type="checkbox" id="host-play-checkbox">
           I'll play too (uncheck to just host/spectate)
+        </label>
+        <label class="host-play-check">
+          <input type="checkbox" id="host-music-checkbox" checked>
+          🔊 Play music when results appear
         </label>
         <button type="submit">Create room</button>
       </form>
@@ -717,8 +726,8 @@
 <script src="assets/vocab.js?v=22"></script>
 <script src="assets/vocab-loader.js?v=1"></script>
 <script src="assets/app.js?v=29"></script>
-<script src="assets/report.js?v=27"></script>
-<script src="assets/assessment.js?v=24"></script>
+<script src="assets/report.js?v=29"></script>
+<script src="assets/assessment.js?v=25"></script>
 <script src="assets/practice.js?v=21"></script>
 <script src="assets/typing.js?v=5"></script>
 </body>

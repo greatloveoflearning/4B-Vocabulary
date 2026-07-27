@@ -24,6 +24,9 @@
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
     adminTypingStatsBody: document.querySelector("#admin-typing-stats-table tbody"),
     adminProgressBody: document.querySelector("#admin-progress-table tbody"),
+    parentEmailInput: document.getElementById("parent-email-input"),
+    sendParentReportBtn: document.getElementById("send-parent-report-btn"),
+    parentEmailStatus: document.getElementById("parent-email-status"),
     lessonTableBody: document.querySelector("#report-lesson-table tbody"),
     matchLessonSelect: document.getElementById("report-match-lesson-select"),
     matchLeaderboardBody: document.querySelector("#report-match-leaderboard-table tbody"),
@@ -132,10 +135,31 @@
     return Array.from(new Set(getAllCards().map((c) => c.lesson))).sort((a, b) => a - b);
   }
 
-  async function renderLessonBreakdown(masteredIds) {
+  async function renderLessonBreakdown(uid, masteredIds) {
     const allCards = getAllCards();
     const lessons = window.sortLessonIds(getLessons());
     const masteredSet = new Set(masteredIds || []);
+
+    let matchMap = {};
+    let practiceType1Map = {};
+    let practiceType2Map = {};
+    try {
+      const [matchSnap, practiceSnap] = await Promise.all([
+        sdk.getDocs(sdk.query(sdk.collection(db, "lessonMatchBest"), sdk.where("uid", "==", uid))),
+        sdk.getDocs(sdk.query(sdk.collection(db, "lessonPracticeCompletions"), sdk.where("uid", "==", uid))),
+      ]);
+      matchSnap.forEach((docSnap) => {
+        const d = docSnap.data();
+        matchMap[d.lesson] = d.completions || 0;
+      });
+      practiceSnap.forEach((docSnap) => {
+        const d = docSnap.data();
+        practiceType1Map[d.lesson] = d.completionsType1 || 0;
+        practiceType2Map[d.lesson] = d.completionsType2 || 0;
+      });
+    } catch (e) {
+      /* leave maps empty, will show 0 */
+    }
 
     els.lessonTableBody.innerHTML = "";
     for (const lesson of lessons) {
@@ -149,7 +173,9 @@
         /* leave as – */
       }
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${learners}</td>`;
+      tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${
+        matchMap[lesson] || 0
+      }</td><td>${practiceType1Map[lesson] || 0}</td><td>${practiceType2Map[lesson] || 0}</td><td>${learners}</td>`;
       els.lessonTableBody.appendChild(tr);
     }
   }
@@ -872,8 +898,11 @@
     }
   }
 
+  let lastProgressReport = null;
+
   async function renderMemberProgress(uid) {
     els.adminProgressBody.innerHTML = `<tr><td colspan="6">Loading…</td></tr>`;
+    lastProgressReport = null;
     try {
       const [scoreSnap, matchSnap, practiceSnap] = await Promise.all([
         sdk.getDoc(sdk.doc(db, "scores", uid)),
@@ -898,15 +927,19 @@
       const allCards = getAllCards();
       const lessons = window.sortLessonIds(getLessons());
       els.adminProgressBody.innerHTML = "";
+      const rows = [];
       lessons.forEach((lesson) => {
         const cards = allCards.filter((c) => c.lesson === lesson);
         const mastered = cards.filter((c) => masteredSet.has(c.id)).length;
+        const match = matchMap[lesson] || 0;
+        const t1 = practiceType1Map[lesson] || 0;
+        const t2 = practiceType2Map[lesson] || 0;
         const tr = document.createElement("tr");
-        tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${
-          matchMap[lesson] || 0
-        }</td><td>${practiceType1Map[lesson] || 0}</td><td>${practiceType2Map[lesson] || 0}</td>`;
+        tr.innerHTML = `<td>${window.lessonLabel(lesson)}</td><td>${mastered}</td><td>${cards.length}</td><td>${match}</td><td>${t1}</td><td>${t2}</td>`;
         els.adminProgressBody.appendChild(tr);
+        rows.push({ label: window.lessonLabel(lesson), mastered, total: cards.length, match, t1, t2 });
       });
+      lastProgressReport = { uid, rows };
     } catch (err) {
       els.adminProgressBody.innerHTML = `<tr><td colspan="6">${formatQueryError(err)}</td></tr>`;
     }
@@ -915,6 +948,65 @@
   els.adminActivitySelect.addEventListener("change", (e) => {
     renderMemberActivity(e.target.value);
     renderMemberProgress(e.target.value);
+  });
+
+  // EmailJS: same account/service used for the suspicious-activity alert,
+  // but a separate template designed for a parent-facing progress report.
+  const EMAILJS_SERVICE_ID = "service_1ndcjng";
+  const EMAILJS_PROGRESS_TEMPLATE_ID = "template_progress_report";
+
+  function padCol(str, width) {
+    str = String(str);
+    return str + " ".repeat(Math.max(1, width - str.length));
+  }
+
+  function buildProgressReportText(displayName, rows) {
+    const cols = ["Lesson", "Mastered", "Total", "Match", "Practice T1", "Practice T2"];
+    const widths = [28, 10, 7, 7, 13, 13];
+    const lines = [];
+    lines.push(cols.map((c, i) => padCol(c, widths[i])).join(""));
+    lines.push("-".repeat(widths.reduce((a, b) => a + b, 0)));
+    rows.forEach((r) => {
+      lines.push(
+        [padCol(r.label, widths[0]), padCol(r.mastered, widths[1]), padCol(r.total, widths[2]), padCol(r.match, widths[3]), padCol(
+          r.t1,
+          widths[4]
+        ), padCol(r.t2, widths[5])].join("")
+      );
+    });
+    const date = new Date().toLocaleDateString();
+    return `学生 Student: ${displayName}\n生成日期 Report date: ${date}\n\n${lines.join("\n")}`;
+  }
+
+  els.sendParentReportBtn.addEventListener("click", async () => {
+    const to = (els.parentEmailInput.value || "").trim();
+    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
+      els.parentEmailStatus.textContent = "请输入正确的电邮地址 · Please enter a valid email.";
+      return;
+    }
+    const uid = els.adminActivitySelect.value;
+    if (!lastProgressReport || lastProgressReport.uid !== uid) {
+      els.parentEmailStatus.textContent = "报告还在加载，请稍候再试 · Report still loading, try again shortly.";
+      return;
+    }
+    const member = adminMembers.find((m) => m.uid === uid);
+    const displayName = member ? member.displayName : "Member";
+    const reportText = buildProgressReportText(displayName, lastProgressReport.rows);
+
+    els.sendParentReportBtn.disabled = true;
+    els.parentEmailStatus.textContent = "发送中… Sending…";
+    try {
+      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_PROGRESS_TEMPLATE_ID, {
+        to_email: to,
+        student_name: displayName,
+        message: reportText,
+      });
+      els.parentEmailStatus.textContent = `✅ 已发送给 ${to}`;
+    } catch (err) {
+      els.parentEmailStatus.textContent = `❌ 发送失败 · Send failed (${(err && err.text) || (err && err.message) || "error"})`;
+    } finally {
+      els.sendParentReportBtn.disabled = false;
+    }
   });
 
   async function refresh() {
@@ -937,7 +1029,7 @@
 
     renderStats(score, gain7, gain30);
     renderAdminPanel(window.vocabAuth.getProfile());
-    renderLessonBreakdown(score.masteredIds);
+    renderLessonBreakdown(user.uid, score.masteredIds);
     renderMatchLeaderboard(user.uid);
     renderActivity(user.uid);
     renderLeaderboard(user.uid);
