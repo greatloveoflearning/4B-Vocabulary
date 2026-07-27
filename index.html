@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>中国小学语文学习平台 · 四年级下册</title>
-<link rel="stylesheet" href="assets/style.css?v=31">
+<link rel="stylesheet" href="assets/style.css?v=32">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
@@ -311,8 +311,7 @@
           </table>
         </div>
         <div class="report-block-actions parent-email-row">
-          <input type="email" id="parent-email-input" placeholder="家长电邮 · Parent's email">
-          <button type="button" id="send-parent-report-btn" class="ghost-btn">📧 发送报告 · Send report</button>
+          <button type="button" id="send-parent-report-btn" class="ghost-btn">🖨️ 生成PDF报告 · Generate PDF report</button>
           <span class="report-block-note" id="parent-email-status"></span>
         </div>
 
@@ -553,7 +552,10 @@
     </div>
 
     <div class="assessment-results" id="assessment-results" hidden>
-      <h2>🏁 Results</h2>
+      <div class="results-header-row">
+        <h2>🏁 Results</h2>
+        <button type="button" id="results-music-toggle-btn" class="ghost-btn">🔊 音乐 Music: On</button>
+      </div>
       <div class="podium" id="podium"></div>
       <p class="percentile-note" id="assessment-percentile"></p>
       <div class="report-table-wrap">
@@ -726,8 +728,8 @@
 <script src="assets/vocab.js?v=22"></script>
 <script src="assets/vocab-loader.js?v=1"></script>
 <script src="assets/app.js?v=29"></script>
-<script src="assets/report.js?v=29"></script>
-<script src="assets/assessment.js?v=25"></script>
+<script src="assets/report.js?v=30"></script>
+<script src="assets/assessment.js?v=26"></script>
 <script src="assets/practice.js?v=21"></script>
 <script src="assets/typing.js?v=5"></script>
 </body>

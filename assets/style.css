@@ -946,18 +946,21 @@ main {
   flex-wrap: wrap;
 }
 
+.results-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.results-header-row h2 {
+  margin: 0;
+}
+
 .parent-email-row {
   align-items: center;
   margin: 0.6rem 0;
-}
-
-.parent-email-row input {
-  flex: 1 1 220px;
-  min-width: 180px;
-  padding: 0.4rem 0.6rem;
-  border: 1px solid var(--border, #ccc);
-  border-radius: 6px;
-  font-size: 0.85rem;
 }
 
 .report-table input,

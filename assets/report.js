@@ -24,7 +24,6 @@
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
     adminTypingStatsBody: document.querySelector("#admin-typing-stats-table tbody"),
     adminProgressBody: document.querySelector("#admin-progress-table tbody"),
-    parentEmailInput: document.getElementById("parent-email-input"),
     sendParentReportBtn: document.getElementById("send-parent-report-btn"),
     parentEmailStatus: document.getElementById("parent-email-status"),
     lessonTableBody: document.querySelector("#report-lesson-table tbody"),
@@ -950,40 +949,44 @@
     renderMemberProgress(e.target.value);
   });
 
-  // EmailJS: same account/service used for the suspicious-activity alert,
-  // but a separate template designed for a parent-facing progress report.
-  const EMAILJS_SERVICE_ID = "service_1ndcjng";
-  const EMAILJS_PROGRESS_TEMPLATE_ID = "template_progress_report";
-
-  function padCol(str, width) {
-    str = String(str);
-    return str + " ".repeat(Math.max(1, width - str.length));
-  }
-
-  function buildProgressReportText(displayName, rows) {
-    const cols = ["Lesson", "Mastered", "Total", "Match", "Practice T1", "Practice T2"];
-    const widths = [28, 10, 7, 7, 13, 13];
-    const lines = [];
-    lines.push(cols.map((c, i) => padCol(c, widths[i])).join(""));
-    lines.push("-".repeat(widths.reduce((a, b) => a + b, 0)));
-    rows.forEach((r) => {
-      lines.push(
-        [padCol(r.label, widths[0]), padCol(r.mastered, widths[1]), padCol(r.total, widths[2]), padCol(r.match, widths[3]), padCol(
-          r.t1,
-          widths[4]
-        ), padCol(r.t2, widths[5])].join("")
-      );
-    });
+  function buildProgressReportHtml(displayName, rows) {
     const date = new Date().toLocaleDateString();
-    return `学生 Student: ${displayName}\n生成日期 Report date: ${date}\n\n${lines.join("\n")}`;
+    const rowsHtml = rows
+      .map(
+        (r) =>
+          `<tr><td>${escapeHtml(r.label)}</td><td>${r.mastered}</td><td>${r.total}</td><td>${r.match}</td><td>${r.t1}</td><td>${r.t2}</td></tr>`
+      )
+      .join("");
+    return `<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Progress report · ${escapeHtml(displayName)}</title>
+<style>
+  body { font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif; padding: 2rem; color: #222; }
+  h1 { font-size: 1.3rem; margin-bottom: 0.1rem; }
+  .meta { color: #666; margin-bottom: 1.2rem; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #ccc; padding: 0.4rem 0.6rem; text-align: left; font-size: 0.9rem; }
+  th { background: #f4f1ff; }
+  .print-bar { margin-bottom: 1.2rem; }
+  .print-bar button { padding: 0.5rem 1rem; font-size: 0.9rem; cursor: pointer; }
+  @media print { .print-bar { display: none; } }
+</style>
+</head>
+<body>
+  <div class="print-bar"><button onclick="window.print()">🖨️ 打印 / 保存为PDF · Print / Save as PDF</button></div>
+  <h1>学生学习进度报告 · Student Progress Report</h1>
+  <p class="meta">学生 Student: ${escapeHtml(displayName)} &nbsp;·&nbsp; 生成日期 Date: ${date}</p>
+  <table>
+    <thead><tr><th>Lesson</th><th>Mastered</th><th>Total</th><th>Match</th><th>Practice T1</th><th>Practice T2</th></tr></thead>
+    <tbody>${rowsHtml}</tbody>
+  </table>
+</body>
+</html>`;
   }
 
-  els.sendParentReportBtn.addEventListener("click", async () => {
-    const to = (els.parentEmailInput.value || "").trim();
-    if (!to || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(to)) {
-      els.parentEmailStatus.textContent = "请输入正确的电邮地址 · Please enter a valid email.";
-      return;
-    }
+  els.sendParentReportBtn.addEventListener("click", () => {
     const uid = els.adminActivitySelect.value;
     if (!lastProgressReport || lastProgressReport.uid !== uid) {
       els.parentEmailStatus.textContent = "报告还在加载，请稍候再试 · Report still loading, try again shortly.";
@@ -991,22 +994,15 @@
     }
     const member = adminMembers.find((m) => m.uid === uid);
     const displayName = member ? member.displayName : "Member";
-    const reportText = buildProgressReportText(displayName, lastProgressReport.rows);
-
-    els.sendParentReportBtn.disabled = true;
-    els.parentEmailStatus.textContent = "发送中… Sending…";
-    try {
-      await window.emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_PROGRESS_TEMPLATE_ID, {
-        to_email: to,
-        student_name: displayName,
-        message: reportText,
-      });
-      els.parentEmailStatus.textContent = `✅ 已发送给 ${to}`;
-    } catch (err) {
-      els.parentEmailStatus.textContent = `❌ 发送失败 · Send failed (${(err && err.text) || (err && err.message) || "error"})`;
-    } finally {
-      els.sendParentReportBtn.disabled = false;
+    const html = buildProgressReportHtml(displayName, lastProgressReport.rows);
+    const win = window.open("", "_blank");
+    if (!win) {
+      els.parentEmailStatus.textContent = "浏览器阻止了弹出窗口，请允许弹窗后重试 · Popup blocked — please allow popups and try again.";
+      return;
     }
+    win.document.write(html);
+    win.document.close();
+    els.parentEmailStatus.textContent = "";
   });
 
   async function refresh() {

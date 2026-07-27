@@ -44,6 +44,7 @@
     runningLeaderboardBody: document.querySelector("#running-leaderboard-table tbody"),
 
     results: document.getElementById("assessment-results"),
+    resultsMusicToggleBtn: document.getElementById("results-music-toggle-btn"),
     podium: document.getElementById("podium"),
     assessmentPercentile: document.getElementById("assessment-percentile"),
     resultsBody: document.querySelector("#results-table tbody"),
@@ -72,6 +73,23 @@
   let lastCardId = null;
   let timerInterval = null;
   let hasEnded = false;
+  let resultsMusicOn = true;
+
+  function updateResultsMusicBtn() {
+    if (!els.resultsMusicToggleBtn) return;
+    els.resultsMusicToggleBtn.textContent = resultsMusicOn ? "🔊 音乐 Music: On" : "🔇 音乐 Music: Off";
+  }
+
+  if (els.resultsMusicToggleBtn) {
+    els.resultsMusicToggleBtn.addEventListener("click", () => {
+      resultsMusicOn = !resultsMusicOn;
+      if (window.vocabAudio) {
+        if (resultsMusicOn) window.vocabAudio.playResultsFanfare();
+        else window.vocabAudio.stopResultsFanfare();
+      }
+      updateResultsMusicBtn();
+    });
+  }
 
   function getAllCards() {
     return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
@@ -510,7 +528,9 @@
   async function enterResults() {
     hasEnded = true;
     if (timerInterval) clearInterval(timerInterval);
-    if (window.vocabAudio && sessionData.musicEnabled !== false) window.vocabAudio.playResultsFanfare();
+    resultsMusicOn = sessionData.musicEnabled !== false;
+    updateResultsMusicBtn();
+    if (window.vocabAudio && resultsMusicOn) window.vocabAudio.playResultsFanfare();
     if (isPlaying && window.vocabPaywall) window.vocabPaywall.recordGamePlayed();
     showView(els.results);
     els.hostAgainBtn.hidden = !isHost;
