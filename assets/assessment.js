@@ -418,6 +418,12 @@
       type,
       guess,
       correct,
+      // arrayUnion drops entries that are deep-equal to one already in the
+      // array — without a per-answer unique field, repeat questions
+      // answered the same way (very common: same card, same correct guess)
+      // silently vanish from answerLog, undercounting correct/wrong here
+      // even though score (a separate increment) stays accurate.
+      answeredAt: Date.now(),
     });
     setTimeout(() => {
       if (!hasEnded) renderQuestion();
