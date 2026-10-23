@@ -5,6 +5,16 @@
     signedOut: document.getElementById("typing-signed-out"),
     signinBtn: document.getElementById("typing-signin-btn"),
     main: document.getElementById("typing-main"),
+    modeArticleBtn: document.getElementById("typing-mode-article-btn"),
+    modeHskBtn: document.getElementById("typing-mode-hsk-btn"),
+    articleControls: document.getElementById("typing-article-controls"),
+    hskControls: document.getElementById("typing-hsk-controls"),
+    hskLevelSelect: document.getElementById("typing-hsk-level-select"),
+    hskCountSelect: document.getElementById("typing-hsk-count-select"),
+    hskStartBtn: document.getElementById("typing-hsk-start-btn"),
+    hskRestartBtn: document.getElementById("typing-hsk-restart-btn"),
+    hskProgress: document.getElementById("typing-hsk-progress"),
+    hskMeaning: document.getElementById("typing-hsk-meaning"),
     durationSelect: document.getElementById("typing-duration-select"),
     startBtn: document.getElementById("typing-start-btn"),
     restartBtn: document.getElementById("typing-restart-btn"),
@@ -25,6 +35,7 @@
 
   const { db, sdk } = window.vocabFirebase;
 
+  let currentMode = "article";
   let currentArticle = null;
   let tokenEls = [];
   let currentIndex = 0;
@@ -67,6 +78,133 @@
       els.articleSelect.appendChild(opt);
     });
   }
+
+  // ---------- HSK vocabulary typing round ----------
+
+  const hskCache = new Map();
+
+  async function fetchHskLevel(level) {
+    if (hskCache.has(level)) return hskCache.get(level);
+    const snap = await sdk.getDoc(sdk.doc(db, "hskVocabContent", String(level)));
+    const words = snap.exists() ? snap.data().words || [] : [];
+    hskCache.set(level, words);
+    return words;
+  }
+
+  function shuffleSample(arr, n) {
+    const copy = arr.slice();
+    for (let i = copy.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [copy[i], copy[j]] = [copy[j], copy[i]];
+    }
+    return copy.slice(0, Math.min(n, copy.length));
+  }
+
+  function buildHskRoundArticle(level, words) {
+    const tokens = [];
+    words.forEach((w, wi) => {
+      const chars = Array.from(w.hanzi);
+      const pinyins = (w.pinyin || "").split(" ");
+      chars.forEach((ch, ci) => {
+        tokens.push({ hanzi: ch, pinyin: pinyins[ci] || null, word: w });
+      });
+      if (wi < words.length - 1) {
+        tokens.push({ hanzi: "　", pinyin: null });
+      }
+    });
+    return { id: `hsk-${level}`, title: `HSK ${level} 词汇练习`, tokens };
+  }
+
+  function escapeHtml(str) {
+    return String(str == null ? "" : str)
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+  }
+
+  function updateHskMeaning() {
+    if (!els.hskMeaning) return;
+    if (currentMode !== "hsk") {
+      els.hskMeaning.hidden = true;
+      return;
+    }
+    const token = currentArticle && currentArticle.tokens[currentIndex];
+    const word = token && token.word;
+    if (!word) {
+      els.hskMeaning.hidden = true;
+      return;
+    }
+    let html = `<div><span class="hsk-meaning-word">${escapeHtml(word.hanzi)}</span><span class="hsk-meaning-english">${escapeHtml(
+      word.english || ""
+    )}</span></div>`;
+    if (word.example_cn) {
+      const sentence = escapeHtml(word.example_cn).split(word.hanzi).join(`<b>${escapeHtml(word.hanzi)}</b>`);
+      html += `<div class="hsk-meaning-sentence">${sentence}</div>`;
+    }
+    if (word.example_en) {
+      html += `<div class="hsk-meaning-sentence-en">${escapeHtml(word.example_en)}</div>`;
+    }
+    els.hskMeaning.innerHTML = html;
+    els.hskMeaning.hidden = false;
+  }
+
+  async function startHskRound() {
+    const level = els.hskLevelSelect.value;
+    const count = Number(els.hskCountSelect.value);
+    els.hskStartBtn.disabled = true;
+    els.passage.innerHTML = "";
+    els.passage.textContent = "Loading…";
+    const words = await fetchHskLevel(level);
+    if (!words.length) {
+      els.passage.textContent = "Couldn't load this HSK level. Please try again.";
+      els.hskStartBtn.disabled = false;
+      return;
+    }
+    const sample = shuffleSample(words, count);
+    currentArticle = buildHskRoundArticle(level, sample);
+    renderPassage(currentArticle);
+    resetStats();
+    els.results.hidden = true;
+    els.input.value = "";
+    els.hskStartBtn.disabled = false;
+    els.hskRestartBtn.disabled = false;
+    els.hskProgress.textContent = `0 / ${sample.length}`;
+    els.durationSelect.value = "0";
+    startTest();
+    updateHskMeaning();
+  }
+
+  function updateHskProgress() {
+    if (currentMode !== "hsk" || !els.hskProgress || !currentArticle) return;
+    const total = currentArticle.tokens.filter((t) => t.pinyin != null).length;
+    els.hskProgress.textContent = `${correctCount + wrongCount} / ${total}`;
+  }
+
+  function setMode(mode) {
+    if (currentMode === mode) return;
+    stopTest();
+    currentMode = mode;
+    els.modeArticleBtn.classList.toggle("is-active", mode === "article");
+    els.modeHskBtn.classList.toggle("is-active", mode === "hsk");
+    els.articleControls.hidden = mode !== "article";
+    els.hskControls.hidden = mode !== "hsk";
+    els.articlePicker.hidden = true;
+    els.results.hidden = true;
+    els.passage.innerHTML = "";
+    els.input.value = "";
+    els.input.disabled = true;
+    els.startBtn.disabled = mode !== "article";
+    els.restartBtn.disabled = true;
+    els.hskRestartBtn.disabled = true;
+    currentArticle = null;
+    if (mode === "hsk") els.hskProgress.textContent = `0 / ${els.hskCountSelect.value}`;
+    updateHskMeaning();
+  }
+
+  els.modeArticleBtn.addEventListener("click", () => setMode("article"));
+  els.modeHskBtn.addEventListener("click", () => setMode("hsk"));
+  els.hskStartBtn.addEventListener("click", startHskRound);
+  els.hskRestartBtn.addEventListener("click", startHskRound);
 
   function renderPassage(article) {
     els.passage.innerHTML = "";
@@ -226,6 +364,7 @@
     }
     tokenEls[currentIndex].classList.add("current");
     scrollCurrentIntoView();
+    updateHskMeaning();
   }
 
   els.input.addEventListener("input", () => {
@@ -246,6 +385,7 @@
       mistakes.push({ hanzi: token.hanzi, typed: els.input.value.trim(), pinyin: token.pinyin });
       advance();
     }
+    updateHskProgress();
   });
 
   els.startBtn.addEventListener("click", startTest);

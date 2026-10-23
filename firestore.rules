@@ -111,6 +111,11 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    match /hskVocabContent/{level} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
     match /lessonMatchBest/{docId} {
       allow read: if isSignedIn();
       allow write: if isSignedIn() && request.resource.data.uid == request.auth.uid;

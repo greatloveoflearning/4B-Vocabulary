@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>中国小学语文学习平台 · 四年级下册</title>
-<link rel="stylesheet" href="assets/style.css?v=32">
+<link rel="stylesheet" href="assets/style.css?v=33">
 </head>
 <body>
 <div id="paywall-overlay" class="paywall-overlay" hidden>
@@ -658,12 +658,16 @@
 
     <div class="assessment-card" id="typing-main" hidden>
       <h2>⌨️ 打字测试 · Typing Test</h2>
+      <div class="typing-submode-toggle">
+        <button type="button" id="typing-mode-article-btn" class="mode-toggle-btn is-active">📄 文章打字 · Article</button>
+        <button type="button" id="typing-mode-hsk-btn" class="mode-toggle-btn">🔤 HSK词汇打字 · HSK Vocabulary</button>
+      </div>
       <div class="typing-instructions">
         <p>Usage: Type tone numbers → 1&macr; 2&acute; 3&#711; 4&#96; 5 = neutral.</p>
         <p>Example: "我" = wo3</p>
       </div>
 
-      <div class="typing-toolbar">
+      <div class="typing-toolbar" id="typing-article-controls">
         <label>Duration
           <select id="typing-duration-select">
             <option value="30">30s</option>
@@ -675,9 +679,36 @@
         <button type="button" id="typing-start-btn">Start</button>
         <button type="button" id="typing-restart-btn" class="ghost-btn" disabled>Restart</button>
         <button type="button" id="typing-newtext-btn" class="ghost-btn">New Text</button>
+        <span class="stat-chip" id="typing-timer">60s</span>
+      </div>
+
+      <div class="typing-toolbar" id="typing-hsk-controls" hidden>
+        <label>HSK Level
+          <select id="typing-hsk-level-select">
+            <option value="1">HSK 1</option>
+            <option value="2">HSK 2</option>
+            <option value="3">HSK 3</option>
+            <option value="4">HSK 4</option>
+            <option value="5">HSK 5</option>
+            <option value="6">HSK 6</option>
+          </select>
+        </label>
+        <label>Words per round
+          <select id="typing-hsk-count-select">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="30">30</option>
+            <option value="50">50</option>
+          </select>
+        </label>
+        <button type="button" id="typing-hsk-start-btn">Start</button>
+        <button type="button" id="typing-hsk-restart-btn" class="ghost-btn" disabled>Restart</button>
+        <span class="stat-chip" id="typing-hsk-progress">0 / 20</span>
+      </div>
+
+      <div class="typing-toolbar">
         <button type="button" id="typing-toggle-pinyin-btn" class="ghost-btn">Hide all Pinyin</button>
         <span class="stat-chip" id="typing-correct-count" title="Correct so far">0</span>
-        <span class="stat-chip" id="typing-timer">60s</span>
       </div>
 
       <div class="typing-article-picker" id="typing-article-picker" hidden>
@@ -688,6 +719,7 @@
         <button type="button" id="typing-article-cancel-btn" class="ghost-btn">Cancel</button>
       </div>
 
+      <div class="typing-hsk-meaning" id="typing-hsk-meaning" hidden></div>
       <input type="text" id="typing-input" class="typing-input" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Type pinyin here…" disabled>
       <div class="typing-passage" id="typing-passage"></div>
 
@@ -731,6 +763,6 @@
 <script src="assets/report.js?v=30"></script>
 <script src="assets/assessment.js?v=27"></script>
 <script src="assets/practice.js?v=21"></script>
-<script src="assets/typing.js?v=5"></script>
+<script src="assets/typing.js?v=6"></script>
 </body>
 </html>
