@@ -7,6 +7,7 @@
     main: document.getElementById("typing-main"),
     modeArticleBtn: document.getElementById("typing-mode-article-btn"),
     modeHskBtn: document.getElementById("typing-mode-hsk-btn"),
+    modeSupplementBtn: document.getElementById("typing-mode-supplement-btn"),
     articleControls: document.getElementById("typing-article-controls"),
     hskControls: document.getElementById("typing-hsk-controls"),
     hskLevelSelect: document.getElementById("typing-hsk-level-select"),
@@ -15,6 +16,11 @@
     hskRestartBtn: document.getElementById("typing-hsk-restart-btn"),
     hskProgress: document.getElementById("typing-hsk-progress"),
     hskMeaning: document.getElementById("typing-hsk-meaning"),
+    supplementControls: document.getElementById("typing-supplement-controls"),
+    supplementUnitSelect: document.getElementById("typing-supplement-unit-select"),
+    supplementStartBtn: document.getElementById("typing-supplement-start-btn"),
+    supplementRestartBtn: document.getElementById("typing-supplement-restart-btn"),
+    supplementProgress: document.getElementById("typing-supplement-progress"),
     durationSelect: document.getElementById("typing-duration-select"),
     startBtn: document.getElementById("typing-start-btn"),
     restartBtn: document.getElementById("typing-restart-btn"),
@@ -124,7 +130,7 @@
 
   function updateHskMeaning() {
     if (!els.hskMeaning) return;
-    if (currentMode !== "hsk") {
+    if (currentMode !== "hsk" && currentMode !== "supplement") {
       els.hskMeaning.hidden = true;
       return;
     }
@@ -175,9 +181,86 @@
   }
 
   function updateHskProgress() {
-    if (currentMode !== "hsk" || !els.hskProgress || !currentArticle) return;
-    const total = currentArticle.tokens.filter((t) => t.pinyin != null).length;
-    els.hskProgress.textContent = `${correctCount + wrongCount} / ${total}`;
+    if (!currentArticle) return;
+    const tokens = currentArticle.tokens;
+    const wordLastIndex = new Map();
+    tokens.forEach((t, i) => {
+      if (t.word) wordLastIndex.set(t.word, i);
+    });
+    let completed = 0;
+    wordLastIndex.forEach((lastIdx) => {
+      if (lastIdx < currentIndex) completed++;
+    });
+    const text = `${completed} / ${wordLastIndex.size}`;
+    if (currentMode === "hsk" && els.hskProgress) els.hskProgress.textContent = text;
+    if (currentMode === "supplement" && els.supplementProgress) els.supplementProgress.textContent = text;
+  }
+
+  // ---------- Supplementary vocabulary typing round (by unit/source) ----------
+
+  let supplementMetaLoaded = false;
+  const supplementCache = new Map();
+
+  async function fetchSupplementMeta() {
+    if (supplementMetaLoaded) return;
+    const snap = await sdk.getDoc(sdk.doc(db, "supplementVocabMeta", "list"));
+    const units = snap.exists() ? snap.data().units || [] : [];
+    els.supplementUnitSelect.innerHTML = "";
+    units.forEach((u) => {
+      const opt = document.createElement("option");
+      opt.value = u.id;
+      opt.textContent = u.title;
+      els.supplementUnitSelect.appendChild(opt);
+    });
+    supplementMetaLoaded = true;
+  }
+
+  async function fetchSupplementUnit(unitId) {
+    if (supplementCache.has(unitId)) return supplementCache.get(unitId);
+    const snap = await sdk.getDoc(sdk.doc(db, "supplementVocabContent", unitId));
+    const data = snap.exists() ? snap.data() : null;
+    supplementCache.set(unitId, data);
+    return data;
+  }
+
+  function buildSupplementRoundArticle(unit) {
+    const tokens = [];
+    unit.words.forEach((w, wi) => {
+      const chars = Array.from(w.hanzi);
+      const pinyins = (w.pinyin || "").split(" ");
+      chars.forEach((ch, ci) => {
+        tokens.push({ hanzi: ch, pinyin: pinyins[ci] || null, word: w });
+      });
+      if (wi < unit.words.length - 1) {
+        tokens.push({ hanzi: "　", pinyin: null });
+      }
+    });
+    return { id: `supplement-${unit.id}`, title: unit.title, tokens };
+  }
+
+  async function startSupplementRound() {
+    const unitId = els.supplementUnitSelect.value;
+    if (!unitId) return;
+    els.supplementStartBtn.disabled = true;
+    els.passage.innerHTML = "";
+    els.passage.textContent = "Loading…";
+    const unit = await fetchSupplementUnit(unitId);
+    if (!unit || !unit.words || !unit.words.length) {
+      els.passage.textContent = "Couldn't load this unit. Please try again.";
+      els.supplementStartBtn.disabled = false;
+      return;
+    }
+    currentArticle = buildSupplementRoundArticle(unit);
+    renderPassage(currentArticle);
+    resetStats();
+    els.results.hidden = true;
+    els.input.value = "";
+    els.supplementStartBtn.disabled = false;
+    els.supplementRestartBtn.disabled = false;
+    els.supplementProgress.textContent = `0 / ${unit.words.length}`;
+    els.durationSelect.value = "0";
+    startTest();
+    updateHskMeaning();
   }
 
   function setMode(mode) {
@@ -186,8 +269,10 @@
     currentMode = mode;
     els.modeArticleBtn.classList.toggle("is-active", mode === "article");
     els.modeHskBtn.classList.toggle("is-active", mode === "hsk");
+    els.modeSupplementBtn.classList.toggle("is-active", mode === "supplement");
     els.articleControls.hidden = mode !== "article";
     els.hskControls.hidden = mode !== "hsk";
+    els.supplementControls.hidden = mode !== "supplement";
     els.articlePicker.hidden = true;
     els.results.hidden = true;
     els.passage.innerHTML = "";
@@ -196,15 +281,23 @@
     els.startBtn.disabled = mode !== "article";
     els.restartBtn.disabled = true;
     els.hskRestartBtn.disabled = true;
+    els.supplementRestartBtn.disabled = true;
     currentArticle = null;
     if (mode === "hsk") els.hskProgress.textContent = `0 / ${els.hskCountSelect.value}`;
+    if (mode === "supplement") {
+      els.supplementProgress.textContent = "0 / 0";
+      fetchSupplementMeta();
+    }
     updateHskMeaning();
   }
 
   els.modeArticleBtn.addEventListener("click", () => setMode("article"));
   els.modeHskBtn.addEventListener("click", () => setMode("hsk"));
+  els.modeSupplementBtn.addEventListener("click", () => setMode("supplement"));
   els.hskStartBtn.addEventListener("click", startHskRound);
   els.hskRestartBtn.addEventListener("click", startHskRound);
+  els.supplementStartBtn.addEventListener("click", startSupplementRound);
+  els.supplementRestartBtn.addEventListener("click", startSupplementRound);
 
   function renderPassage(article) {
     els.passage.innerHTML = "";

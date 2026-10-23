@@ -671,6 +671,7 @@
       <div class="typing-submode-toggle">
         <button type="button" id="typing-mode-article-btn" class="mode-toggle-btn is-active">📄 文章打字 · Article</button>
         <button type="button" id="typing-mode-hsk-btn" class="mode-toggle-btn">🔤 HSK词汇打字 · HSK Vocabulary</button>
+        <button type="button" id="typing-mode-supplement-btn" class="mode-toggle-btn">📚 补充词汇打字 · Supplementary Vocabulary</button>
       </div>
       <div class="typing-instructions">
         <p>Usage: Type tone numbers → 1&macr; 2&acute; 3&#711; 4&#96; 5 = neutral.</p>
@@ -714,6 +715,15 @@
         <button type="button" id="typing-hsk-start-btn">Start</button>
         <button type="button" id="typing-hsk-restart-btn" class="ghost-btn" disabled>Restart</button>
         <span class="stat-chip" id="typing-hsk-progress">0 / 20</span>
+      </div>
+
+      <div class="typing-toolbar" id="typing-supplement-controls" hidden>
+        <label>Unit
+          <select id="typing-supplement-unit-select"></select>
+        </label>
+        <button type="button" id="typing-supplement-start-btn">Start</button>
+        <button type="button" id="typing-supplement-restart-btn" class="ghost-btn" disabled>Restart</button>
+        <span class="stat-chip" id="typing-supplement-progress">0 / 0</span>
       </div>
 
       <div class="typing-toolbar">
@@ -773,6 +783,6 @@
 <script src="assets/report.js?v=31"></script>
 <script src="assets/assessment.js?v=27"></script>
 <script src="assets/practice.js?v=21"></script>
-<script src="assets/typing.js?v=6"></script>
+<script src="assets/typing.js?v=7"></script>
 </body>
 </html>

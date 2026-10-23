@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin: Seed Supplementary Vocabulary</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  label { display: block; margin: 0.6rem 0 0.2rem; }
+  input { font: inherit; padding: 0.4rem 0.6rem; width: 100%; box-sizing: border-box; }
+  button { font: inherit; padding: 0.5rem 1rem; margin-top: 1rem; cursor: pointer; }
+  #log { white-space: pre-wrap; background: #f3f3f3; padding: 1rem; margin-top: 1rem; font-family: monospace; font-size: 0.85rem; max-height: 400px; overflow: auto; }
+</style>
+</head>
+<body>
+<h1>Admin: Seed Supplementary Vocabulary</h1>
+<p>Uploads the unit(s) in <code>assets/supplement-vocab-seed-temp.js</code> into Firestore (<code>supplementVocabContent/{unitId}</code>), and merges them into the unit list (<code>supplementVocabMeta/list</code>) without erasing previously-added units. Safe to re-run whenever a new unit is added to that seed file. Delete both files after use.</p>
+
+<div id="login-box">
+  <label>Email <input type="email" id="email"></label>
+  <label>Password <input type="password" id="password"></label>
+  <button id="login-btn">Sign in</button>
+</div>
+
+<div id="seed-box" hidden>
+  <p id="whoami"></p>
+  <button id="seed-btn">Seed units into Firestore</button>
+</div>
+
+<div id="log"></div>
+
+<script src="assets/vendor/firebase-vendor.js"></script>
+<script src="assets/firebase-config.js"></script>
+<script src="assets/firebase-init.js"></script>
+<script src="assets/supplement-vocab-seed-temp.js"></script>
+<script>
+(function () {
+  "use strict";
+  const logEl = document.getElementById("log");
+  function log(msg) {
+    logEl.textContent += msg + "\n";
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function ready() {
+    const { db, auth, sdk } = window.vocabFirebase || {};
+    if (!sdk) {
+      setTimeout(ready, 100);
+      return;
+    }
+
+    sdk.onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        document.getElementById("login-box").hidden = false;
+        document.getElementById("seed-box").hidden = true;
+        return;
+      }
+      const snap = await sdk.getDoc(sdk.doc(db, "users", user.uid));
+      const isAdmin = snap.exists() && snap.data().isAdmin === true;
+      if (!isAdmin) {
+        log(`Signed in as ${user.email}, but this account is not an admin.`);
+        return;
+      }
+      document.getElementById("login-box").hidden = true;
+      document.getElementById("seed-box").hidden = false;
+      document.getElementById("whoami").textContent = `Signed in as admin: ${user.email}`;
+    });
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        await sdk.signInWithEmailAndPassword(auth, email, password);
+        log(`Signed in as ${email}`);
+      } catch (e) {
+        log(`Sign-in failed: ${e.message}`);
+      }
+    });
+
+    document.getElementById("seed-btn").addEventListener("click", async () => {
+      document.getElementById("seed-btn").disabled = true;
+      const newUnits = (window.SUPPLEMENT_SEED_DATA && window.SUPPLEMENT_SEED_DATA.units) || [];
+      try {
+        const metaRef = sdk.doc(db, "supplementVocabMeta", "list");
+        const metaSnap = await sdk.getDoc(metaRef);
+        const existingUnits = metaSnap.exists() ? metaSnap.data().units || [] : [];
+        const byId = new Map(existingUnits.map((u) => [u.id, u]));
+
+        for (const unit of newUnits) {
+          await sdk.setDoc(sdk.doc(db, "supplementVocabContent", unit.id), {
+            id: unit.id,
+            title: unit.title,
+            words: unit.words,
+          });
+          byId.set(unit.id, { id: unit.id, title: unit.title });
+          log(`✅ Unit "${unit.title}" (${unit.id}): seeded ${unit.words.length} words`);
+        }
+
+        await sdk.setDoc(metaRef, { units: Array.from(byId.values()) });
+        log(`✅ supplementVocabMeta/list updated — ${byId.size} unit(s) total`);
+        log("Done. You can now delete admin-seed-supplement.html and assets/supplement-vocab-seed-temp.js from the repo.");
+      } catch (e) {
+        log(`❌ Failed: ${e.message}`);
+      }
+      document.getElementById("seed-btn").disabled = false;
+    });
+  }
+  ready();
+})();
+</script>
+</body>
+</html>
