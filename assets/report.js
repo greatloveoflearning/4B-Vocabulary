@@ -23,6 +23,7 @@
     adminActivityStats: document.getElementById("admin-activity-stats"),
     adminActivityBody: document.querySelector("#admin-activity-table tbody"),
     adminTypingStatsBody: document.querySelector("#admin-typing-stats-table tbody"),
+    adminTypingRecentBody: document.querySelector("#admin-typing-recent-table tbody"),
     adminProgressBody: document.querySelector("#admin-progress-table tbody"),
     sendParentReportBtn: document.getElementById("send-parent-report-btn"),
     parentEmailStatus: document.getElementById("parent-email-status"),
@@ -75,7 +76,9 @@
       return `📝 Practice (${typeLabel}): ✅ ${event.correctCount || 0} · ❌ ${event.wrongCount || 0}`;
     }
     if (event.type === "typing_test_complete") {
-      return `⌨️ Typing Test: ${event.articleTitle || ""}`;
+      const total = (event.correctCount || 0) + (event.wrongCount || 0);
+      const accuracy = total > 0 ? `${Math.round(((event.correctCount || 0) / total) * 100)}%` : "–";
+      return `⌨️ Typing Test: ${event.articleTitle || ""} · ${event.elapsedSeconds || 0}s · ${accuracy} accuracy`;
     }
     return event.type;
   }
@@ -468,6 +471,7 @@
     renderAdminLeads();
     renderAdminClassInterest();
     renderTypingTestStats();
+    renderTypingTestRecent();
   }
 
   function sourceLabel(l) {
@@ -660,6 +664,42 @@
       });
     } catch (err) {
       els.adminTypingStatsBody.innerHTML = `<tr><td colspan="3">${formatQueryError(err)}</td></tr>`;
+    }
+  }
+
+  async function renderTypingTestRecent() {
+    if (!els.adminTypingRecentBody) return;
+    els.adminTypingRecentBody.innerHTML = `<tr><td colspan="5">Loading…</td></tr>`;
+    try {
+      const q = sdk.query(
+        sdk.collection(db, "activity"),
+        sdk.where("type", "==", "typing_test_complete"),
+        sdk.orderBy("createdAt", "desc"),
+        sdk.limit(100)
+      );
+      const snap = await sdk.getDocs(q);
+      els.adminTypingRecentBody.innerHTML = "";
+      if (snap.empty) {
+        els.adminTypingRecentBody.innerHTML = `<tr><td colspan="5">No Typing Test activity yet.</td></tr>`;
+        return;
+      }
+      snap.forEach((docSnap) => {
+        const e = docSnap.data();
+        const member = adminMembers.find((m) => m.uid === e.uid);
+        const name = member ? member.displayName : e.uid;
+        const total = (e.correctCount || 0) + (e.wrongCount || 0);
+        const accuracy = total > 0 ? `${Math.round(((e.correctCount || 0) / total) * 100)}% (${e.correctCount || 0}/${total})` : "–";
+        const mins = Math.floor((e.elapsedSeconds || 0) / 60);
+        const secs = (e.elapsedSeconds || 0) % 60;
+        const duration = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        const tr = document.createElement("tr");
+        tr.innerHTML = `<td>${escapeHtml(name)}</td><td>${escapeHtml(e.articleTitle || "")}</td><td>${formatWhen(
+          e.createdAt
+        )}</td><td>${duration}</td><td>${accuracy}</td>`;
+        els.adminTypingRecentBody.appendChild(tr);
+      });
+    } catch (err) {
+      els.adminTypingRecentBody.innerHTML = `<tr><td colspan="5">${formatQueryError(err)}</td></tr>`;
     }
   }
 
