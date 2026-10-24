@@ -92,7 +92,14 @@
   async function fetchHskLevel(level) {
     if (hskCache.has(level)) return hskCache.get(level);
     const snap = await sdk.getDoc(sdk.doc(db, "hskVocabContent", String(level)));
-    const words = snap.exists() ? snap.data().words || [] : [];
+    let words = snap.exists() ? snap.data().words || [] : [];
+    // HSK6 is too large for a single Firestore document (1MB limit) and is
+    // split across hskVocabContent/6 and hskVocabContent/6-2.
+    const totalParts = snap.exists() ? snap.data().totalParts || 1 : 1;
+    for (let part = 2; part <= totalParts; part++) {
+      const partSnap = await sdk.getDoc(sdk.doc(db, "hskVocabContent", `${level}-${part}`));
+      if (partSnap.exists()) words = words.concat(partSnap.data().words || []);
+    }
     hskCache.set(level, words);
     return words;
   }
