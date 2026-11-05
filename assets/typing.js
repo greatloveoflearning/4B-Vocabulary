@@ -280,6 +280,10 @@
     els.articleControls.hidden = mode !== "article";
     els.hskControls.hidden = mode !== "hsk";
     els.supplementControls.hidden = mode !== "supplement";
+    const activeToolbar =
+      mode === "hsk" ? els.hskControls : mode === "supplement" ? els.supplementControls : els.articleControls;
+    activeToolbar.appendChild(els.togglePinyinBtn);
+    activeToolbar.appendChild(els.correctCountEl);
     els.articlePicker.hidden = true;
     els.results.hidden = true;
     els.passage.innerHTML = "";
