@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Admin: Export vocabData/list</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 640px; margin: 2rem auto; padding: 0 1rem; }
+  label { display: block; margin: 0.6rem 0 0.2rem; }
+  input { font: inherit; padding: 0.4rem 0.6rem; width: 100%; box-sizing: border-box; }
+  button { font: inherit; padding: 0.5rem 1rem; margin-top: 1rem; cursor: pointer; }
+  #log { white-space: pre-wrap; background: #f3f3f3; padding: 1rem; margin-top: 1rem; font-family: monospace; font-size: 0.85rem; max-height: 400px; overflow: auto; }
+</style>
+</head>
+<body>
+<h1>Admin: Export vocabData/list</h1>
+<p>One-time tool to download the current <code>vocabData/list</code> document as a JSON file, preserving each word's current array-position index (needed before splitting this collection into one document per lesson, so existing members' mastered-word progress doesn't break). Delete this file after use.</p>
+
+<div id="login-box">
+  <label>Email <input type="email" id="email"></label>
+  <label>Password <input type="password" id="password"></label>
+  <button id="login-btn">Sign in</button>
+</div>
+
+<div id="export-box" hidden>
+  <p id="whoami"></p>
+  <button id="export-btn">Download vocabData/list as JSON</button>
+</div>
+
+<div id="log"></div>
+
+<script src="assets/vendor/firebase-vendor.js"></script>
+<script src="assets/firebase-config.js"></script>
+<script src="assets/firebase-init.js"></script>
+<script>
+(function () {
+  "use strict";
+  const logEl = document.getElementById("log");
+  function log(msg) {
+    logEl.textContent += msg + "\n";
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  function ready() {
+    const { db, auth, sdk } = window.vocabFirebase || {};
+    if (!sdk) {
+      setTimeout(ready, 100);
+      return;
+    }
+
+    sdk.onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        document.getElementById("login-box").hidden = false;
+        document.getElementById("export-box").hidden = true;
+        return;
+      }
+      const snap = await sdk.getDoc(sdk.doc(db, "users", user.uid));
+      const isAdmin = snap.exists() && snap.data().isAdmin === true;
+      if (!isAdmin) {
+        log(`Signed in as ${user.email}, but this account is not an admin.`);
+        return;
+      }
+      document.getElementById("login-box").hidden = true;
+      document.getElementById("export-box").hidden = false;
+      document.getElementById("whoami").textContent = `Signed in as admin: ${user.email}`;
+    });
+
+    document.getElementById("login-btn").addEventListener("click", async () => {
+      const email = document.getElementById("email").value.trim();
+      const password = document.getElementById("password").value;
+      try {
+        await sdk.signInWithEmailAndPassword(auth, email, password);
+        log(`Signed in as ${email}`);
+      } catch (e) {
+        log(`Sign-in failed: ${e.message}`);
+      }
+    });
+
+    document.getElementById("export-btn").addEventListener("click", async () => {
+      document.getElementById("export-btn").disabled = true;
+      try {
+        const snap = await sdk.getDoc(sdk.doc(db, "vocabData", "list"));
+        if (!snap.exists()) {
+          log("❌ vocabData/list does not exist.");
+          return;
+        }
+        const words = snap.data().words || [];
+        log(`✅ Fetched ${words.length} words from vocabData/list.`);
+        const blob = new Blob([JSON.stringify(words, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "vocabData-list-export.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        log("Download triggered — check your browser's downloads.");
+      } catch (e) {
+        log(`❌ Export failed: ${e.message}`);
+      }
+      document.getElementById("export-btn").disabled = false;
+    });
+  }
+  ready();
+})();
+</script>
+</body>
+</html>
