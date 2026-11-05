@@ -5,9 +5,9 @@
 
   function loadLastLesson() {
     try {
-      return localStorage.getItem(LESSON_STORAGE_KEY) || "all";
+      return localStorage.getItem(LESSON_STORAGE_KEY) || window.getDefaultLessonValue();
     } catch (e) {
-      return "all";
+      return window.getDefaultLessonValue();
     }
   }
 
@@ -55,7 +55,7 @@
   let currentView = els.signedOut;
 
   function getAllCards() {
-    return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
+    return (window.VOCAB_DATA || []).slice();
   }
 
   function ensureLessonOptions() {
@@ -76,7 +76,10 @@
     updateMistakesOption();
     if (window.vocabActivity) window.vocabActivity.onWrongWordsChange(updateMistakesOption);
 
-    window.getSortedLessonIds(getAllCards()).forEach((lesson) => {
+    // Lesson list comes from LESSON_META (always fully known), not from
+    // whatever vocab words happen to be loaded already — words are fetched
+    // lazily per lesson.
+    (window.getAllLessonIds ? window.getAllLessonIds() : []).forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = window.lessonLabel(lesson);
@@ -87,7 +90,7 @@
   function syncLessonSelectFromStorage() {
     const saved = loadLastLesson();
     const values = Array.from(els.lessonSelect.options).map((o) => o.value);
-    els.lessonSelect.value = values.includes(saved) ? saved : "all";
+    els.lessonSelect.value = values.includes(saved) ? saved : window.getDefaultLessonValue();
   }
 
   function syncQuestionTypeAvailability() {
@@ -240,9 +243,14 @@
     return `${entry.meaning} — ${blanked}`;
   }
 
-  function startPractice() {
+  async function startPractice() {
     lesson = els.lessonSelect.value;
     questionType = els.questionTypeSelect.value;
+    if (window.vocabLoader) {
+      const meta = window.LESSON_META[Number(lesson)];
+      if (lesson === "all" || lesson === "mistakes" || (meta && meta.allCategory)) await window.vocabLoader.ensureAllLessons();
+      else await window.vocabLoader.ensureLesson(lesson);
+    }
     targetCount = els.countSelect.value === "all" ? getPool().length : Number(els.countSelect.value);
     correctCount = 0;
     wrongCount = 0;

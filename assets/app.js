@@ -96,9 +96,9 @@
 
   function loadLastLesson() {
     try {
-      return localStorage.getItem(LESSON_STORAGE_KEY) || "all";
+      return localStorage.getItem(LESSON_STORAGE_KEY) || window.getDefaultLessonValue();
     } catch (e) {
-      return "all";
+      return window.getDefaultLessonValue();
     }
   }
 
@@ -113,7 +113,7 @@
   function syncSetSelectFromStorage() {
     const saved = loadLastLesson();
     const values = Array.from(els.setSelect.options).map((o) => o.value);
-    const target = values.includes(saved) ? saved : "all";
+    const target = values.includes(saved) ? saved : window.getDefaultLessonValue();
     if (els.setSelect.value !== target) {
       els.setSelect.value = target;
       loadSet(target);
@@ -294,10 +294,14 @@
 
   function buildSetOptions() {
     els.setSelect.innerHTML = "";
-    const lessons = window.getSortedLessonIds(allCards);
+    // Lesson list + card counts come from LESSON_META (static, always known)
+    // rather than from whatever happens to be loaded in allCards already —
+    // vocab words are fetched lazily per lesson, so allCards may still be
+    // empty or partial at this point.
+    const lessons = window.getAllLessonIds ? window.getAllLessonIds() : [];
     const allOption = document.createElement("option");
     allOption.value = "all";
-    allOption.textContent = `All lessons (${allCards.length} cards)`;
+    allOption.textContent = `All lessons (${window.getTotalWordCount ? window.getTotalWordCount() : allCards.length} cards)`;
     els.setSelect.appendChild(allOption);
 
     const mistakesOption = document.createElement("option");
@@ -312,7 +316,8 @@
     if (window.vocabActivity) window.vocabActivity.onWrongWordsChange(updateMistakesOption);
 
     lessons.forEach((lesson) => {
-      const count = window.getCardsForLessonValue(allCards, lesson).length;
+      const meta = window.LESSON_META[lesson];
+      const count = meta && meta.count != null ? meta.count : window.getCardsForLessonValue(allCards, lesson).length;
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = `${window.lessonLabel(lesson)} (${count} cards)`;
@@ -320,9 +325,23 @@
     });
   }
 
+  // Lessons are fetched from Firestore one at a time, the first time they're
+  // actually needed, instead of the whole vocabulary set being pulled down
+  // in one shot the moment someone signs in. Aggregate pseudo-lessons
+  // (9001/9002/9003, "all 写字表/识字表/词语表") need every real lesson of
+  // that category loaded, which in practice means loading everything —
+  // simpler and safer than tracking partial-category state.
+  async function ensureLoadedForValue(value) {
+    if (!window.vocabLoader) return;
+    const isAggregate = window.LESSON_META[Number(value)] && window.LESSON_META[Number(value)].allCategory;
+    if (value === "all" || value === "mistakes" || isAggregate) await window.vocabLoader.ensureAllLessons();
+    else await window.vocabLoader.ensureLesson(value);
+  }
+
   let lastCountedFlashcardLesson = null;
 
-  function loadSet(value) {
+  async function loadSet(value) {
+    await ensureLoadedForValue(value);
     const base = getLessonCards(value);
     deck = shuffleMode ? shuffleArray(base) : base;
     activeIndex = 0;
@@ -436,7 +455,8 @@
     }
   }
 
-  function drawRandomWords() {
+  async function drawRandomWords() {
+    await ensureLoadedForValue(els.setSelect.value);
     const pool = getLessonCards(els.setSelect.value);
     if (pool.length === 0) {
       lastDrawnCards = [];
@@ -562,7 +582,7 @@
     els.matchTimer.textContent = `${mm}:${ss}`;
   }
 
-  function startMatchGame() {
+  async function startMatchGame() {
     stopMatchTimer();
     els.matchComplete.hidden = true;
     els.matchIntro.hidden = false;
@@ -571,6 +591,7 @@
     matchLocked = false;
     matchedCount = 0;
 
+    await ensureLoadedForValue(els.setSelect.value);
     const pool = getLessonCards(els.setSelect.value);
     const n = Math.min(Number(els.matchPairsSelect.value), pool.length);
 
@@ -778,11 +799,15 @@
   function rebuildFromVocabData() {
     const user = window.vocabAuth && window.vocabAuth.getUser();
     if (els.previewHint) els.previewHint.hidden = !!user;
-    allCards = (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
+    // Each word already carries a stable id (its original array-position
+    // index from the one-time vocabData migration) baked in at the source —
+    // don't overwrite it with a new array-position index, since position
+    // now shifts depending on which lessons happen to be loaded yet.
+    allCards = (window.VOCAB_DATA || []).slice();
     buildSetOptions();
     const savedLesson = loadLastLesson();
     const optionValues = Array.from(els.setSelect.options).map((o) => o.value);
-    els.setSelect.value = optionValues.includes(savedLesson) ? savedLesson : "all";
+    els.setSelect.value = optionValues.includes(savedLesson) ? savedLesson : window.getDefaultLessonValue();
     loadSet(els.setSelect.value);
   }
 

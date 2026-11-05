@@ -130,7 +130,7 @@
   }
 
   function getAllCards() {
-    return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
+    return (window.VOCAB_DATA || []).slice();
   }
 
   function getLessons() {
@@ -1054,6 +1054,12 @@
     }
     els.signedOut.hidden = true;
     els.content.hidden = false;
+
+    // The Report tab shows per-lesson mastery across every lesson at once,
+    // so (unlike flashcards/match/practice) it genuinely needs the full
+    // vocabulary set — fetch it here rather than assuming it's already
+    // loaded.
+    if (window.vocabLoader) await window.vocabLoader.ensureAllLessons();
 
     const scoreSnap = await sdk.getDoc(sdk.doc(db, "scores", user.uid));
     const score = scoreSnap.exists() ? scoreSnap.data() : { masteredCount: 0, matchPoints: 0, totalScore: 0, masteredIds: [] };

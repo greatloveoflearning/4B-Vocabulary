@@ -92,7 +92,7 @@
   }
 
   function getAllCards() {
-    return (window.VOCAB_DATA || []).map((c, i) => Object.assign({ id: i }, c));
+    return (window.VOCAB_DATA || []).slice();
   }
 
   function generateCode() {
@@ -136,7 +136,7 @@
 
   function ensureHostLessonOptions() {
     if (els.hostLessonSelect.options.length) return;
-    window.getSortedLessonIds(getAllCards()).forEach((lesson) => {
+    (window.getAllLessonIds ? window.getAllLessonIds() : []).forEach((lesson) => {
       const opt = document.createElement("option");
       opt.value = String(lesson);
       opt.textContent = window.lessonLabel(lesson);
@@ -459,7 +459,7 @@
 
   let timerFinishAttempted = false;
 
-  function enterRunning() {
+  async function enterRunning() {
     hasEnded = false;
     timerFinishAttempted = false;
     localScore = 0;
@@ -469,6 +469,11 @@
     els.questionCard.hidden = !isPlaying;
     els.spectating.hidden = isPlaying;
     showView(els.running);
+    if (window.vocabLoader) {
+      const meta = window.LESSON_META[sessionData.lesson];
+      if (meta && meta.allCategory) await window.vocabLoader.ensureAllLessons();
+      else await window.vocabLoader.ensureLesson(sessionData.lesson);
+    }
     if (isPlaying) renderQuestion();
     renderRunningLeaderboard();
     startTimer();
