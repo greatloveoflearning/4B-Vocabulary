@@ -33,6 +33,7 @@
     running: document.getElementById("assessment-running"),
     runningTimer: document.getElementById("running-timer"),
     runningScore: document.getElementById("running-score"),
+    runningEndBtn: document.getElementById("running-end-btn"),
     questionSpeakRow: document.getElementById("question-speak-row"),
     questionSpeakEnBtn: document.getElementById("question-speak-en-btn"),
     questionPrompt: document.getElementById("question-prompt"),
@@ -468,6 +469,7 @@
     els.runningScore.hidden = !isPlaying;
     els.questionCard.hidden = !isPlaying;
     els.spectating.hidden = isPlaying;
+    els.runningEndBtn.hidden = !isHost;
     showView(els.running);
     if (window.vocabLoader) {
       const meta = window.LESSON_META[sessionData.lesson];
@@ -501,6 +503,18 @@
     tick();
     timerInterval = setInterval(tick, 250);
   }
+
+  els.runningEndBtn.addEventListener("click", async () => {
+    if (!isHost || timerFinishAttempted) return;
+    if (!confirm("End the game now for everyone?")) return;
+    timerFinishAttempted = true;
+    if (timerInterval) clearInterval(timerInterval);
+    try {
+      await sdk.updateDoc(sdk.doc(db, "sessions", sessionId), { status: "finished" });
+    } catch (e) {
+      timerFinishAttempted = false;
+    }
+  });
 
   // ---------- results ----------
 
